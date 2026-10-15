@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* 1. 全局清空边距 */
+        * {
+            margin: 0; 
+            padding: 0;
+            box-sizing: border-box; 
+        }
+        img { display: block; }
+        ul { list-style: none; }
+
+        /* 标题占一点空间 */
+        h2 {
+            padding: 10px;
+            font-size: 20px;
+            height: 50px; 
+            line-height: 30px;
+        }
+
+        /* 2. 列表容器：占满屏幕剩余的所有宽和高 */
+        .list {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100vw; 
+            height: calc(100vh - 50px); /* 高度撑满屏幕 */
+        }
+
+        /* 3. 列表项：每行3个，每列高度占三分之一 */
+        .list li {
+            width: 33.333%; 
+            height: 33.333%; 
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 4. 图片：填满各自的小格子 */
+        .list img {
+            width: 100%;
+            height: 100%; 
+            object-fit: cover; 
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* 5. 文字遮罩层 */
+        .text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 33px; 
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            transition: all 0.5s ease-in-out;
+            overflow: hidden; 
+        }
+
+        .text h3 {
+            height: 33px;
+            line-height: 33px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: normal;
+        }
+
+        .text p {
+            height: 40px;
+            line-height: 20px;
+            padding: 5px;
+            overflow: hidden;
+            text-indent: 2em;
+            font-size: 12px;
+        }
+
+        /* --- 这里是您的创意，我帮您清理了冲突 --- */
+        
+        /* 第1列：只放大图片 */
+        .list li:nth-child(3n+1):hover img {
+            transform: scale(1.1); 
+        }
+        
+        /* 第2列：悬浮时，高度全屏显示 */
+        .list li:nth-child(3n+2):hover .text{
+            height: 100%;
+        }
+        
+        /* 第3列：悬浮时，高度展开到83px */
+        .list li:nth-child(3n):hover .text{
+            height: 83px;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>张顺昌的transition过渡</h2>
+    <ul class="list">
+        <li>
+            <img src="./img/1.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/2.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/3.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic1.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic2.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic3.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic4.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic1.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+        <li>
+            <img src="./img/banner_pic4.png">
+            <div class="text">
+                <h3>张顺昌的标题</h3>
+                <p>下面的文字，默认隐藏，可能在hover都时候显示文字，可能是固定高度，也可能是100%高度。</p>
+            </div>
+        </li>
+    </ul>
+</body>
+</html>

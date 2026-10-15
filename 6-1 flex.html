@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张顺昌 flex - 比例精确调整版</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 30px;
+            font-family: sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 最外层容器：垂直排列，进一步缩小最大宽度 */
+        .main-wrapper {
+            display: flex;
+            flex-direction: column; 
+            gap: 40px;              
+            max-width: 600px;       /* 关键1：宽度限制在 600px，盒子变窄，比例更接近正方形 */
+            margin: 0 auto;         
+        }
+
+        /* 每一个独立格式的区块 */
+        .format-block {
+            border: 1px solid #333; 
+            padding: 30px;          
+            background-color: #fff;
+            display: flex;
+            justify-content: center; 
+        }
+
+        /* 每一个格式内部的小盒子（格子） */
+        .box {
+            border: 1px solid #333;
+        }
+
+        /* ================= 1. 居中一个方块 ================= */
+        .layout-1 {
+            display: flex;
+            justify-content: center; 
+            align-items: center;     
+            width: 100%;
+            height: 200px;           
+        }
+        .layout-1 .box {
+            width: 150px;
+            height: 150px;           
+            background-color: #ffadad;
+        }
+
+        /* ================= 2. 垂直居中两个方块 ================= */
+        .layout-2 {
+            display: flex;
+            flex-direction: column;  
+            justify-content: center; 
+            align-items: center;     
+            gap: 20px;
+            width: 100%;
+            height: 250px;           
+        }
+        .layout-2 .box {
+            width: 180px;
+            height: 100px;           
+        }
+        .layout-2 .box:nth-child(1) { background-color: #ffd6a5; }
+        .layout-2 .box:nth-child(2) { background-color: #fdffb6; }
+
+        /* ================= 3. 四宫格（两行两列） ================= */
+        .layout-3 {
+            display: flex;
+            flex-wrap: wrap;         
+            gap: 20px;
+            width: 100%;
+        }
+        .layout-3 .box {
+            width: calc(50% - 10px); 
+            height: 150px;           /* 关键2：高度从 120px 提高到 150px，不再扁平 */
+        }
+        .layout-3 .box:nth-child(1) { background-color: #caffbf; }
+        .layout-3 .box:nth-child(2) { background-color: #9bf6ff; }
+        .layout-3 .box:nth-child(3) { background-color: #a0c4ff; }
+        .layout-3 .box:nth-child(4) { background-color: #bdb2ff; }
+
+        /* ================= 4. 上一下二 ================= */
+        .layout-4 {
+            display: flex;
+            flex-wrap: wrap;         
+            gap: 20px;
+            width: 100%;
+        }
+        .layout-4 .box:nth-child(1) {
+            width: 100%;
+            height: 130px;           /* 上面稍微高一点 */
+        }
+        .layout-4 .box:nth-child(2),
+        .layout-4 .box:nth-child(3) {
+            width: calc(50% - 10px);
+            height: 150px;           /* 关键3：下面两个也加高到 150px */
+        }
+        .layout-4 .box:nth-child(1) { background-color: #ffc6ff; }
+        .layout-4 .box:nth-child(2) { background-color: #ffadad; }
+        .layout-4 .box:nth-child(3) { background-color: #ffd6a5; }
+
+    </style>
+</head>
+<body>
+
+    <h2>张顺昌 flex </h2>
+
+    <div class="main-wrapper">
+
+        <!-- 格式1 -->
+        <div class="format-block">
+            <div class="layout-1">
+                <div class="box"></div>
+            </div>
+        </div>
+
+        <!-- 格式2 -->
+        <div class="format-block">
+            <div class="layout-2">
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+
+        <!-- 格式3 -->
+        <div class="format-block">
+            <div class="layout-3">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+
+        <!-- 格式4 -->
+        <div class="format-block">
+            <div class="layout-4">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

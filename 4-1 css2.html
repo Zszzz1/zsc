@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS那些事 · 注释增强版</title>
+    <style>
+        /* 群组选择器 —— 清除默认边距 */
+        h2, h3, p {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+        }
+
+        body {
+            position: relative;
+            background: linear-gradient(135deg, #eef4ff 0%, #f9f2ff 100%);
+            overflow-x: hidden;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            padding: 24px;
+        }
+
+        .page h2 {
+            margin-bottom: 16px;
+            color: #1e2a3b;
+        }
+
+        #box {
+            width: 480px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            font-size: 12px;
+            margin: 20px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 10px 30px rgba(50, 72, 120, 0.12);
+            backdrop-filter: blur(2px);
+        }
+
+        #box h3 {
+            font-size: 16px;
+            text-align: center;
+            line-height: 33px;
+            letter-spacing: 3px;
+            color: #fff;
+            background-color: #036;
+        }
+
+        #box p {
+            /* 行高150% */
+            line-height: 1.5;
+            color: #666;
+            /* 首行缩进2个字符 */
+            text-indent: 2em;
+        }
+
+        #box a {
+            color: #036;
+            text-decoration: none;
+            /* 加粗 */
+            font-weight: bold;
+        }
+        /* 学号：蓝色加粗 —— 使用 span 包裹学号“010” */
+        .student-id {
+            color: #0066cc;        /* 蓝色 */
+            font-weight: bold;
+        }
+
+        /* 姓名：深色加粗 —— 深色用 #2d2d2d 表示，沉稳清晰 */
+        .student-name {
+            color: #2d2d2d;        /* 深灰/深色 */
+            font-weight: bold;
+        }
+
+        /* 难度的值：红色加粗 —— 针对“难”字 */
+        .difficulty-value {
+            color: #d32f2f;        /* 红色 */
+            font-weight: bold;
+        }
+
+        /* 知识点：紫色边框，边框为额外内容 —— 使用内联 span 添加紫色虚线边框 */
+        .knowledge-point {
+            border: 2px solid #9b4dca;   /* 紫色边框 */
+            padding: 0 4px;               /* 稍微留点内边距，让边框不挤文字 */
+            display: inline-block;        /* 让边框更好的包裹内容 */
+            border-radius: 4px;           /* 轻微圆角，更美观（可选，但不影响要求） */
+            background-color: #f9f2ff;    /* 极淡紫色底，衬托边框，不属于边框本身，可忽略 */
+            font-weight: 500;
+            color: #4a2a6b;               /* 知识点文字保留深紫色调，与边框呼应 */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="page">
+        <h2>css进阶</h2>
+        <div id="box">
+            <h3>CSS那些事</h3>
+            <p>
+                学号：<span class="student-id">010</span>，
+                姓名：<span class="student-name">张顺昌</span>，
+                班级：计算机24010，
+                对于《高级网页设计》课程的难度认知为：<span class="difficulty-value">难</span>，
+                这个例子对应的知识点是：<span class="knowledge-point">群组选择器、后代选择器、层叠与继承</span>。
+                <a href="#">更多>></a>
+            </p>
+        </div>
+    </div>
+
+    <!-- 学号：蓝色加粗，姓名：深色加粗，难度的值：红色加粗，知识点：紫色边框，边框为额外内容，使用内部css -->
+    <!-- 以上所有额外样式均通过内部css完成，且未修改原结构的选择器和主要布局 -->
+
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        const particleCount = 55;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                r: Math.random() * 2.2 + 1.2,
+                color: `rgba(${Math.floor(Math.random() * 80 + 130)}, ${Math.floor(Math.random() * 80 + 120)}, 255, 0.8)`
+            };
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function drawBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x <= 0 || p.x >= canvas.width) p.vx *= -1;
+                if (p.y <= 0 || p.y >= canvas.height) p.vy *= -1;
+
+                p.x = Math.min(Math.max(p.x, 0), canvas.width);
+                p.y = Math.min(Math.max(p.y, 0), canvas.height);
+
+                ctx.beginPath();
+                ctx.fillStyle = p.color;
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const a = particles[i];
+                    const b = particles[j];
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 110) {
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = `rgba(90, 130, 255, ${1 - distance / 110})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(drawBackground);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        resizeCanvas();
+        initParticles();
+        drawBackground();
+    </script>
+</body>
+</html>

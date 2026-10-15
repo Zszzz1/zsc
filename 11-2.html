@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS3 3D 动画</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent-1: #818cf8;
+      --accent-2: #c084fc;
+      --accent-3: #22d3ee;
+      --accent-4: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .zhang_container {
+      width: min(100%, 1060px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .zhang_title-card {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 1rem 2rem rgba(129, 140, 248, 0.3);
+    }
+
+    .zhang_title-card h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      letter-spacing: 0.12em;
+    }
+
+    .zhang_title-card p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.92;
+    }
+
+    .zhang_card {
+      background: var(--card);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.3);
+    }
+
+    .zhang_card h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0 0 1.25rem;
+      font-size: 1.2rem;
+    }
+
+    .zhang_card h2 .zhang_badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 0.6rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .zhang_demo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zhang_scene {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 600px;
+    }
+
+    .zhang_caption {
+      text-align: center;
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .zhang_cube {
+      width: 80px;
+      height: 80px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: zhang_spin 6s linear infinite;
+    }
+
+    .zhang_face {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-radius: 0.5rem;
+    }
+
+    .zhang_front  { background: rgba(129, 140, 248, 0.85); transform: translateZ(40px); }
+    .zhang_back   { background: rgba(192, 132, 252, 0.85); transform: rotateY(180deg) translateZ(40px); }
+    .zhang_right  { background: rgba(34, 211, 238, 0.85); transform: rotateY(90deg) translateZ(40px); }
+    .zhang_left   { background: rgba(251, 113, 133, 0.85); transform: rotateY(-90deg) translateZ(40px); }
+    .zhang_top    { background: rgba(52, 211, 153, 0.85); transform: rotateX(90deg) translateZ(40px); }
+    .zhang_bottom { background: rgba(251, 191, 36, 0.85); transform: rotateX(-90deg) translateZ(40px); }
+
+    @keyframes zhang_spin {
+      from { transform: rotateX(-20deg) rotateY(0deg); }
+      to   { transform: rotateX(-20deg) rotateY(360deg); }
+    }
+
+    .zhang_card3d {
+      width: 160px;
+      height: 220px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: zhang_flip 4s ease-in-out infinite;
+    }
+
+    .zhang_card-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 1rem;
+      backface-visibility: hidden;
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.1rem;
+    }
+
+    .zhang_card-front {
+      background: linear-gradient(135deg, var(--accent-3), var(--accent-1));
+    }
+
+    .zhang_card-back {
+      background: linear-gradient(135deg, var(--accent-4), var(--accent-2));
+      transform: rotateY(180deg);
+    }
+
+    @keyframes zhang_flip {
+      0%, 30%   { transform: rotateY(0deg); }
+      60%, 100% { transform: rotateY(180deg); }
+    }
+
+    .zhang_ring {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 8px solid transparent;
+      border-top-color: var(--accent-1);
+      border-bottom-color: var(--accent-3);
+      animation: zhang_ring-spin 2s linear infinite;
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+    }
+
+    .zhang_ring-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid transparent;
+      border-left-color: var(--accent-2);
+      border-right-color: var(--accent-4);
+      animation: zhang_ring-spin 1.5s linear infinite reverse;
+    }
+
+    @keyframes zhang_ring-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .zhang_perspective-grid {
+      position: relative;
+      width: 200px;
+      height: 160px;
+      background:
+        repeating-linear-gradient(0deg, rgba(129,140,248,0.3) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg, rgba(129,140,248,0.3) 0 1px, transparent 1px 24px);
+      transform: rotateX(55deg);
+      transform-style: preserve-3d;
+      border-radius: 0.5rem;
+    }
+
+    .zhang_hover-tip {
+      margin: 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .zhang_hover-tip code {
+      background: rgba(129, 140, 248, 0.15);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.875rem;
+      color: var(--accent-3);
+    }
+  </style>
+</head>
+<body>
+  <div class="zhang_container">
+    <header class="zhang_title-card">
+      <h1>CSS3 3D 动画</h1>
+      <p>CSS3 3D Transforms & Animations · 张顺昌《高级网页设计》课堂实践</p>
+    </header>
+
+    <section class="zhang_card">
+      <h2><span class="zhang_badge">1</span>旋转立方体（preserve-3d）</h2>
+      <div class="zhang_demo-row">
+        <div>
+          <div class="zhang_scene">
+            <div class="zhang_cube">
+              <div class="zhang_face zhang_front">前</div>
+              <div class="zhang_face zhang_back">后</div>
+              <div class="zhang_face zhang_right">右</div>
+              <div class="zhang_face zhang_left">左</div>
+              <div class="zhang_face zhang_top">上</div>
+              <div class="zhang_face zhang_bottom">下</div>
+            </div>
+          </div>
+          <p class="zhang_caption">transform-style: preserve-3d + rotateY 动画</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2><span class="zhang_badge">2</span>3D 翻牌（backface-visibility）</h2>
+      <div class="zhang_demo-row">
+        <div>
+          <div class="zhang_scene">
+            <div class="zhang_card3d">
+              <div class="zhang_card-face zhang_card-front">正面</div>
+              <div class="zhang_card-face zhang_card-back">背面</div>
+            </div>
+          </div>
+          <p class="zhang_caption">backface-visibility: hidden + rotateY(180deg)</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2><span class="zhang_badge">3</span>3D 透视光环（perspective + rotateX）</h2>
+      <div class="zhang_demo-row">
+        <div>
+          <div class="zhang_scene">
+            <div class="zhang_ring">
+              <div class="zhang_ring-inner"></div>
+            </div>
+          </div>
+          <p class="zhang_caption">perspective 营造纵深 + border 双色旋转</p>
+        </div>
+        <div>
+          <div class="zhang_scene" style="align-items: flex-end; padding-bottom: 1rem;">
+            <div class="zhang_perspective-grid"></div>
+          </div>
+          <p class="zhang_caption">rotateX(55deg) 制作 3D 地面网格</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="zhang_hover-tip">
+      <strong>核心属性：</strong><code>perspective</code> 透视 · <code>transform-style: preserve-3d</code> 保留 3D 空间 ·
+      <code>backface-visibility</code> 背面隐藏 · <code>rotateX/Y/Z</code> 三轴旋转 · <code>translateZ</code> Z 轴位移
+    </p>
+  </div>
+</body>
+</html>

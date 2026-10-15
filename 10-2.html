@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS Animation 幻灯片</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a, #1e293b 45%, #111827);
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      color: #f8fafc;
+    }
+
+    .slider {
+      position: relative;
+      width: min(900px, 90vw);
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .slides {
+      position: relative;
+      width: 100%;
+      height: 620px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      animation: slideMove 15s infinite;
+      overflow: hidden;
+    }
+
+    .slide:nth-child(1) { animation-delay: 0s; }
+    .slide:nth-child(2) { animation-delay: 5s; }
+    .slide:nth-child(3) { animation-delay: 10s; }
+
+    .slide img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.8) contrast(1.1);
+      transform: scale(1.08);
+    }
+
+    .slide .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 36px 32px 26px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.35), rgba(0,0,0,0));
+      text-align: left;
+      z-index: 1;
+    }
+
+    .slide h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.8rem, 2vw, 2.6rem);
+      letter-spacing: 2px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .slide p {
+      margin: 0;
+      line-height: 1.8;
+      color: #fff;
+      font-size: 1rem;
+      max-width: 580px;
+    }
+
+    .author {
+      margin-top: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    @keyframes slideMove {
+      0% {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      10% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      35% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      50% {
+        opacity: 1;
+        transform: translateX(-10%);
+      }
+      60% {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slider">
+    <div class="slides">
+      <section class="slide">
+        <img src="img/1.png" alt="图片1" />
+        <div class="caption">
+          <h2>课堂设计作品</h2>
+          <p>运用 CSS Animation 设计出具有节奏感的图片展示效果，突出画面层次与信息表达。</p>
+          <div class="author">张顺昌</div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img src="img/2.png" alt="图片2" />
+        <div class="caption">
+          <h2>动态视觉呈现</h2>
+          <p>通过透明度变化、图片切换与文字说明，呈现更生动的网页展示方式，适合课程作品汇报。</p>
+          <div class="author">张顺昌</div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img src="img/3.png" alt="图片3" />
+        <div class="caption">
+          <h2>上图下文布局</h2>
+          <p>页面整体采用“图片位于上，文字说明位于下”的经典版式，结构清晰，视觉效果稳定。</p>
+          <div class="author">张顺昌</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

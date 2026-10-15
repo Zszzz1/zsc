@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web 前端的长度单位</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent-1: #60a5fa;
+      --accent-2: #a78bfa;
+      --accent-3: #34d399;
+      --border: #e5e7eb;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .zhang_container {
+      width: min(100%, 960px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .zhang_title-card {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 1rem 2rem rgba(96, 165, 250, 0.25);
+    }
+
+    .zhang_title-card h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      letter-spacing: 0.12em;
+    }
+
+    .zhang_title-card p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.92;
+    }
+
+    .zhang_section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .zhang_section-title .zhang_badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 0.6rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .zhang_card {
+      background: var(--card);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.06);
+    }
+
+    .zhang_unit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .zhang_unit {
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .zhang_unit:hover {
+      transform: translateY(-0.25rem);
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.1);
+    }
+
+    .zhang_unit .zhang_symbol {
+      display: inline-block;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(167,139,250,0.15));
+      border-radius: 0.6rem;
+      padding: 0.1rem 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .zhang_unit h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .zhang_unit p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .zhang_demo-area {
+      border: 2px dashed var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+
+    .zhang_demo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .zhang_demo-box .zhang_block {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    }
+
+    .zhang_px-demo .zhang_block { width: 96px; height: 96px; }
+    .zhang_em-demo .zhang_block { width: 6em; height: 3em; font-size: 1.25rem; }
+    .zhang_rem-demo .zhang_block { width: 6rem; height: 3rem; }
+    .zhang_vw-demo .zhang_block { width: 20vw; min-width: 100px; height: 3rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(167,139,250,0.12));
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td code {
+      background: rgba(167, 139, 250, 0.12);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.875rem;
+      color: #6d28d9;
+    }
+
+    .zhang_tip {
+      margin: 0;
+      border-left: 4px solid var(--accent-3);
+      background: rgba(52, 211, 153, 0.08);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 0.85rem 1.1rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    @media (max-width: 640px) {
+      .zhang_unit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="zhang_container">
+    <header class="zhang_title-card">
+      <h1>Web 前端的长度单位</h1>
+      <p>CSS Length Units · 张顺昌《高级网页设计》课堂实践</p>
+    </header>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">1</span>绝对长度单位</h2>
+      <div class="zhang_unit-grid" style="margin-top: 1rem;">
+        <div class="zhang_unit">
+          <span class="zhang_symbol">px</span>
+          <h3>像素（pixel）</h3>
+          <p>最常用的屏幕单位。1px 是设备上的一个物理像素点（CSS 意义上约为 1/96 英寸）。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">in</span>
+          <h3>英寸（inch）</h3>
+          <p>打印常用。1in = 2.54cm = 96px。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">cm / mm</span>
+          <h3>厘米 / 毫米</h3>
+          <p>1cm ≈ 37.8px，1mm ≈ 3.78px，主要用于打印样式表。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">pt</span>
+          <h3>点（point）</h3>
+          <p>印刷传统单位。1pt = 1/72in ≈ 1.333px。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">pc</span>
+          <h3>派卡（pica）</h3>
+          <p>1pc = 12pt = 1/6in ≈ 16px。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">Q</span>
+          <h3>四分之一毫米</h3>
+          <p>1Q = 1/4mm ≈ 0.945px，使用较少。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">2</span>相对长度单位</h2>
+      <div class="zhang_unit-grid" style="margin-top: 1rem;">
+        <div class="zhang_unit">
+          <span class="zhang_symbol">em</span>
+          <h3>相对父元素字号</h3>
+          <p>1em = 父元素的 font-size。常用于 padding、margin 等随文字缩放的场景。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">rem</span>
+          <h3>相对根元素字号</h3>
+          <p>1rem = html 根元素的 font-size（默认 16px）。响应式布局的首选单位。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">%</span>
+          <h3>百分比</h3>
+          <p>相对于父元素对应属性的值，宽高常用，具有继承连锁性。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">vw / vh</span>
+          <h3>视口宽 / 高</h3>
+          <p>1vw = 视口宽度的 1%，1vh = 视口高度的 1%，适合全屏布局。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">vmin / vmax</span>
+          <h3>视口较小 / 较大边</h3>
+          <p>vmin 取宽高较小值的 1%，vmax 取较大值的 1%，保证元素不超出视口。</p>
+        </div>
+        <div class="zhang_unit">
+          <span class="zhang_symbol">ch / ex</span>
+          <h3>字符单位</h3>
+          <p>ch = 字符"0"的宽度；ex = 小写字母"x"的高度，适合排版控制。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">3</span>直观对比</h2>
+      <div class="zhang_demo-area" style="margin-top: 1rem;">
+        <div class="zhang_demo-box zhang_px-demo">
+          <div class="zhang_block">96px</div>
+          <span>width: 96px</span>
+        </div>
+        <div class="zhang_demo-box zhang_em-demo">
+          <div class="zhang_block">6em</div>
+          <span>width: 6em（随父级字号缩放）</span>
+        </div>
+        <div class="zhang_demo-box zhang_rem-demo">
+          <div class="zhang_block">6rem</div>
+          <span>width: 6rem（随根字号缩放）</span>
+        </div>
+        <div class="zhang_demo-box zhang_vw-demo">
+          <div class="zhang_block">20vw</div>
+          <span>width: 20vw（随视口缩放）</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">4</span>单位换算速查表</h2>
+      <table style="margin-top: 1rem;">
+        <thead>
+          <tr><th>单位</th><th>名称</th><th>换算关系</th><th>典型用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>px</code></td><td>像素</td><td>1px ≈ 1/96in</td><td>边框、阴影、精确尺寸</td></tr>
+          <tr><td><code>rem</code></td><td>根相对</td><td>1rem = html 字号</td><td>响应式布局、字号</td></tr>
+          <tr><td><code>em</code></td><td>父相对</td><td>1em = 父元素字号</td><td>组件内间距随文字缩放</td></tr>
+          <tr><td><code>%</code></td><td>百分比</td><td>相对父元素</td><td>流式布局、宽度</td></tr>
+          <tr><td><code>vw</code></td><td>视口宽</td><td>1vw = 视口宽 1%</td><td>大屏、全屏排版</td></tr>
+          <tr><td><code>vh</code></td><td>视口高</td><td>1vh = 视口高 1%</td><td>整屏区块高度</td></tr>
+          <tr><td><code>ch</code></td><td>字符宽</td><td>字符"0"宽度</td><td>限制文本列宽</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="zhang_tip">
+      <strong>记忆要点：</strong>屏幕布局优先用 <strong>rem / vw / vh</strong> 实现响应式，<strong>px</strong> 用于边框等不需要缩放的细节，<strong>em</strong> 适合组件内部间距，打印场景再考虑 <strong>cm / pt</strong>。
+    </p>
+  </div>
+</body>
+</html>

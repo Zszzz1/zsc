@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张顺昌的《高级网页设计》课堂实践</title>
+    <style>
+        :root {
+            --bg-1: #071120;
+            --bg-2: #11213d;
+            --bg-3: #1b2d4a;
+            --panel: rgba(17, 33, 61, 0.68);
+            --panel-strong: rgba(24, 39, 67, 0.84);
+            --card: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.14);
+            --text: #edf4ff;
+            --muted: #c1cfe5;
+            --accent: #7dd3fc;
+            --accent-2: #c4b5fd;
+            --accent-3: #86efac;
+            --accent-4: #f9a8d4;
+            --shadow: rgba(4, 10, 24, 0.55);
+            --glow: rgba(125, 211, 252, 0.38);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.18), transparent 28%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.18), transparent 30%),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: rgba(125, 211, 252, 0.16);
+            filter: blur(90px);
+            top: -120px;
+            left: -80px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .page-shell {
+            position: relative;
+            z-index: 1;
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 22px;
+            margin-bottom: 26px;
+            border-radius: 20px;
+            background: rgba(16, 29, 49, 0.52);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 50px rgba(8, 17, 32, 0.25);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-mark {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 20px rgba(125, 211, 252, 0.9);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            border-color: rgba(125, 211, 252, 0.4);
+            background: rgba(125, 211, 252, 0.08);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 30px;
+            padding: 40px 36px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.82));
+            border: 1px solid var(--border);
+            box-shadow: 0 30px 80px rgba(2, 8, 17, 0.45);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: -40% auto auto -20%;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(125, 211, 252, 0.22), transparent 62%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -60px;
+            bottom: -80px;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(196, 181, 253, 0.18), transparent 62%);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-3), var(--accent));
+            box-shadow: 0 0 18px rgba(134, 239, 172, 0.8);
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-primary {
+            color: #0d1d33;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 10px 25px rgba(125, 211, 252, 0.28);
+        }
+
+        .button-secondary {
+            color: var(--text);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            margin: 22px 0 16px;
+            font-size: clamp(2.1rem, 4vw, 4rem);
+            line-height: 1.08;
+            letter-spacing: -0.04em;
+        }
+
+        .subtitle {
+            margin: 0;
+            max-width: 900px;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: var(--muted);
+        }
+
+        .stats {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            gap: 18px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px 18px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: clamp(1.5rem, 2vw, 2.2rem);
+            font-weight: 800;
+            color: var(--accent-2);
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .section {
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 24px;
+            background: rgba(17, 33, 61, 0.52);
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 50px rgba(8, 17, 32, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .section-tag {
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 1px solid rgba(125, 211, 252, 0.36);
+            background: rgba(125, 211, 252, 0.06);
+            padding: 7px 12px;
+            border-radius: 999px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .feature-item {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.18), rgba(196, 181, 253, 0.18));
+            border: 1px solid rgba(125, 211, 252, 0.26);
+            margin-bottom: 14px;
+        }
+
+        .feature-item h3 {
+            margin: 0 0 8px;
+            font-size: 1.06rem;
+        }
+
+        .feature-item p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 0.93rem;
+        }
+
+        .work-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .work-card {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 220px;
+            padding: 20px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .work-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-4));
+        }
+
+        .work-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(125, 211, 252, 0.45);
+            box-shadow: 0 20px 50px rgba(10, 20, 35, 0.3);
+        }
+
+        .work-card a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .work-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .work-file {
+            font-size: 1.08rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+
+        .work-tag {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: rgba(125, 211, 252, 0.09);
+            border: 1px solid rgba(125, 211, 252, 0.25);
+        }
+
+        .work-card h3 {
+            margin: 0;
+            font-size: 1.12rem;
+            color: var(--text);
+        }
+
+        .work-card p {
+            margin: 14px 0 18px;
+            color: var(--muted);
+            line-height: 1.75;
+            font-size: 0.92rem;
+            flex: 1;
+        }
+
+        .work-card .link-row {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .work-card .link-row span:last-child {
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .work-card:hover .link-row span:last-child {
+            transform: translateX(4px);
+        }
+
+        .prompt-box {
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(18, 35, 58, 0.95), rgba(30, 53, 82, 0.82));
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 50px rgba(8, 17, 32, 0.24);
+        }
+
+        .prompt-box h3 {
+            margin: 0 0 14px;
+            font-size: 1.12rem;
+            color: var(--accent-3);
+        }
+
+        .prompt-box blockquote {
+            margin: 0;
+            padding: 18px 20px;
+            border-left: 4px solid var(--accent);
+            background: rgba(255,255,255,0.03);
+            color: var(--muted);
+            line-height: 1.8;
+            border-radius: 12px;
+            font-size: 0.96rem;
+        }
+
+        .footer {
+            margin-top: 26px;
+            padding: 22px 6px 10px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 900px) {
+            .topbar,
+            .hero-top,
+            .section-head {
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-shell {
+                width: min(100% - 20px, 1200px);
+            }
+
+            .topbar {
+                margin-bottom: 20px;
+                padding: 16px 18px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .hero {
+                padding: 28px 22px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark"></span>
+                <span>高级网页设计</span>
+            </div>
+
+            <nav class="nav-links" aria-label="顶部导航">
+                <a href="#works">作品列表</a>
+                <a href="#features">课程亮点</a>
+                <a href="#prompt">本提示词</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-inner">
+                <div class="hero-top">
+                    <div class="badge">课堂实践导航页</div>
+
+                    <div class="hero-actions">
+                        <a class="button button-primary" href="#works">查看作品</a>
+                        <a class="button button-secondary" href="#prompt">查看提示词</a>
+                    </div>
+                </div>
+
+                <h1>张顺昌的《高级网页设计》课堂实践</h1>
+
+                <p class="subtitle">
+                    这是一个围绕本目录现有网页资源构建的课程展示页，汇总了本次课堂中的所有实践作品，采用原生 HTML + CSS + JavaScript
+                    进行开发，不依赖任何 CDN，整体风格以现代化、简洁化、专业化为主，适合课堂展示、作业汇总与学习导航。
+                </p>
+
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-value">19</span>
+                        <span class="stat-label">课堂作品</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">1</span>
+                        <span class="stat-label">导航首页</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">100%</span>
+                        <span class="stat-label">原生代码</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="section-head">
+                <h2>课程亮点</h2>
+                <span class="section-tag">Project Highlights</span>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-item">
+                    <div class="feature-icon">✦</div>
+                    <h3>原生开发</h3>
+                    <p>页面完全使用原生 HTML、CSS 与 JavaScript 构建，结构清晰、易于学习、便于维护。</p>
+                </article>
+
+                <article class="feature-item">
+                    <div class="feature-icon">◎</div>
+                    <h3>课程聚合</h3>
+                    <p>所有实践作业都集中在同一首页中，便于老师检查和同学快速浏览学习内容。</p>
+                </article>
+
+                <article class="feature-item">
+                    <div class="feature-icon">▣</div>
+                    <h3>视觉美化</h3>
+                    <p>通过渐变、玻璃拟态、阴影和卡片布局，使页面整体更具专业展示感。</p>
+                </article>
+
+                <article class="feature-item">
+                    <div class="feature-icon">⇄</div>
+                    <h3>便捷跳转</h3>
+                    <p>每个作品均提供清晰的入口链接，可直接打开相应页面进行查看和学习。</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="works" class="section">
+            <div class="section-head">
+                <h2>作品列表</h2>
+                <span class="section-tag">Course Works</span>
+            </div>
+
+            <div class="work-grid">
+                <article class="work-card">
+                    <a href="2-1.html">
+                        <div class="work-meta">
+                            <span class="work-file">2-1.html</span>
+                            <span class="work-tag">基础练习</span>
+                        </div>
+                        <h3>基础网页设计实践</h3>
+                        <p>适合初步熟悉 HTML 结构与页面布局的基础练习内容，帮助建立课程学习基础。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="2-2.html">
+                        <div class="work-meta">
+                            <span class="work-file">2-2.html</span>
+                            <span class="work-tag">进阶练习</span>
+                        </div>
+                        <h3>网页页面进阶实践</h3>
+                        <p>进一步扩展页面设计能力，包括元素排版、样式细节与内容结构的优化处理。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="3-1.html">
+                        <div class="work-meta">
+                            <span class="work-file">3-1.html</span>
+                            <span class="work-tag">第三章</span>
+                        </div>
+                        <h3>第三章综合练习</h3>
+                        <p>包含课程第三章相关内容的实践示例，用于强化对网页设计核心知识点的理解。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="3-2.html">
+                        <div class="work-meta">
+                            <span class="work-file">3-2.html</span>
+                            <span class="work-tag">补充示例</span>
+                        </div>
+                        <h3>第三章补充内容</h3>
+                        <p>用于补充和延伸课程内容，展示更多实例化页面设计思路和视觉表达方式。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="4-1 css2.html">
+                        <div class="work-meta">
+                            <span class="work-file">4-1 css2.html</span>
+                            <span class="work-tag">CSS进阶</span>
+                        </div>
+                        <h3>CSS 进阶与动画示例</h3>
+                        <p>展示 CSS 选择器、继承、层叠与样式增强的实际表现，并加入了背景动画效果。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="5-1层叠与继承.html">
+                        <div class="work-meta">
+                            <span class="work-file">5-1层叠与继承.html</span>
+                            <span class="work-tag">层叠样式</span>
+                        </div>
+                        <h3>层叠与继承示例</h3>
+                        <p>通过实际页面演示 CSS 的层叠规则、继承关系与优先级差异，提升样式控制能力。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="5-2盒模型.html">
+                        <div class="work-meta">
+                            <span class="work-file">5-2盒模型.html</span>
+                            <span class="work-tag">盒模型</span>
+                        </div>
+                        <h3>盒模型布局练习</h3>
+                        <p>深入分析内容区、内边距、边框和外边距在网页排版中的实际作用与组合应用。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="6-1 flex.html">
+                        <div class="work-meta">
+                            <span class="work-file">6-1 flex.html</span>
+                            <span class="work-tag">弹性布局</span>
+                        </div>
+                        <h3>Flex 弹性布局示例</h3>
+                        <p>展示弹性盒子布局的核心用法，包括对齐、换行、分布与响应式排列。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="6-2.html">
+                        <div class="work-meta">
+                            <span class="work-file">6-2.html</span>
+                            <span class="work-tag">综合布局</span>
+                        </div>
+                        <h3>布局综合实践</h3>
+                        <p>通过更复杂的页面结构和排版方式，强化对页面模块化布局与视觉层次的掌握。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="7-1 上图下文.html">
+                        <div class="work-meta">
+                            <span class="work-file">7-1 上图下文.html</span>
+                            <span class="work-tag">图文组合</span>
+                        </div>
+                        <h3>上图下文版式设计</h3>
+                        <p>展示图像位于上方、正文位于下方的常见内容版式，强调信息层级与留白管理。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="7-2 左图右文.html">
+                        <div class="work-meta">
+                            <span class="work-file">7-2 左图右文.html</span>
+                            <span class="work-tag">图文组合</span>
+                        </div>
+                        <h3>左图右文版式设计</h3>
+                        <p>采用左侧图片、右侧说明文字的布局方式，适合展示产品、案例与课程内容介绍。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="8-1 css3选择器.html">
+                        <div class="work-meta">
+                            <span class="work-file">8-1 css3选择器.html</span>
+                            <span class="work-tag">CSS3</span>
+                        </div>
+                        <h3>CSS3 选择器与特效</h3>
+                        <p>练习结构选择器、伪类与伪元素的组合使用，展示现代 CSS3 的丰富表现能力。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="9-1 transiton.html">
+                        <div class="work-meta">
+                            <span class="work-file">9-1 transiton.html</span>
+                            <span class="work-tag">Transition</span>
+                        </div>
+                        <h3>Transition 过渡动画</h3>
+                        <p>通过鼠标悬停与状态变化演示过渡效果、变换与动画时序，让页面更有互动感。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="10-1-animation.html">
+                        <div class="work-meta">
+                            <span class="work-file">10-1-animation.html</span>
+                            <span class="work-tag">Animation</span>
+                        </div>
+                        <h3>纯 CSS 颜色动画盒子</h3>
+                        <p>使用 @keyframes 实现颜色循环、浮动、缩放与旋转的复合动画效果。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="10-2.html">
+                        <div class="work-meta">
+                            <span class="work-file">10-2.html</span>
+                            <span class="work-tag">Animation</span>
+                        </div>
+                        <h3>CSS Animation 幻灯片</h3>
+                        <p>利用 CSS 动画关键帧实现自动轮播的图片幻灯片效果。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="10-3.html">
+                        <div class="work-meta">
+                            <span class="work-file">10-3.html</span>
+                            <span class="work-tag">Viewport</span>
+                        </div>
+                        <h3>Viewport 响应式布局</h3>
+                        <p>基于视口单位的响应式排版，展示 vw、vh 等相对单位的实际应用。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="10-4.html">
+                        <div class="work-meta">
+                            <span class="work-file">10-4.html</span>
+                            <span class="work-tag">响应式</span>
+                        </div>
+                        <h3>响应式八个盒子布局</h3>
+                        <p>使用 Flexbox 与媒体查询实现多列到单列的自适应网格排列。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="11-1.html">
+                        <div class="work-meta">
+                            <span class="work-file">11-1.html</span>
+                            <span class="work-tag">长度单位</span>
+                        </div>
+                        <h3>Web 前端的长度单位</h3>
+                        <p>系统介绍 px、em、rem、vw 等绝对与相对长度单位的换算与实际应用场景。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="work-card">
+                    <a href="11-2.html">
+                        <div class="work-meta">
+                            <span class="work-file">11-2.html</span>
+                            <span class="work-tag">3D 动画</span>
+                        </div>
+                        <h3>CSS3 3D 动画</h3>
+                        <p>通过 preserve-3d、perspective 与 backface-visibility 实现立方体旋转与翻牌效果。</p>
+                        <div class="link-row">
+                            <span>打开页面</span>
+                            <span>→</span>
+                        </div>
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <section id="prompt" class="prompt-box">
+            <h3>本提示词</h3>
+            <blockquote>
+                创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为张顺昌的《高级网页设计》课堂实践，美化页面，页面中包括本提示词。
+            </blockquote>
+        </section>
+
+        <div class="footer">
+            © 2026 张顺昌 · 高级网页设计课堂实践
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        const particleCount = 70;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
+                r: Math.random() * 2.2 + 1.4,
+                alpha: Math.random() * 0.7 + 0.3
+            };
+        }
+
+        function initParticles() {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(125, 211, 252, ${p.alpha})`;
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const a = particles[i];
+                    const b = particles[j];
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 120) {
+                        const alpha = (1 - dist / 120) * 0.35;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = `rgba(196, 181, 253, ${alpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        resizeCanvas();
+        initParticles();
+        drawParticles();
+    </script>
+</body>
+</html>
