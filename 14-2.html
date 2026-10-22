@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript基本数据类型</title>
+    <!-- 姓名：张顺昌；日期：2026-10-22；功能名称：JavaScript基本数据类型演示 -->
+    <style>
+        :root {
+            --zsc-bg-1: #071120;
+            --zsc-bg-2: #11213d;
+            --zsc-bg-3: #1b2d4a;
+            --zsc-panel: rgba(17, 33, 61, 0.6);
+            --zsc-card: rgba(255, 255, 255, 0.04);
+            --zsc-border: rgba(255, 255, 255, 0.14);
+            --zsc-text: #edf4ff;
+            --zsc-muted: #c1cfe5;
+            --zsc-accent: #7dd3fc;
+            --zsc-accent-2: #c4b5fd;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--zsc-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.16), transparent 30%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.16), transparent 30%),
+                linear-gradient(135deg, var(--zsc-bg-1) 0%, var(--zsc-bg-2) 45%, var(--zsc-bg-3) 100%);
+        }
+
+        .zsc_shell {
+            width: min(1100px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .zsc_header {
+            padding: 34px 30px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.85));
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 24px 60px rgba(2, 8, 17, 0.45);
+            margin-bottom: 26px;
+        }
+
+        .zsc_top_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .zsc_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--zsc-accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .zsc_back {
+            text-decoration: none;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            transition: all 0.25s ease;
+        }
+
+        .zsc_back:hover {
+            color: var(--zsc-text);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .zsc_header h1 {
+            margin: 0 0 14px;
+            font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+            letter-spacing: -0.02em;
+        }
+
+        .zsc_intro {
+            margin: 0;
+            max-width: 860px;
+            color: var(--zsc-muted);
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        .zsc_intro code {
+            color: var(--zsc-accent);
+            background: rgba(125, 211, 252, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_section_title {
+            margin: 0 0 16px;
+            font-size: 1.3rem;
+        }
+
+        .zsc_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .zsc_card {
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .zsc_card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--zsc_type_color);
+        }
+
+        .zsc_card:hover {
+            transform: translateY(-5px);
+            border-color: var(--zsc_type_color);
+        }
+
+        .zsc_card_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .zsc_type_name {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .zsc_type_en {
+            color: var(--zsc-muted);
+            font-size: 0.85rem;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .zsc_typeof_tag {
+            font-family: Consolas, monospace;
+            font-size: 0.78rem;
+            padding: 5px 10px;
+            border-radius: 999px;
+            color: var(--zsc_type_color);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--zsc_type_color);
+        }
+
+        .zsc_code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 0 0 12px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .zsc_value_row {
+            font-size: 0.9rem;
+            color: var(--zsc-muted);
+            margin-bottom: 10px;
+        }
+
+        .zsc_value_row strong {
+            color: var(--zsc_type_color);
+            font-family: Consolas, monospace;
+            word-break: break-all;
+        }
+
+        .zsc_desc {
+            margin: 0;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            line-height: 1.75;
+        }
+
+        .zsc_playground {
+            padding: 24px;
+            border-radius: 22px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 20px 45px rgba(8, 17, 32, 0.25);
+        }
+
+        .zsc_btn_group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 14px 0 18px;
+        }
+
+        .zsc_btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--zsc-text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .zsc_btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(125, 211, 252, 0.5);
+            background: rgba(125, 211, 252, 0.12);
+        }
+
+        .zsc_output {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.9;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            min-height: 150px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .zsc_output .zsc_out_line {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .zsc_output .zsc_out_result {
+            color: #86efac;
+        }
+
+        .zsc_console_tip {
+            margin: 14px 0 0;
+            color: var(--zsc-muted);
+            font-size: 0.85rem;
+        }
+
+        .zsc_footer {
+            margin-top: 26px;
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 640px) {
+            .zsc_shell {
+                width: min(100% - 20px, 1100px);
+            }
+
+            .zsc_header {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <header class="zsc_header">
+            <div class="zsc_top_row">
+                <span class="zsc_badge">第14章 · JavaScript 基础</span>
+                <a class="zsc_back" href="index.html">← 返回首页</a>
+            </div>
+            <h1>JavaScript 基本数据类型</h1>
+            <p class="zsc_intro">
+                JavaScript 共有 6 种基本数据类型：<code>String</code>（字符串型）、<code>Number</code>（数值型）、
+                <code>Boolean</code>（布尔型）、<code>Undefined</code>（未定义型）、<code>Null</code>（空型）和
+                <code>Object</code>（对象型）。其中前 5 种为简单数据类型，<code>Object</code> 为引用数据类型。
+                使用 <code>typeof</code> 运算符可以检测变量所属的数据类型。下面每种类型的示例变量都以
+                <code>zsc_</code> 前缀命名。
+            </p>
+        </header>
+
+        <h2 class="zsc_section_title">六种数据类型一览</h2>
+        <div class="zsc_grid" id="zsc_grid"></div>
+
+        <section class="zsc_playground">
+            <h2 class="zsc_section_title">试一试：改变量的值，观察 typeof 结果</h2>
+            <div class="zsc_btn_group" id="zsc_btn_group"></div>
+            <div class="zsc_output" id="zsc_output"></div>
+            <p class="zsc_console_tip">提示：按 F12 打开浏览器控制台，可以看到页面加载时用 console.log 输出的类型检测结果。</p>
+        </section>
+
+        <div class="zsc_footer">
+            姓名：张顺昌 · 2026-10-22 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+
+    <script>
+        // 声明 6 种基本数据类型的示例变量（均以 zsc_ 开头）
+        var zsc_str = "张顺昌";
+        var zsc_num = 2026;
+        var zsc_bool = true;
+        var zsc_undef;
+        var zsc_null = null;
+        var zsc_obj = { name: "张顺昌", course: "高级网页设计" };
+
+        // 类型数据：名称、示例代码、实际值、typeof 结果、说明、主题色
+        var zsc_types = [
+            {
+                zsc_name: "字符串型", zsc_en: "String",
+                zsc_code: 'var zsc_str = "张顺昌";',
+                zsc_value: zsc_str,
+                zsc_typeof: typeof zsc_str,
+                zsc_desc: "用于表示文本数据，值需要使用单引号或双引号包裹。",
+                zsc_color: "#86efac"
+            },
+            {
+                zsc_name: "数值型", zsc_en: "Number",
+                zsc_code: "var zsc_num = 2026;",
+                zsc_value: zsc_num,
+                zsc_typeof: typeof zsc_num,
+                zsc_desc: "用于表示整数或浮点数，特殊值还有 NaN（非数值）和 Infinity（无穷大）。",
+                zsc_color: "#7dd3fc"
+            },
+            {
+                zsc_name: "布尔型", zsc_en: "Boolean",
+                zsc_code: "var zsc_bool = true;",
+                zsc_value: zsc_bool,
+                zsc_typeof: typeof zsc_bool,
+                zsc_desc: "只有 true 和 false 两个值，常用于逻辑判断和条件控制。",
+                zsc_color: "#c4b5fd"
+            },
+            {
+                zsc_name: "未定义型", zsc_en: "Undefined",
+                zsc_code: "var zsc_undef;   // 声明后未赋值",
+                zsc_value: String(zsc_undef),
+                zsc_typeof: typeof zsc_undef,
+                zsc_desc: "变量声明后未赋值时的默认值，表示“未定义”。",
+                zsc_color: "#f9a8d4"
+            },
+            {
+                zsc_name: "空型", zsc_en: "Null",
+                zsc_code: "var zsc_null = null;",
+                zsc_value: String(zsc_null),
+                zsc_typeof: typeof zsc_null,
+                zsc_desc: "表示“空值”，可以主动赋给变量。注意：typeof 检测 null 返回 object，这是 JavaScript 的历史遗留问题。",
+                zsc_color: "#fbbf24"
+            },
+            {
+                zsc_name: "对象型", zsc_en: "Object",
+                zsc_code: 'var zsc_obj = { name: "张顺昌", course: "高级网页设计" };',
+                zsc_value: "zsc_obj.name = " + zsc_obj.name,
+                zsc_typeof: typeof zsc_obj,
+                zsc_desc: "引用数据类型，由键值对组成，用于描述复杂的数据结构。",
+                zsc_color: "#93c5fd"
+            }
+        ];
+
+        // 渲染 6 张类型卡片
+        var zsc_grid = document.getElementById("zsc_grid");
+        for (var zsc_i = 0; zsc_i < zsc_types.length; zsc_i++) {
+            var zsc_item = zsc_types[zsc_i];
+
+            var zsc_card = document.createElement("article");
+            zsc_card.className = "zsc_card";
+            zsc_card.style.setProperty("--zsc_type_color", zsc_item.zsc_color);
+
+            var zsc_head = document.createElement("div");
+            zsc_head.className = "zsc_card_head";
+            var zsc_title = document.createElement("div");
+            zsc_title.className = "zsc_type_name";
+            zsc_title.textContent = zsc_item.zsc_name;
+            var zsc_en = document.createElement("span");
+            zsc_en.className = "zsc_type_en";
+            zsc_en.textContent = zsc_item.zsc_en;
+            zsc_title.appendChild(zsc_en);
+            var zsc_tag = document.createElement("span");
+            zsc_tag.className = "zsc_typeof_tag";
+            zsc_tag.textContent = 'typeof → "' + zsc_item.zsc_typeof + '"';
+            zsc_head.appendChild(zsc_title);
+            zsc_head.appendChild(zsc_tag);
+
+            var zsc_code = document.createElement("div");
+            zsc_code.className = "zsc_code";
+            zsc_code.textContent = zsc_item.zsc_code;
+
+            var zsc_value_row = document.createElement("div");
+            zsc_value_row.className = "zsc_value_row";
+            var zsc_value_label = document.createElement("span");
+            zsc_value_label.textContent = "实际值：";
+            var zsc_value_text = document.createElement("strong");
+            zsc_value_text.textContent = String(zsc_item.zsc_value);
+            zsc_value_row.appendChild(zsc_value_label);
+            zsc_value_row.appendChild(zsc_value_text);
+
+            var zsc_desc = document.createElement("p");
+            zsc_desc.className = "zsc_desc";
+            zsc_desc.textContent = zsc_item.zsc_desc;
+
+            zsc_card.appendChild(zsc_head);
+            zsc_card.appendChild(zsc_code);
+            zsc_card.appendChild(zsc_value_row);
+            zsc_card.appendChild(zsc_desc);
+            zsc_grid.appendChild(zsc_card);
+        }
+
+        // 页面加载时在控制台输出 6 种类型的检测结果
+        console.log("===== 张顺昌 14-2 JavaScript基本数据类型 =====");
+        console.log('var zsc_str   = "张顺昌";   typeof →', typeof zsc_str);
+        console.log("var zsc_num   = 2026;      typeof →", typeof zsc_num);
+        console.log("var zsc_bool  = true;      typeof →", typeof zsc_bool);
+        console.log("var zsc_undef;             typeof →", typeof zsc_undef);
+        console.log("var zsc_null  = null;      typeof →", typeof zsc_null);
+        console.log("var zsc_obj   = {...};     typeof →", typeof zsc_obj);
+
+        // 试一试：为 zsc_demo_value 赋不同的值，观察 typeof 结果变化
+        var zsc_demo_value;
+
+        var zsc_assignments = [
+            { zsc_label: "赋值字符串", zsc_code: 'zsc_demo_value = "hello";', zsc_apply: function () { zsc_demo_value = "hello"; } },
+            { zsc_label: "赋值数值", zsc_code: "zsc_demo_value = 66;", zsc_apply: function () { zsc_demo_value = 66; } },
+            { zsc_label: "赋值布尔值", zsc_code: "zsc_demo_value = false;", zsc_apply: function () { zsc_demo_value = false; } },
+            { zsc_label: "赋值 null", zsc_code: "zsc_demo_value = null;", zsc_apply: function () { zsc_demo_value = null; } },
+            { zsc_label: "不赋值（undefined）", zsc_code: "var zsc_demo_value;   // 仅声明", zsc_apply: function () { zsc_demo_value = undefined; } },
+            { zsc_label: "赋值对象", zsc_code: 'zsc_demo_value = { id: 1 };', zsc_apply: function () { zsc_demo_value = { id: 1 }; } }
+        ];
+
+        var zsc_output = document.getElementById("zsc_output");
+        var zsc_btn_group = document.getElementById("zsc_btn_group");
+
+        // 向输出面板追加一行
+        function zsc_print_line(zsc_text, zsc_is_result) {
+            var zsc_line = document.createElement("div");
+            zsc_line.className = zsc_is_result ? "zsc_out_line zsc_out_result" : "zsc_out_line";
+            zsc_line.textContent = zsc_text;
+            zsc_output.appendChild(zsc_line);
+            while (zsc_output.children.length > 12) {
+                zsc_output.removeChild(zsc_output.firstChild);
+            }
+            zsc_output.scrollTop = zsc_output.scrollHeight;
+        }
+
+        // 生成试一试按钮
+        for (var zsc_j = 0; zsc_j < zsc_assignments.length; zsc_j++) {
+            var zsc_btn = document.createElement("button");
+            zsc_btn.className = "zsc_btn";
+            zsc_btn.textContent = zsc_assignments[zsc_j].zsc_label;
+            zsc_btn.onclick = function () {
+                var zsc_current = zsc_assignments[this.getAttribute("data-zsc_index")];
+                zsc_current.zsc_apply();
+                zsc_print_line("> " + zsc_current.zsc_code, false);
+                zsc_print_line("值：" + String(zsc_demo_value), false);
+                zsc_print_line('typeof zsc_demo_value → "' + (typeof zsc_demo_value) + '"', true);
+                console.log(zsc_current.zsc_code, "→", typeof zsc_demo_value);
+            };
+            zsc_btn.setAttribute("data-zsc_index", zsc_j);
+            zsc_btn_group.appendChild(zsc_btn);
+        }
+
+        // 初始状态提示
+        zsc_print_line("// 点击上方按钮为 zsc_demo_value 赋值，观察 typeof 结果的变化", false);
+        zsc_print_line("当前状态：zsc_demo_value 仅声明未赋值", false);
+        zsc_print_line('typeof zsc_demo_value → "' + (typeof zsc_demo_value) + '"', true);
+    </script>
+</body>
+</html>
