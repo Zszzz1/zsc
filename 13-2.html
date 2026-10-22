@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucide SVG 图标</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent-1: #0ea5e9;
+      --accent-2: #6366f1;
+      --accent-3: #14b8a6;
+      --border: #e5e7eb;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .zhang_container {
+      width: min(100%, 960px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .zhang_title-card {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 1rem 2rem rgba(14, 165, 233, 0.25);
+    }
+
+    .zhang_title-card h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      letter-spacing: 0.12em;
+    }
+
+    .zhang_title-card p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.92;
+    }
+
+    .zhang_section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .zhang_section-title .zhang_badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 0.6rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .zhang_card {
+      background: var(--card);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.06);
+    }
+
+    .zhang_icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .zhang_icon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .zhang_icon-cell:hover {
+      transform: translateY(-0.25rem);
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.1);
+    }
+
+    .zhang_icon-cell .zhang_icon {
+      display: inline-flex;
+      width: 2rem;
+      height: 2rem;
+      color: var(--accent-2);
+    }
+
+    .zhang_icon-cell .zhang_icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .zhang_icon-cell .zhang_icon-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .zhang_demo-area {
+      border: 2px dashed var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      margin-top: 1rem;
+    }
+
+    .zhang_demo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .zhang_demo-box .zhang_icon {
+      color: var(--accent-1);
+    }
+
+    .zhang_demo-box .zhang_icon-label {
+      font-family: Consolas, monospace;
+      font-size: 0.75rem;
+    }
+
+    .zhang-size-demo .zhang_icon { width: 1.5rem; height: 1.5rem; }
+    .zhang-size-demo:nth-child(2) .zhang_icon { width: 2rem; height: 2rem; }
+    .zhang-size-demo:nth-child(3) .zhang_icon { width: 3rem; height: 3rem; }
+    .zhang-size-demo:nth-child(4) .zhang_icon { width: 4rem; height: 4rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(99, 102, 241, 0.12));
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td code {
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.875rem;
+      color: #4338ca;
+    }
+
+    .zhang_tip {
+      margin: 0;
+      border-left: 4px solid var(--accent-3);
+      background: rgba(20, 184, 166, 0.08);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 0.85rem 1.1rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    @media (max-width: 640px) {
+      .zhang_icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="zhang_container">
+    <header class="zhang_title-card">
+      <h1>Lucide SVG 图标</h1>
+      <p>Lucide · SVG 方式 · 张顺昌《高级网页设计》课堂实践</p>
+    </header>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">1</span>什么是 SVG 图标</h2>
+      <p style="margin: 0.75rem 0 0; color: var(--muted); line-height: 1.7; font-size: 0.95rem;">
+        SVG 图标使用矢量图形描述图标，每个图标是一段独立的 <code style="background: rgba(99,102,241,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #4338ca;">&lt;svg&gt;</code> 代码，
+        可以无限缩放而不失真，并且能直接用 CSS 修改 <code style="background: rgba(99,102,241,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #4338ca;">stroke</code>、<code style="background: rgba(99,102,241,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #4338ca;">color</code> 等属性。
+        Lucide 是一套开源的 SVG 图标库，本页面通过本地 <code style="background: rgba(99,102,241,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #4338ca;">cdn/lucide.min.js</code> 将 <code style="background: rgba(99,102,241,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #4338ca;">data-lucide</code> 标记的元素替换为内联 SVG。
+      </p>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">2</span>常用图标展示</h2>
+      <div class="zhang_icon-grid">
+        <div class="zhang_icon-cell"><i data-lucide="home" class="zhang_icon"></i><span class="zhang_icon-label">home</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="search" class="zhang_icon"></i><span class="zhang_icon-label">search</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="user" class="zhang_icon"></i><span class="zhang_icon-label">user</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="heart" class="zhang_icon"></i><span class="zhang_icon-label">heart</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="star" class="zhang_icon"></i><span class="zhang_icon-label">star</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="settings" class="zhang_icon"></i><span class="zhang_icon-label">settings</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="mail" class="zhang_icon"></i><span class="zhang_icon-label">mail</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="camera" class="zhang_icon"></i><span class="zhang_icon-label">camera</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="music" class="zhang_icon"></i><span class="zhang_icon-label">music</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="cloud" class="zhang_icon"></i><span class="zhang_icon-label">cloud</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="bell" class="zhang_icon"></i><span class="zhang_icon-label">bell</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="shopping-cart" class="zhang_icon"></i><span class="zhang_icon-label">shopping-cart</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="thumbs-up" class="zhang_icon"></i><span class="zhang_icon-label">thumbs-up</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="github" class="zhang_icon"></i><span class="zhang_icon-label">github</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="rocket" class="zhang_icon"></i><span class="zhang_icon-label">rocket</span></div>
+        <div class="zhang_icon-cell"><i data-lucide="smile" class="zhang_icon"></i><span class="zhang_icon-label">smile</span></div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">3</span>CSS 控制图标样式</h2>
+      <div class="zhang_demo-area">
+        <div class="zhang_demo-box zhang-size-demo"><i data-lucide="rocket" class="zhang_icon"></i><span class="zhang_icon-label">width/height: 1.5rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i data-lucide="rocket" class="zhang_icon"></i><span class="zhang_icon-label">width/height: 2rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i data-lucide="rocket" class="zhang_icon"></i><span class="zhang_icon-label">width/height: 3rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i data-lucide="rocket" class="zhang_icon"></i><span class="zhang_icon-label">width/height: 4rem</span></div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">4</span>SVG 图标用法速查</h2>
+      <table>
+        <thead>
+          <tr><th>步骤</th><th>代码</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>引入 JS</code></td><td><code>&lt;script src="cdn/lucide.min.js"&gt;&lt;/script&gt;</code></td><td>加载 Lucide 图标库</td></tr>
+          <tr><td><code>标记元素</code></td><td><code>&lt;i data-lucide="home"&gt;&lt;/i&gt;</code></td><td>用 data-lucide 指定图标名称</td></tr>
+          <tr><td><code>生成 SVG</code></td><td><code>lucide.createIcons()</code></td><td>把标记元素替换为内联 SVG</td></tr>
+          <tr><td><code>样式控制</code></td><td><code>svg { color: red; width: 2rem; }</code></td><td>直接用 CSS 控制颜色与尺寸</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="zhang_tip">
+      <strong>记忆要点：</strong>SVG 图标是真正的矢量图形，每个图标都是独立的 <strong>&lt;svg&gt;</strong> 标签，可以通过 CSS 自由控制颜色、大小、线宽等属性，也可以添加 CSS 动画与交互效果，是现代网页图标的主流方案。
+    </p>
+  </div>
+
+  <script src="cdn/lucide.min.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

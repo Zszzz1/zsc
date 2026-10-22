@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Font Awesome 字体图标</title>
+  <link rel="stylesheet" href="cdn/fa-all.min.css" />
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent-1: #f59e0b;
+      --accent-2: #ef4444;
+      --accent-3: #10b981;
+      --border: #e5e7eb;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .zhang_container {
+      width: min(100%, 960px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .zhang_title-card {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 1rem 2rem rgba(245, 158, 11, 0.25);
+    }
+
+    .zhang_title-card h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      letter-spacing: 0.12em;
+    }
+
+    .zhang_title-card p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.92;
+    }
+
+    .zhang_section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .zhang_section-title .zhang_badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 0.6rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .zhang_card {
+      background: var(--card);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.06);
+    }
+
+    .zhang_icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .zhang_icon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .zhang_icon-cell:hover {
+      transform: translateY(-0.25rem);
+      box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.1);
+    }
+
+    .zhang_icon-cell .zhang_icon {
+      font-size: 2rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .zhang_icon-cell .zhang_icon-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .zhang_demo-area {
+      border: 2px dashed var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      margin-top: 1rem;
+    }
+
+    .zhang_demo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .zhang_demo-box .zhang_icon {
+      color: var(--accent-2);
+    }
+
+    .zhang_demo-box .zhang_icon-label {
+      font-family: Consolas, monospace;
+      font-size: 0.75rem;
+    }
+
+    .zhang_size-demo .zhang_icon { font-size: 1.5rem; }
+    .zhang_size-demo:nth-child(2) .zhang_icon { font-size: 2rem; }
+    .zhang_size-demo:nth-child(3) .zhang_icon { font-size: 3rem; }
+    .zhang-size-demo:nth-child(4) .zhang_icon { font-size: 4rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.12));
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td code {
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.875rem;
+      color: #b91c1c;
+    }
+
+    .zhang_tip {
+      margin: 0;
+      border-left: 4px solid var(--accent-3);
+      background: rgba(16, 185, 129, 0.08);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 0.85rem 1.1rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    @media (max-width: 640px) {
+      .zhang_icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="zhang_container">
+    <header class="zhang_title-card">
+      <h1>Font Awesome 字体图标</h1>
+      <p>Font Awesome · 字体图标方式 · 张顺昌《高级网页设计》课堂实践</p>
+    </header>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">1</span>什么是字体图标</h2>
+      <p style="margin: 0.75rem 0 0; color: var(--muted); line-height: 1.7; font-size: 0.95rem;">
+        字体图标（Icon Font）把每个图标映射为字体中的一个字符，通过 <code style="background: rgba(239,68,68,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #b91c1c;">@font-face</code> 加载图标字体文件后，
+        像使用普通文字一样用 CSS 控制图标的颜色、大小与阴影。Font Awesome 是最流行的字体图标库之一，本页面通过本地 <code style="background: rgba(239,68,68,0.1); border-radius: 0.35rem; padding: 0.1rem 0.45rem; color: #b91c1c;">cdn/fa-all.min.css</code> 引入。
+      </p>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">2</span>常用图标展示</h2>
+      <div class="zhang_icon-grid">
+        <div class="zhang_icon-cell"><i class="fa-solid fa-house zhang_icon"></i><span class="zhang_icon-label">fa-house</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-magnifying-glass zhang_icon"></i><span class="zhang_icon-label">fa-magnifying-glass</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-user zhang_icon"></i><span class="zhang_icon-label">fa-user</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-heart zhang_icon"></i><span class="zhang_icon-label">fa-heart</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-star zhang_icon"></i><span class="zhang_icon-label">fa-star</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-gear zhang_icon"></i><span class="zhang_icon-label">fa-gear</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-envelope zhang_icon"></i><span class="zhang_icon-label">fa-envelope</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-camera zhang_icon"></i><span class="zhang_icon-label">fa-camera</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-music zhang_icon"></i><span class="zhang_icon-label">fa-music</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-cloud zhang_icon"></i><span class="zhang_icon-label">fa-cloud</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-bell zhang_icon"></i><span class="zhang_icon-label">fa-bell</span></div>
+        <div class="zhang_icon-cell"><i class="fa-solid fa-cart-shopping zhang_icon"></i><span class="zhang_icon-label">fa-cart-shopping</span></div>
+        <div class="zhang_icon-cell"><i class="fa-brands fa-github zhang_icon"></i><span class="zhang_icon-label">fa-github</span></div>
+        <div class="zhang_icon-cell"><i class="fa-brands fa-weixin zhang_icon"></i><span class="zhang_icon-label">fa-weixin</span></div>
+        <div class="zhang_icon-cell"><i class="fa-brands fa-weibo zhang_icon"></i><span class="zhang_icon-label">fa-weibo</span></div>
+        <div class="zhang_icon-cell"><i class="fa-regular fa-thumbs-up zhang_icon"></i><span class="zhang_icon-label">fa-thumbs-up</span></div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">3</span>字号控制图标尺寸</h2>
+      <div class="zhang_demo-area">
+        <div class="zhang_demo-box zhang-size-demo"><i class="fa-solid fa-rocket zhang_icon"></i><span class="zhang_icon-label">font-size: 1.5rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i class="fa-solid fa-rocket zhang_icon"></i><span class="zhang_icon-label">font-size: 2rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i class="fa-solid fa-rocket zhang_icon"></i><span class="zhang_icon-label">font-size: 3rem</span></div>
+        <div class="zhang_demo-box zhang-size-demo"><i class="fa-solid fa-rocket zhang_icon"></i><span class="zhang_icon-label">font-size: 4rem</span></div>
+      </div>
+    </section>
+
+    <section class="zhang_card">
+      <h2 class="zhang_section-title"><span class="zhang_badge">4</span>字体图标用法速查</h2>
+      <table>
+        <thead>
+          <tr><th>分类</th><th>类名前缀</th><th>示例</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>fa-solid</code></td><td>实线图标</td><td><code>&lt;i class="fa-solid fa-star"&gt;&lt;/i&gt;</code></td><td>最常用，笔画实心</td></tr>
+          <tr><td><code>fa-regular</code></td><td>常规图标</td><td><code>&lt;i class="fa-regular fa-heart"&gt;&lt;/i&gt;</code></td><td>线性风格，适合简洁界面</td></tr>
+          <tr><td><code>fa-brands</code></td><td>品牌图标</td><td><code>&lt;i class="fa-brands fa-github"&gt;&lt;/i&gt;</code></td><td>各品牌官方标识</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="zhang_tip">
+      <strong>记忆要点：</strong>字体图标本质是"文字"，因此可以直接用 <strong>color</strong> 改色、用 <strong>font-size</strong> 缩放、用 <strong>text-shadow</strong> 加阴影，无需任何图片资源，一套字体文件即可覆盖全部图标。
+    </p>
+  </div>
+</body>
+</html>
