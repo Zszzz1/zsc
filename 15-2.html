@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript程序结构：循环与条件</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-26；使用模型：GLM-5.3-Flash；功能名称：JavaScript循环与条件程序结构演示 -->
+    <style>
+        :root {
+            --zsc-bg-1: #071120;
+            --zsc-bg-2: #11213d;
+            --zsc-bg-3: #1b2d4a;
+            --zsc-panel: rgba(17, 33, 61, 0.6);
+            --zsc-border: rgba(255, 255, 255, 0.14);
+            --zsc-text: #edf4ff;
+            --zsc-muted: #c1cfe5;
+            --zsc-accent: #7dd3fc;
+            --zsc-accent-2: #c4b5fd;
+            --zsc-ok: #86efac;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--zsc-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.16), transparent 30%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.16), transparent 30%),
+                linear-gradient(135deg, var(--zsc-bg-1) 0%, var(--zsc-bg-2) 45%, var(--zsc-bg-3) 100%);
+        }
+
+        .zsc_shell {
+            width: min(1000px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .zsc_header {
+            padding: 32px 28px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.85));
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 24px 60px rgba(2, 8, 17, 0.45);
+            margin-bottom: 22px;
+        }
+
+        .zsc_top_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .zsc_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--zsc-accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .zsc_back {
+            text-decoration: none;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            transition: all 0.25s ease;
+        }
+
+        .zsc_back:hover {
+            color: var(--zsc-text);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .zsc_header h1 {
+            margin: 0 0 14px;
+            font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+            letter-spacing: -0.02em;
+        }
+
+        .zsc_intro {
+            margin: 0;
+            color: var(--zsc-muted);
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        .zsc_intro code {
+            color: var(--zsc-accent);
+            background: rgba(125, 211, 252, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_panel {
+            padding: 24px;
+            border-radius: 22px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 20px 45px rgba(8, 17, 32, 0.25);
+            margin-bottom: 22px;
+        }
+
+        .zsc_panel h2 {
+            margin: 0 0 16px;
+            font-size: 1.3rem;
+        }
+
+        .zsc_demo_row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .zsc_demo {
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .zsc_demo h3 {
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+            color: var(--zsc-accent-2);
+        }
+
+        .zsc_code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 0 0 12px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.7;
+        }
+
+        .zsc_ctrl_row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .zsc_input {
+            width: 90px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(3, 10, 22, 0.6);
+            color: var(--zsc-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .zsc_input:focus {
+            border-color: rgba(125, 211, 252, 0.5);
+        }
+
+        .zsc_btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--zsc-text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .zsc_btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(125, 211, 252, 0.5);
+            background: rgba(125, 211, 252, 0.12);
+        }
+
+        .zsc_table_99 {
+            display: none;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 6px;
+            margin-top: 14px;
+        }
+
+        .zsc_table_99.zsc_show {
+            display: grid;
+        }
+
+        .zsc_cell_99 {
+            padding: 6px 2px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.24);
+            font-size: clamp(0.6rem, 1.4vw, 0.8rem);
+            text-align: center;
+            font-family: Consolas, monospace;
+            white-space: nowrap;
+        }
+
+        .zsc_output {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.9;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            min-height: 120px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .zsc_output .zsc_out_result {
+            color: var(--zsc-ok);
+        }
+
+        .zsc_console_tip {
+            margin: 14px 0 0;
+            color: var(--zsc-muted);
+            font-size: 0.85rem;
+        }
+
+        .zsc_footer {
+            margin-top: 26px;
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 640px) {
+            .zsc_shell {
+                width: min(100% - 20px, 1000px);
+            }
+
+            .zsc_header {
+                padding: 22px 18px;
+            }
+
+            .zsc_table_99 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <header class="zsc_header">
+            <div class="zsc_top_row">
+                <span class="zsc_badge">第15章 · JavaScript 程序结构</span>
+                <a class="zsc_back" href="index.html">← 返回首页</a>
+            </div>
+            <h1>JavaScript 程序结构：循环与条件</h1>
+            <p class="zsc_intro">
+                程序有三种基本结构：<code>顺序结构</code>、<code>条件结构</code>（if...else、switch）和
+                <code>循环结构</code>（for、while、do...while）。条件结构根据判断结果选择执行路径，
+                循环结构让一段代码重复执行。下面通过可交互的例子演示这两种结构，所有结果同时输出到页面面板和控制台。
+            </p>
+        </header>
+
+        <section class="zsc_panel">
+            <h2>条件结构：if...else 与 switch</h2>
+            <div class="zsc_demo_row">
+                <div class="zsc_demo">
+                    <h3>if...else if...else：分数判等级</h3>
+                    <div class="zsc_code">if (zsc_score >= 90) {
+    zsc_result = "优秀";
+} else if (zsc_score >= 60) {
+    zsc_result = "及格";
+} else {
+    zsc_result = "不及格";
+}</div>
+                    <div class="zsc_ctrl_row">
+                        <input class="zsc_input" id="zsc_score_input" type="number" min="0" max="100" placeholder="分数">
+                        <button class="zsc_btn" id="zsc_btn_grade" onclick="zsc_judge_grade()">判定等级</button>
+                    </div>
+                </div>
+
+                <div class="zsc_demo">
+                    <h3>switch：星期几查询</h3>
+                    <div class="zsc_code">switch (zsc_day) {
+    case 1: zsc_name = "星期一"; break;
+    case 6: zsc_name = "星期六"; break;
+    default: zsc_name = "无效数字";
+}</div>
+                    <div class="zsc_ctrl_row">
+                        <input class="zsc_input" id="zsc_day_input" type="number" min="1" max="7" placeholder="1~7">
+                        <button class="zsc_btn" id="zsc_btn_day" onclick="zsc_judge_day()">查询星期</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zsc_panel">
+            <h2>循环结构：for、while、do...while</h2>
+            <div class="zsc_demo_row">
+                <div class="zsc_demo">
+                    <h3>for 循环：九九乘法表（双重循环）</h3>
+                    <div class="zsc_code">for (var zsc_i = 1; zsc_i <= 9; zsc_i++) {
+    for (var zsc_j = 1; zsc_j <= zsc_i; zsc_j++) {
+        // 内层循环 j 不超过 i
+    }
+}</div>
+                    <div class="zsc_ctrl_row">
+                        <button class="zsc_btn" id="zsc_btn_99" onclick="zsc_run_99()">生成乘法表</button>
+                    </div>
+                    <div class="zsc_table_99" id="zsc_table_99"></div>
+                </div>
+
+                <div class="zsc_demo">
+                    <h3>while 循环：1 加到 100</h3>
+                    <div class="zsc_code">var zsc_total = 0, zsc_i = 1;
+while (zsc_i <= 100) {
+    zsc_total += zsc_i;
+    zsc_i++;
+}</div>
+                    <div class="zsc_ctrl_row">
+                        <button class="zsc_btn" id="zsc_btn_sum" onclick="zsc_run_sum()">执行求和</button>
+                    </div>
+                </div>
+
+                <div class="zsc_demo">
+                    <h3>do...while：至少执行一次</h3>
+                    <div class="zsc_code">var zsc_k = 1;
+do {
+    // 先执行，再判断条件
+    zsc_k++;
+} while (zsc_k <= 5);</div>
+                    <div class="zsc_ctrl_row">
+                        <button class="zsc_btn" id="zsc_btn_dowhile" onclick="zsc_run_dowhile()">执行计数</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zsc_panel">
+            <h2>运行结果面板</h2>
+            <div class="zsc_output" id="zsc_output"></div>
+            <p class="zsc_console_tip">提示：按 F12 打开浏览器控制台，可同步查看每次运行的输出。</p>
+        </section>
+
+        <div class="zsc_footer">
+            姓名：张顺昌 · 2026-10-26 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+
+    <script>
+        // 向结果面板追加一行
+        function zsc_print_line(zsc_text, zsc_is_result) {
+            var zsc_output = document.getElementById("zsc_output");
+            var zsc_line = document.createElement("div");
+            zsc_line.className = zsc_is_result ? "zsc_out_line zsc_out_result" : "zsc_out_line";
+            zsc_line.textContent = zsc_text;
+            zsc_output.appendChild(zsc_line);
+            zsc_output.scrollTop = zsc_output.scrollHeight;
+            console.log(zsc_text);
+        }
+
+        // ===== 条件结构 1：if...else if...else 判定分数等级 =====
+        function zsc_judge_grade() {
+            var zsc_score = Number(document.getElementById("zsc_score_input").value);
+            var zsc_result;
+
+            if (document.getElementById("zsc_score_input").value === "" || zsc_score < 0 || zsc_score > 100) {
+                zsc_result = "请输入 0~100 之间的有效分数！";
+            } else if (zsc_score >= 90) {
+                zsc_result = "等级：优秀（90~100）";
+            } else if (zsc_score >= 80) {
+                zsc_result = "等级：良好（80~89）";
+            } else if (zsc_score >= 60) {
+                zsc_result = "等级：及格（60~79）";
+            } else {
+                zsc_result = "等级：不及格（0~59）";
+            }
+
+            zsc_print_line("> if...else 判定分数：" + (zsc_score || 0), false);
+            zsc_print_line(zsc_result, true);
+        }
+
+        // ===== 条件结构 2：switch 查询星期 =====
+        function zsc_judge_day() {
+            var zsc_day = Number(document.getElementById("zsc_day_input").value);
+            var zsc_name;
+
+            switch (zsc_day) {
+                case 1: zsc_name = "星期一 Monday"; break;
+                case 2: zsc_name = "星期二 Tuesday"; break;
+                case 3: zsc_name = "星期三 Wednesday"; break;
+                case 4: zsc_name = "星期四 Thursday"; break;
+                case 5: zsc_name = "星期五 Friday"; break;
+                case 6: zsc_name = "星期六 Saturday"; break;
+                case 7: zsc_name = "星期日 Sunday"; break;
+                default: zsc_name = "无效数字（请输入 1~7）";
+            }
+
+            zsc_print_line("> switch 查询数字：" + (zsc_day || 0), false);
+            zsc_print_line(zsc_name, true);
+        }
+
+        // ===== 循环结构 1：for 双重循环生成九九乘法表 =====
+        function zsc_run_99() {
+            var zsc_table = document.getElementById("zsc_table_99");
+            zsc_table.innerHTML = "";
+            zsc_table.className = "zsc_table_99 zsc_show";
+
+            for (var zsc_i = 1; zsc_i <= 9; zsc_i++) {
+                var zsc_row_text = "";
+                for (var zsc_j = 1; zsc_j <= zsc_i; zsc_j++) {
+                    var zsc_cell = document.createElement("div");
+                    zsc_cell.className = "zsc_cell_99";
+                    zsc_cell.textContent = zsc_j + "×" + zsc_i + "=" + (zsc_i * zsc_j);
+                    zsc_table.appendChild(zsc_cell);
+                    zsc_row_text += zsc_j + "×" + zsc_i + "=" + (zsc_i * zsc_j) + "  ";
+                }
+                console.log(zsc_row_text);
+            }
+
+            zsc_print_line("> for 双重循环生成九九乘法表（共 " + (9 * 10 / 2) + " 式）", false);
+            zsc_print_line("乘法表已生成，见上方网格；完整行已输出到控制台", true);
+        }
+
+        // ===== 循环结构 2：while 累加 1~100 =====
+        function zsc_run_sum() {
+            var zsc_total = 0;
+            var zsc_i = 1;
+
+            while (zsc_i <= 100) {
+                zsc_total += zsc_i;
+                zsc_i++;
+            }
+
+            zsc_print_line("> while 循环：1+2+3+...+100", false);
+            zsc_print_line("循环结束，zsc_i 终值 = " + zsc_i + "，结果 = " + zsc_total, true);
+        }
+
+        // ===== 循环结构 3：do...while 至少执行一次 =====
+        function zsc_run_dowhile() {
+            var zsc_k = 1;
+            var zsc_steps = "";
+
+            do {
+                zsc_steps += zsc_k + " ";
+                zsc_k++;
+            } while (zsc_k <= 5);
+
+            zsc_print_line("> do...while 计数（先执行后判断）", false);
+            zsc_print_line("执行顺序：" + zsc_steps + "，条件不满足后退出", true);
+        }
+
+        // 页面加载提示
+        console.log("===== 张顺昌 15-2 JavaScript程序结构：循环与条件 =====");
+        zsc_print_line("// 点击上方按钮体验条件结构与循环结构", false);
+        zsc_print_line("// 例如：输入分数 85 点击「判定等级」；点击「生成乘法表」看双重循环", false);
+    </script>
+</body>
+</html>
