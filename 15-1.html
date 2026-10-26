@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>逢七过·一百个盒子</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-26；使用模型：GLM-5.3-Flash；功能名称：数7游戏一百盒子演示 -->
+    <style>
+        :root {
+            --zsc-bg-1: #071120;
+            --zsc-bg-2: #11213d;
+            --zsc-bg-3: #1b2d4a;
+            --zsc-panel: rgba(17, 33, 61, 0.6);
+            --zsc-border: rgba(255, 255, 255, 0.14);
+            --zsc-text: #edf4ff;
+            --zsc-muted: #c1cfe5;
+            --zsc-accent: #7dd3fc;
+            --zsc-accent-2: #c4b5fd;
+            --zsc-pass: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--zsc-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.16), transparent 30%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.16), transparent 30%),
+                linear-gradient(135deg, var(--zsc-bg-1) 0%, var(--zsc-bg-2) 45%, var(--zsc-bg-3) 100%);
+        }
+
+        .zsc_shell {
+            width: min(1000px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .zsc_header {
+            padding: 32px 28px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.85));
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 24px 60px rgba(2, 8, 17, 0.45);
+            margin-bottom: 22px;
+        }
+
+        .zsc_top_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .zsc_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--zsc-accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .zsc_back {
+            text-decoration: none;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            transition: all 0.25s ease;
+        }
+
+        .zsc_back:hover {
+            color: var(--zsc-text);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .zsc_header h1 {
+            margin: 0 0 14px;
+            font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+            letter-spacing: -0.02em;
+        }
+
+        .zsc_intro {
+            margin: 0;
+            color: var(--zsc-muted);
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        .zsc_intro code {
+            color: var(--zsc-accent);
+            background: rgba(125, 211, 252, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_legend {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            border-radius: 18px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+        }
+
+        .zsc_legend_item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--zsc-muted);
+            font-size: 0.92rem;
+        }
+
+        .zsc_legend_box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+
+        .zsc_legend_demo_normal {
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.25), rgba(196, 181, 253, 0.25));
+            border: 1px solid rgba(125, 211, 252, 0.45);
+            color: var(--zsc-text);
+        }
+
+        .zsc_legend_demo_pass {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px dashed rgba(251, 191, 36, 0.55);
+        }
+
+        .zsc_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            padding: 20px;
+            border-radius: 22px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 20px 45px rgba(8, 17, 32, 0.25);
+        }
+
+        .zsc_box {
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: clamp(0.85rem, 2vw, 1.15rem);
+            transition: transform 0.2s ease;
+        }
+
+        .zsc_box_normal {
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.22), rgba(196, 181, 253, 0.22));
+            border: 1px solid rgba(125, 211, 252, 0.4);
+            color: var(--zsc-text);
+        }
+
+        .zsc_box_pass {
+            background: rgba(251, 191, 36, 0.06);
+            border: 1px dashed rgba(251, 191, 36, 0.5);
+        }
+
+        .zsc_box_normal:hover {
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .zsc_summary {
+            margin: 18px 0 0;
+            color: var(--zsc-muted);
+            font-size: 0.95rem;
+            line-height: 1.9;
+        }
+
+        .zsc_summary strong {
+            color: var(--zsc-pass);
+        }
+
+        .zsc_footer {
+            margin-top: 26px;
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 640px) {
+            .zsc_shell {
+                width: min(100% - 20px, 1000px);
+            }
+
+            .zsc_header {
+                padding: 22px 18px;
+            }
+
+            .zsc_grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <header class="zsc_header">
+            <div class="zsc_top_row">
+                <span class="zsc_badge">第15章 · 循环与条件综合练习</span>
+                <a class="zsc_back" href="index.html">← 返回首页</a>
+            </div>
+            <h1>逢七过 · 一百个盒子</h1>
+            <p class="zsc_intro">
+                按照经典“数 7”游戏规则：凡是 <code>7 的倍数</code>（7、14、21……）或者
+                <code>数字中含 7</code>（个位为 7、十位为 7，如 17、71、70~79）的盒子都要“过”，
+                因此显示为<strong style="color: var(--zsc-pass)">空盒子</strong>；
+                其余不满足要求的盒子正常显示数字。
+            </p>
+        </header>
+
+        <div class="zsc_legend">
+            <div class="zsc_legend_item">
+                <span class="zsc_legend_box zsc_legend_demo_normal">5</span>
+                <span>不满足数 7 规则，显示数字</span>
+            </div>
+            <div class="zsc_legend_item">
+                <span class="zsc_legend_box zsc_legend_demo_pass"></span>
+                <span>满足数 7 规则（7 的倍数或含 7），显示空盒子</span>
+            </div>
+        </div>
+
+        <div class="zsc_grid" id="zsc_grid"></div>
+
+        <p class="zsc_summary" id="zsc_summary"></p>
+
+        <div class="zsc_footer">
+            姓名：张顺昌 · 2026-10-26 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+
+    <script>
+        // 判断数字是否符合“数 7”规则：7 的倍数，或个位、十位含数字 7
+        function zsc_is_pass(zsc_n) {
+            return zsc_n % 7 === 0 || String(zsc_n).indexOf("7") !== -1;
+        }
+
+        // 生成 1~100 共一百个盒子
+        var zsc_grid = document.getElementById("zsc_grid");
+        var zsc_pass_list = [];
+
+        for (var zsc_i = 1; zsc_i <= 100; zsc_i++) {
+            var zsc_box = document.createElement("div");
+
+            if (zsc_is_pass(zsc_i)) {
+                // 满足规则：显示空盒子
+                zsc_box.className = "zsc_box zsc_box_pass";
+                zsc_pass_list.push(zsc_i);
+            } else {
+                // 不满足规则：显示数字
+                zsc_box.className = "zsc_box zsc_box_normal";
+                zsc_box.textContent = zsc_i;
+            }
+
+            zsc_grid.appendChild(zsc_box);
+        }
+
+        // 输出统计结果
+        var zsc_summary = document.getElementById("zsc_summary");
+        zsc_summary.innerHTML =
+            "共 <strong>" + zsc_pass_list.length + "</strong> 个盒子需要“过”：" +
+            zsc_pass_list.join("、");
+
+        console.log("===== 张顺昌 15-1 逢七过 =====");
+        console.log("需要“过”的数字（" + zsc_pass_list.length + "个）：", zsc_pass_list.join(", "));
+    </script>
+</body>
+</html>
