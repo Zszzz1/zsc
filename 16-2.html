@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 对象</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-29；使用模型：DeepSeek-V4.1-Flash；功能名称：JavaScript对象基础与常用操作演示 -->
+    <style>
+        :root {
+            --zsc-bg-1: #071120;
+            --zsc-bg-2: #11213d;
+            --zsc-bg-3: #1b2d4a;
+            --zsc-panel: rgba(17, 33, 61, 0.6);
+            --zsc-border: rgba(255, 255, 255, 0.14);
+            --zsc-text: #edf4ff;
+            --zsc-muted: #c1cfe5;
+            --zsc-accent: #7dd3fc;
+            --zsc-accent-2: #c4b5fd;
+            --zsc-accent-3: #86efac;
+            --zsc-accent-4: #f9a8d4;
+            --zsc-warn: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--zsc-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.16), transparent 30%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.16), transparent 30%),
+                linear-gradient(135deg, var(--zsc-bg-1) 0%, var(--zsc-bg-2) 45%, var(--zsc-bg-3) 100%);
+        }
+
+        .zsc_shell {
+            width: min(1020px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .zsc_header {
+            padding: 32px 28px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.85));
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 24px 60px rgba(2, 8, 17, 0.45);
+            margin-bottom: 22px;
+        }
+
+        .zsc_top_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .zsc_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--zsc-accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .zsc_back {
+            text-decoration: none;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            transition: all 0.25s ease;
+        }
+
+        .zsc_back:hover {
+            color: var(--zsc-text);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .zsc_header h1 {
+            margin: 0 0 14px;
+            font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+            letter-spacing: -0.02em;
+        }
+
+        .zsc_intro {
+            margin: 0;
+            color: var(--zsc-muted);
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        .zsc_intro code,
+        .zsc_panel_tip code {
+            color: var(--zsc-accent);
+            background: rgba(125, 211, 252, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_panel {
+            padding: 24px;
+            border-radius: 22px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 20px 45px rgba(8, 17, 32, 0.25);
+            margin-bottom: 22px;
+        }
+
+        .zsc_panel h2 {
+            margin: 0 0 8px;
+            font-size: 1.3rem;
+        }
+
+        .zsc_panel_tip {
+            margin: 0 0 16px;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* ===== 对象展示区：一行一个「键 : 值」 ===== */
+        .zsc_obj {
+            border-radius: 16px;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                rgba(3, 10, 22, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .zsc_obj_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            background: rgba(125, 211, 252, 0.07);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: Consolas, monospace;
+            font-size: 0.88rem;
+            color: var(--zsc-accent);
+        }
+
+        .zsc_obj_count {
+            color: var(--zsc-muted);
+            font-size: 0.8rem;
+        }
+
+        .zsc_obj_body {
+            padding: 10px 14px;
+        }
+
+        .zsc_obj_row {
+            display: grid;
+            grid-template-columns: 130px 18px 1fr 74px;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            animation: zsc_pop_in 0.35s ease both;
+            transition: background 0.25s ease, opacity 0.3s ease;
+        }
+
+        .zsc_obj_row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .zsc_obj_key {
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--zsc-accent-2);
+            text-align: right;
+        }
+
+        .zsc_obj_colon {
+            color: var(--zsc-muted);
+        }
+
+        .zsc_obj_val {
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            color: var(--zsc-accent-3);
+            word-break: break-all;
+        }
+
+        .zsc_obj_val.zsc_is_fn {
+            color: var(--zsc-accent-4);
+        }
+
+        .zsc_obj_type {
+            font-size: 0.72rem;
+            color: var(--zsc-muted);
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            padding: 2px 8px;
+            justify-self: end;
+        }
+
+        .zsc_obj_row.zsc_highlight {
+            background: rgba(134, 239, 172, 0.14);
+            outline: 2px solid rgba(134, 239, 172, 0.6);
+            outline-offset: -2px;
+        }
+
+        .zsc_obj_row.zsc_leaving {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+
+        .zsc_obj_empty {
+            padding: 16px 10px;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            text-align: center;
+        }
+
+        /* ===== 按钮与输入 ===== */
+        .zsc_ctrl_row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .zsc_btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--zsc-text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .zsc_btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(125, 211, 252, 0.5);
+            background: rgba(125, 211, 252, 0.12);
+        }
+
+        .zsc_btn:active {
+            transform: translateY(0);
+        }
+
+        .zsc_btn_warn:hover {
+            border-color: rgba(251, 191, 36, 0.6);
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .zsc_code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 16px 0 0;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.7;
+        }
+
+        /* ===== 结果小卡片 ===== */
+        .zsc_result_row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .zsc_result_card {
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            min-height: 92px;
+        }
+
+        .zsc_result_card h4 {
+            margin: 0 0 10px;
+            font-size: 0.95rem;
+            color: var(--zsc-accent-3);
+        }
+
+        .zsc_chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .zsc_chip {
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-family: Consolas, monospace;
+            font-size: 0.83rem;
+            font-weight: 700;
+            color: #0d1d33;
+            background: linear-gradient(135deg, var(--zsc-accent-3), var(--zsc-accent));
+            animation: zsc_pop_in 0.35s ease both;
+        }
+
+        .zsc_chip_bad {
+            background: linear-gradient(135deg, var(--zsc-warn), var(--zsc-accent-4));
+        }
+
+        .zsc_chip_text {
+            color: var(--zsc-text);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--zsc-border);
+            font-weight: 400;
+        }
+
+        /* ===== 构造函数版块：学生对象卡片 ===== */
+        .zsc_card_list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .zsc_stu_card {
+            padding: 16px;
+            border-radius: 16px;
+            background: linear-gradient(160deg, rgba(125, 211, 252, 0.1), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            animation: zsc_pop_in 0.4s ease both;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .zsc_stu_card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(125, 211, 252, 0.45);
+        }
+
+        .zsc_stu_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .zsc_stu_name {
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .zsc_stu_age {
+            color: var(--zsc-muted);
+            font-size: 0.8rem;
+        }
+
+        .zsc_stu_major {
+            color: var(--zsc-muted);
+            font-size: 0.84rem;
+            margin-bottom: 12px;
+        }
+
+        .zsc_stu_track {
+            height: 14px;
+            border-radius: 999px;
+            background: rgba(3, 10, 22, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .zsc_stu_bar {
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--zsc-accent), var(--zsc-accent-2));
+            transition: width 0.7s ease;
+        }
+
+        .zsc_stu_bar.zsc_fail {
+            background: linear-gradient(90deg, var(--zsc-warn), var(--zsc-accent-4));
+        }
+
+        .zsc_stu_score {
+            margin-top: 8px;
+            font-family: Consolas, monospace;
+            font-size: 0.85rem;
+            color: var(--zsc-text);
+        }
+
+        /* ===== 运行日志 ===== */
+        .zsc_output {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.9;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            min-height: 130px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .zsc_output .zsc_out_result {
+            color: var(--zsc-accent-3);
+        }
+
+        .zsc_output .zsc_out_warn {
+            color: var(--zsc-warn);
+        }
+
+        .zsc_console_tip {
+            margin: 14px 0 0;
+            color: var(--zsc-muted);
+            font-size: 0.85rem;
+        }
+
+        .zsc_footer {
+            margin-top: 26px;
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+        }
+
+        @keyframes zsc_pop_in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .zsc_shell {
+                width: min(100% - 20px, 1020px);
+            }
+
+            .zsc_header {
+                padding: 22px 18px;
+            }
+
+            .zsc_obj_row {
+                grid-template-columns: 96px 14px 1fr;
+            }
+
+            .zsc_obj_type {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <header class="zsc_header">
+            <div class="zsc_top_row">
+                <span class="zsc_badge">第16章 · JavaScript 对象</span>
+                <a class="zsc_back" href="index.html">← 返回首页</a>
+            </div>
+            <h1>JavaScript 对象：用「键值对」描述一个事物</h1>
+            <p class="zsc_intro">
+                数组用<strong>下标</strong>存数据，对象用<strong>键名</strong>存数据。一个对象就像一张表格，
+                装着某个事物的各种属性：名字、年龄、专业、分数……下面把一个学生对象画成
+                <span style="color:var(--zsc-accent-2)">键</span> :
+                <span style="color:var(--zsc-accent-3)">值</span> 的行，
+                点按钮就能看到属性的读取、新增、修改、删除，以及
+                <code>this</code>、<code>for...in</code>、<code>Object.keys()</code> 和构造函数 <code>new</code> 的效果。
+            </p>
+        </header>
+
+        <!-- ===== 一、对象的创建与属性操作 ===== -->
+        <section class="zsc_panel">
+            <h2>一、创建对象与读写属性</h2>
+            <p class="zsc_panel_tip">
+                对象用一对花括号 <code>{ }</code> 定义，内部是 <code>键: 值</code> 的列表，键值之间用逗号隔开。
+                读取属性有两种写法：点语法 <code>对象.键</code> 和方括号 <code>对象["键"]</code>；
+                给不存在的键赋值就是<strong>新增</strong>，<code>delete</code> 可以删掉一个键。
+            </p>
+
+            <div class="zsc_obj" id="zsc_obj_box">
+                <div class="zsc_obj_head">
+                    <span>var zsc_student = { … }</span>
+                    <span class="zsc_obj_count" id="zsc_obj_count">共 0 个属性</span>
+                </div>
+                <div class="zsc_obj_body" id="zsc_obj_body"></div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_get_dot()">zsc_student.name 点语法</button>
+                <button class="zsc_btn" onclick="zsc_get_bracket()">zsc_student["age"] 方括号</button>
+                <button class="zsc_btn" onclick="zsc_add_prop()">新增属性 gender</button>
+                <button class="zsc_btn" onclick="zsc_edit_prop()">修改属性 score</button>
+                <button class="zsc_btn zsc_btn_warn" onclick="zsc_del_prop()">delete 删除属性 city</button>
+                <button class="zsc_btn zsc_btn_warn" onclick="zsc_reset_obj()">↺ 重置对象</button>
+            </div>
+
+            <div class="zsc_code">var zsc_student = {
+    name: "张顺昌",
+    age: 20,
+    major: "数字媒体技术",
+    score: 92,
+    city: "长沙"
+};
+
+zsc_student.name;           // "张顺昌"   点语法
+zsc_student["age"];         // 20        方括号：键名可以是变量或含特殊字符
+zsc_student.gender = "男";  // 新增属性
+zsc_student.score = 95;     // 修改属性
+delete zsc_student.city;    // 删除属性（返回 true）
+
+// 第二部分会给它再加一个 introduce 方法：函数也可以作为属性值</div>
+        </section>
+
+        <!-- ===== 二、对象里的方法 ===== -->
+        <section class="zsc_panel">
+            <h2>二、对象里的方法：函数也能当属性</h2>
+            <p class="zsc_panel_tip">
+                属性的值不只能是数字和字符串，还可以是一个<strong>函数</strong>，这时它被称为「方法」。
+                方法内部用 <code>this</code> 指向<strong>调用它的那个对象</strong>，
+                所以 <code>zsc_student.introduce()</code> 能拿到自己的名字；
+                但如果先把方法赋值给一个普通变量再调用，<code>this</code> 就会丢失。
+            </p>
+
+            <div class="zsc_result_row">
+                <div class="zsc_result_card">
+                    <h4>zsc_student.introduce() —— this 正常</h4>
+                    <div class="zsc_chips" id="zsc_this_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>var zsc_fn = zsc_student.introduce; zsc_fn() —— this 丢失</h4>
+                    <div class="zsc_chips" id="zsc_this_lost_out"></div>
+                </div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_call_introduce()">正常调用方法</button>
+                <button class="zsc_btn" onclick="zsc_call_broken()">把方法取出来单独调用</button>
+                <button class="zsc_btn" onclick="zsc_add_method()">给对象添加方法 getLevel()</button>
+            </div>
+
+            <div class="zsc_code">var zsc_student = {
+    name: "张顺昌",
+    age: 20,
+    introduce: function () {
+        return "大家好，我是" + this.name + "，今年" + this.age + "岁。";
+    }
+};
+
+zsc_student.introduce();      // this → zsc_student，正常输出
+var zsc_fn = zsc_student.introduce;
+zsc_fn();                     // this → 丢失，name 变成 undefined</div>
+        </section>
+
+        <!-- ===== 三、遍历对象 ===== -->
+        <section class="zsc_panel">
+            <h2>三、遍历对象：for...in 与 Object 的静态方法</h2>
+            <p class="zsc_panel_tip">
+                对象不能用 <code>for</code> 按下标循环（对象没有下标），要用 <code>for...in</code> 遍历<strong>键名</strong>，
+                再用 <code>对象[键名]</code> 取值。<code>Object.keys()</code> 返回键组成的数组、
+                <code>Object.values()</code> 返回值组成的数组、<code>Object.entries()</code> 返回
+                <code>[键, 值]</code> 组成的二维数组，拿到数组之后就能用 <code>forEach / map</code> 了。
+            </p>
+
+            <div class="zsc_result_row">
+                <div class="zsc_result_card">
+                    <h4>for...in 逐个访问</h4>
+                    <div class="zsc_chips" id="zsc_forin_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>Object.keys() 键名数组</h4>
+                    <div class="zsc_chips" id="zsc_keys_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>Object.values() 值数组</h4>
+                    <div class="zsc_chips" id="zsc_values_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>Object.entries() 键值对数组</h4>
+                    <div class="zsc_chips" id="zsc_entries_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>in 运算符 / hasOwnProperty() 判断</h4>
+                    <div class="zsc_chips" id="zsc_check_out"></div>
+                </div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_do_forin()">for...in 遍历</button>
+                <button class="zsc_btn" onclick="zsc_do_keys()">Object.keys()</button>
+                <button class="zsc_btn" onclick="zsc_do_values()">Object.values()</button>
+                <button class="zsc_btn" onclick="zsc_do_entries()">Object.entries()</button>
+                <button class="zsc_btn" onclick="zsc_do_check()">"name" in 对象 / hasOwnProperty</button>
+            </div>
+
+            <div class="zsc_code">for (var zsc_key in zsc_student) {
+    console.log(zsc_key + " = " + zsc_student[zsc_key]);
+}
+
+Object.keys(zsc_student);     // ["name", "age", "major", ...]
+Object.values(zsc_student);   // ["张顺昌", 20, "数字媒体技术", ...]
+Object.entries(zsc_student);  // [["name", "张顺昌"], ["age", 20], ...]
+
+"name" in zsc_student;                    // true
+zsc_student.hasOwnProperty("score");      // true</div>
+        </section>
+
+        <!-- ===== 四、构造函数与对象数组 ===== -->
+        <section class="zsc_panel">
+            <h2>四、构造函数 new 与对象数组</h2>
+            <p class="zsc_panel_tip">
+                要创建一批结构相同的对象（比如一个班的学生），可以写一个<strong>构造函数</strong>：
+                函数名首字母大写，内部用 <code>this.键 = 值</code> 挂属性，调用时前面加 <code>new</code>。
+                把 new 出来的对象放进数组，就成了「对象数组」——这是真实项目里最常见的数据形态：
+                先 <code>sort</code> 排序，再 <code>filter</code> 筛选，最后 <code>map</code> 取出需要的字段。
+            </p>
+
+            <div class="zsc_card_list" id="zsc_stu_list"></div>
+
+            <div class="zsc_result_row">
+                <div class="zsc_result_card">
+                    <h4>操作结果</h4>
+                    <div class="zsc_chips" id="zsc_stu_out"></div>
+                </div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_sort_stu()">按分数从高到低排序</button>
+                <button class="zsc_btn" onclick="zsc_filter_stu()">筛选 80 分以上</button>
+                <button class="zsc_btn" onclick="zsc_map_stu()">map 取出所有姓名</button>
+                <button class="zsc_btn" onclick="zsc_avg_stu()">reduce 求平均分</button>
+                <button class="zsc_btn zsc_btn_warn" onclick="zsc_reset_stu()">↺ 恢复原始顺序</button>
+            </div>
+
+            <div class="zsc_code">function zsc_Student(name, age, major, score) {
+    this.name = name;
+    this.age = age;
+    this.major = major;
+    this.score = score;
+}
+
+var zsc_students = [
+    new zsc_Student("张顺昌", 20, "数字媒体技术", 92),
+    new zsc_Student("李明", 21, "计算机应用", 78),
+    new zsc_Student("王雪", 20, "视觉传达", 85),
+    new zsc_Student("陈涛", 22, "软件技术", 59)
+];
+
+zsc_students.sort(function (a, b) { return b.score - a.score; });  // 按分数降序
+zsc_students.filter(function (s) { return s.score >= 80; });        // 筛选
+zsc_students.map(function (s) { return s.name; });                  // 提取姓名</div>
+        </section>
+
+        <!-- ===== 运行结果面板 ===== -->
+        <section class="zsc_panel">
+            <h2>运行结果面板</h2>
+            <div class="zsc_output" id="zsc_output"></div>
+            <p class="zsc_console_tip">提示：按 F12 打开浏览器控制台，可同步查看每次运行的输出；也可以在控制台手动输入 zsc_student 查看整个对象。</p>
+        </section>
+
+        <div class="zsc_footer">
+            姓名：张顺昌 · 2026-10-29 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+
+    <script>
+        // ===== 初始数据 =====
+        var zsc_student_init = {
+            name: "张顺昌",
+            age: 20,
+            major: "数字媒体技术",
+            score: 92,
+            city: "长沙",
+            introduce: function () {
+                return "大家好，我是" + this.name + "，今年" + this.age + "岁。";
+            }
+        };
+        var zsc_student = {};
+
+        function zsc_Student(name, age, major, score) {
+            this.name = name;
+            this.age = age;
+            this.major = major;
+            this.score = score;
+        }
+
+        var zsc_students_init = [
+            new zsc_Student("张顺昌", 20, "数字媒体技术", 92),
+            new zsc_Student("李明", 21, "计算机应用", 78),
+            new zsc_Student("王雪", 20, "视觉传达", 85),
+            new zsc_Student("陈涛", 22, "软件技术", 59)
+        ];
+        var zsc_students = [];
+
+        // ===== 日志 =====
+        function zsc_print_line(zsc_text, zsc_type) {
+            var zsc_output = document.getElementById("zsc_output");
+            var zsc_line = document.createElement("div");
+            var zsc_class = "zsc_out_line";
+            if (zsc_type === "result") {
+                zsc_class += " zsc_out_result";
+            } else if (zsc_type === "warn") {
+                zsc_class += " zsc_out_warn";
+            }
+            zsc_line.className = zsc_class;
+            zsc_line.textContent = zsc_text;
+            zsc_output.appendChild(zsc_line);
+            zsc_output.scrollTop = zsc_output.scrollHeight;
+            console.log(zsc_text);
+        }
+
+        // ===== 工具：判断值类型，用于右侧小标签 =====
+        function zsc_type_of(zsc_v) {
+            if (zsc_v === null) {
+                return "null";
+            }
+            if (Object.prototype.toString.call(zsc_v) === "[object Array]") {
+                return "Array";
+            }
+            return typeof zsc_v;
+        }
+
+        // ===== 渲染对象：一行一个「键 : 值」 =====
+        function zsc_render_obj(zsc_options) {
+            zsc_options = zsc_options || {};
+            var zsc_body = document.getElementById("zsc_obj_body");
+            var zsc_count = document.getElementById("zsc_obj_count");
+            zsc_body.innerHTML = "";
+
+            var zsc_key_list = Object.keys(zsc_student);
+            zsc_count.textContent = "共 " + zsc_key_list.length + " 个属性";
+
+            if (zsc_key_list.length === 0) {
+                var zsc_empty = document.createElement("div");
+                zsc_empty.className = "zsc_obj_empty";
+                zsc_empty.textContent = "（空对象，没有任何属性）";
+                zsc_body.appendChild(zsc_empty);
+                return;
+            }
+
+            for (var zsc_i = 0; zsc_i < zsc_key_list.length; zsc_i++) {
+                var zsc_key = zsc_key_list[zsc_i];
+                var zsc_value = zsc_student[zsc_key];
+
+                var zsc_row = document.createElement("div");
+                zsc_row.className = "zsc_obj_row";
+                zsc_row.style.animationDelay = (zsc_i * 0.04) + "s";
+
+                var zsc_key_cell = document.createElement("span");
+                zsc_key_cell.className = "zsc_obj_key";
+                zsc_key_cell.textContent = zsc_key;
+
+                var zsc_colon = document.createElement("span");
+                zsc_colon.className = "zsc_obj_colon";
+                zsc_colon.textContent = ":";
+
+                var zsc_val_cell = document.createElement("span");
+                zsc_val_cell.className = "zsc_obj_val";
+                if (typeof zsc_value === "function") {
+                    zsc_val_cell.className += " zsc_is_fn";
+                    zsc_val_cell.textContent = "ƒ function () { … }";
+                } else if (typeof zsc_value === "string") {
+                    zsc_val_cell.textContent = "\"" + zsc_value + "\"";
+                } else {
+                    zsc_val_cell.textContent = String(zsc_value);
+                }
+
+                var zsc_type_cell = document.createElement("span");
+                zsc_type_cell.className = "zsc_obj_type";
+                zsc_type_cell.textContent = zsc_type_of(zsc_value);
+
+                if (zsc_options.zsc_highlight === zsc_key) {
+                    zsc_row.className += " zsc_highlight";
+                }
+                if (zsc_options.zsc_leaving === zsc_key) {
+                    zsc_row.className += " zsc_leaving";
+                }
+
+                zsc_row.appendChild(zsc_key_cell);
+                zsc_row.appendChild(zsc_colon);
+                zsc_row.appendChild(zsc_val_cell);
+                zsc_row.appendChild(zsc_type_cell);
+                zsc_body.appendChild(zsc_row);
+            }
+        }
+
+        // ===== 一、读写属性 =====
+        function zsc_get_dot() {
+            zsc_render_obj({ zsc_highlight: "name" });
+            zsc_print_line("> zsc_student.name", "plain");
+            zsc_print_line("返回 \"" + zsc_student.name + "\"　// 点语法，最常用", "result");
+        }
+
+        function zsc_get_bracket() {
+            zsc_render_obj({ zsc_highlight: "age" });
+            var zsc_key = "age";
+            zsc_print_line("> var zsc_key = \"age\"; zsc_student[zsc_key]", "plain");
+            zsc_print_line("返回 " + zsc_student[zsc_key] + "　// 方括号里可以放变量，这是点语法做不到的", "result");
+        }
+
+        function zsc_add_prop() {
+            if (zsc_student.gender !== undefined) {
+                zsc_render_obj({ zsc_highlight: "gender" });
+                zsc_print_line("> zsc_student.gender = \"男\"", "plain");
+                zsc_print_line("gender 已存在，本次相当于修改：\"" + zsc_student.gender + "\"", "warn");
+                return;
+            }
+            zsc_student.gender = "男";
+            zsc_render_obj({ zsc_highlight: "gender" });
+            zsc_print_line("> zsc_student.gender = \"男\"", "plain");
+            zsc_print_line("对象里原本没有 gender，赋值即新增，属性数变为 " + Object.keys(zsc_student).length + " 个", "result");
+        }
+
+        function zsc_edit_prop() {
+            var zsc_old = zsc_student.score;
+            zsc_student.score = 96;
+            zsc_render_obj({ zsc_highlight: "score" });
+            zsc_print_line("> zsc_student.score = 96", "plain");
+            zsc_print_line("score 由 " + zsc_old + " 改为 " + zsc_student.score + "　// 键已存在，赋值即修改", "result");
+        }
+
+        function zsc_del_prop() {
+            if (zsc_student.city === undefined) {
+                zsc_render_obj({});
+                zsc_print_line("> delete zsc_student.city", "plain");
+                zsc_print_line("city 已经不存在了，delete 不会报错，只是返回 true", "warn");
+                return;
+            }
+            zsc_render_obj({ zsc_leaving: "city" });
+            zsc_print_line("> delete zsc_student.city", "plain");
+            setTimeout(function () {
+                delete zsc_student.city;
+                zsc_render_obj({});
+                zsc_print_line("删除成功，剩余属性：" + Object.keys(zsc_student).join("、"), "result");
+            }, 420);
+        }
+
+        function zsc_reset_obj(zsc_silent) {
+            zsc_student = {};
+            for (var zsc_k in zsc_student_init) {
+                zsc_student[zsc_k] = zsc_student_init[zsc_k];
+            }
+            zsc_render_obj({});
+            document.getElementById("zsc_this_out").innerHTML = "";
+            document.getElementById("zsc_this_lost_out").innerHTML = "";
+            if (!zsc_silent) {
+                zsc_print_line("> 对象已重置为初始状态，共 " + Object.keys(zsc_student).length + " 个属性", "plain");
+            }
+        }
+
+        // ===== 二、方法中的 this =====
+        function zsc_call_introduce() {
+            var zsc_text = zsc_student.introduce();
+            zsc_fill_chips("zsc_this_out", [zsc_text], false);
+            zsc_print_line("> zsc_student.introduce()", "plain");
+            zsc_print_line("this 指向 zsc_student，输出：" + zsc_text, "result");
+        }
+
+        function zsc_call_broken() {
+            var zsc_fn = zsc_student.introduce;
+            var zsc_text = zsc_fn();
+            zsc_fill_chips("zsc_this_lost_out", [zsc_text], true);
+            zsc_print_line("> var zsc_fn = zsc_student.introduce; zsc_fn()", "plain");
+            zsc_print_line("方法被单独取出后，this 不再指向 zsc_student，name / age 变成 undefined", "warn");
+        }
+
+        function zsc_add_method() {
+            zsc_student.getLevel = function () {
+                return this.score >= 90 ? "优秀" : (this.score >= 60 ? "及格" : "不及格");
+            };
+            zsc_render_obj({ zsc_highlight: "getLevel" });
+            zsc_print_line("> zsc_student.getLevel = function () { return this.score >= 90 ? \"优秀\" : … }", "plain");
+            zsc_print_line("对象里已经有 introduce()，再挂一个 getLevel()：当前 " + zsc_student.score + " 分 → " + zsc_student.getLevel(), "result");
+        }
+
+        // ===== 三、遍历 =====
+        function zsc_fill_chips(zsc_id, zsc_items, zsc_bad) {
+            var zsc_box = document.getElementById(zsc_id);
+            zsc_box.innerHTML = "";
+            for (var zsc_i = 0; zsc_i < zsc_items.length; zsc_i++) {
+                var zsc_chip = document.createElement("span");
+                zsc_chip.className = "zsc_chip" + (zsc_bad ? " zsc_chip_bad" : "");
+                zsc_chip.style.animationDelay = (zsc_i * 0.06) + "s";
+                zsc_chip.textContent = zsc_items[zsc_i];
+                zsc_box.appendChild(zsc_chip);
+            }
+            if (zsc_items.length === 0) {
+                var zsc_empty = document.createElement("span");
+                zsc_empty.className = "zsc_chip zsc_chip_text";
+                zsc_empty.textContent = "（空）";
+                zsc_box.appendChild(zsc_empty);
+            }
+        }
+
+        function zsc_do_forin() {
+            var zsc_box = document.getElementById("zsc_forin_out");
+            zsc_box.innerHTML = "";
+            zsc_print_line("> for (var zsc_key in zsc_student) { … }", "plain");
+
+            var zsc_i = 0;
+            var zsc_pairs = [];
+            for (var zsc_key in zsc_student) {
+                var zsc_v = zsc_student[zsc_key];
+                zsc_pairs.push(zsc_key + " = " + (typeof zsc_v === "function" ? "ƒ 方法" : zsc_v));
+            }
+
+            var zsc_timer = setInterval(function () {
+                if (zsc_i >= zsc_pairs.length) {
+                    clearInterval(zsc_timer);
+                    zsc_print_line("遍历结束，共 " + zsc_pairs.length + " 个键　// for...in 拿到的是键名，不是值", "result");
+                    return;
+                }
+                var zsc_chip = document.createElement("span");
+                zsc_chip.className = "zsc_chip";
+                zsc_chip.textContent = zsc_pairs[zsc_i];
+                zsc_box.appendChild(zsc_chip);
+                zsc_print_line("　" + zsc_pairs[zsc_i], "plain");
+                zsc_i++;
+            }, 240);
+        }
+
+        function zsc_do_keys() {
+            var zsc_list = Object.keys(zsc_student);
+            zsc_fill_chips("zsc_keys_out", zsc_list, false);
+            zsc_print_line("> Object.keys(zsc_student)", "plain");
+            zsc_print_line("返回数组：[" + zsc_list.join(", ") + "]　// 键名组成的数组", "result");
+        }
+
+        function zsc_do_values() {
+            var zsc_list = Object.values(zsc_student).map(function (zsc_v) {
+                return typeof zsc_v === "function" ? "ƒ" : String(zsc_v);
+            });
+            zsc_fill_chips("zsc_values_out", zsc_list, false);
+            zsc_print_line("> Object.values(zsc_student)", "plain");
+            zsc_print_line("返回数组：[" + zsc_list.join(", ") + "]　// 属性值组成的数组，方法也会被列出", "result");
+        }
+
+        function zsc_do_entries() {
+            var zsc_pairs = Object.entries(zsc_student).map(function (zsc_item) {
+                var zsc_value = typeof zsc_item[1] === "function" ? "ƒ" : zsc_item[1];
+                return "[" + zsc_item[0] + ", " + zsc_value + "]";
+            });
+            zsc_fill_chips("zsc_entries_out", zsc_pairs, false);
+            zsc_print_line("> Object.entries(zsc_student)", "plain");
+            zsc_print_line("返回 " + zsc_pairs.length + " 组 [键, 值]，可直接配合 forEach 使用", "result");
+        }
+
+        function zsc_do_check() {
+            var zsc_has_in = "name" in zsc_student;
+            var zsc_has_own = zsc_student.hasOwnProperty("score");
+            var zsc_has_tel = "tel" in zsc_student;
+            zsc_fill_chips("zsc_check_out",
+                ["\"name\" in 对象 = " + zsc_has_in,
+                 "hasOwnProperty(\"score\") = " + zsc_has_own,
+                 "\"tel\" in 对象 = " + zsc_has_tel],
+                !zsc_has_in);
+            zsc_print_line("> \"name\" in zsc_student / zsc_student.hasOwnProperty(\"score\")", "plain");
+            zsc_print_line("\"name\" 存在：" + zsc_has_in + "；\"score\" 是自有属性：" + zsc_has_own + "；\"tel\" 不存在：" + zsc_has_tel, "result");
+        }
+
+        // ===== 四、构造函数与对象数组 =====
+        function zsc_render_stu(zsc_list, zsc_delay_base) {
+            var zsc_box = document.getElementById("zsc_stu_list");
+            zsc_box.innerHTML = "";
+            zsc_delay_base = zsc_delay_base || 0;
+
+            for (var zsc_i = 0; zsc_i < zsc_list.length; zsc_i++) {
+                var zsc_item = zsc_list[zsc_i];
+
+                var zsc_card = document.createElement("div");
+                zsc_card.className = "zsc_stu_card";
+                zsc_card.style.animationDelay = (zsc_delay_base + zsc_i * 0.08) + "s";
+
+                var zsc_top = document.createElement("div");
+                zsc_top.className = "zsc_stu_top";
+                var zsc_name = document.createElement("span");
+                zsc_name.className = "zsc_stu_name";
+                zsc_name.textContent = zsc_item.name;
+                var zsc_age = document.createElement("span");
+                zsc_age.className = "zsc_stu_age";
+                zsc_age.textContent = zsc_item.age + " 岁";
+                zsc_top.appendChild(zsc_name);
+                zsc_top.appendChild(zsc_age);
+
+                var zsc_major = document.createElement("div");
+                zsc_major.className = "zsc_stu_major";
+                zsc_major.textContent = zsc_item.major;
+
+                var zsc_track = document.createElement("div");
+                zsc_track.className = "zsc_stu_track";
+                var zsc_bar = document.createElement("div");
+                zsc_bar.className = "zsc_stu_bar" + (zsc_item.score < 60 ? " zsc_fail" : "");
+                zsc_track.appendChild(zsc_bar);
+
+                var zsc_score = document.createElement("div");
+                zsc_score.className = "zsc_stu_score";
+                zsc_score.textContent = "score：" + zsc_item.score;
+
+                zsc_card.appendChild(zsc_top);
+                zsc_card.appendChild(zsc_major);
+                zsc_card.appendChild(zsc_track);
+                zsc_card.appendChild(zsc_score);
+                zsc_box.appendChild(zsc_card);
+
+                (function (zsc_bar_el, zsc_v) {
+                    setTimeout(function () {
+                        zsc_bar_el.style.width = Math.min(zsc_v, 100) + "%";
+                    }, 60);
+                })(zsc_bar, zsc_item.score);
+            }
+        }
+
+        function zsc_sort_stu() {
+            zsc_students.sort(function (a, b) { return b.score - a.score; });
+            zsc_render_stu(zsc_students, 0);
+            var zsc_names = zsc_students.map(function (s) { return s.name + "(" + s.score + ")"; });
+            zsc_fill_chips("zsc_stu_out", zsc_names, false);
+            zsc_print_line("> zsc_students.sort(function (a, b) { return b.score - a.score; })", "plain");
+            zsc_print_line("降序结果：" + zsc_names.join(" > ") + "　// sort 会改变原数组顺序", "result");
+        }
+
+        function zsc_filter_stu() {
+            var zsc_pass = zsc_students.filter(function (s) { return s.score >= 80; });
+            zsc_fill_chips("zsc_stu_out", zsc_pass.map(function (s) { return s.name + " " + s.score; }), false);
+            zsc_print_line("> zsc_students.filter(function (s) { return s.score >= 80; })", "plain");
+            zsc_print_line("80 分以上共 " + zsc_pass.length + " 人：" + zsc_pass.map(function (s) { return s.name; }).join("、"), "result");
+        }
+
+        function zsc_map_stu() {
+            var zsc_names = zsc_students.map(function (s) { return s.name; });
+            zsc_fill_chips("zsc_stu_out", zsc_names, false);
+            zsc_print_line("> zsc_students.map(function (s) { return s.name; })", "plain");
+            zsc_print_line("只取出姓名，得到字符串数组：[" + zsc_names.join(", ") + "]", "result");
+        }
+
+        function zsc_avg_stu() {
+            var zsc_total = zsc_students.reduce(function (zsc_a, zsc_s) {
+                return zsc_a + zsc_s.score;
+            }, 0);
+            var zsc_avg = (zsc_total / zsc_students.length).toFixed(1);
+            zsc_fill_chips("zsc_stu_out", ["总分 = " + zsc_total, "平均分 = " + zsc_avg], Number(zsc_avg) < 80);
+            zsc_print_line("> zsc_students.reduce(function (a, s) { return a + s.score; }, 0)", "plain");
+            zsc_print_line("总分 " + zsc_total + "，平均分 " + zsc_avg + "　// 注意给 reduce 传了初始值 0", "result");
+        }
+
+        function zsc_reset_stu() {
+            zsc_students = zsc_students_init.slice();
+            zsc_render_stu(zsc_students, 0);
+            zsc_fill_chips("zsc_stu_out", ["已恢复原始顺序"], false);
+            zsc_print_line("> 学生数组已恢复为原始顺序", "plain");
+        }
+
+        // ===== 初始化 =====
+        zsc_reset_obj(true);
+        zsc_students = zsc_students_init.slice();
+        zsc_render_stu(zsc_students, 0.2);
+        zsc_fill_chips("zsc_stu_out", ["点击上方按钮查看对象数组的操作结果"], false);
+        console.log("===== 张顺昌 16-2 JavaScript对象 =====");
+        zsc_print_line("// 对象 = 键值对集合。试试：读属性 → 新增 gender → 改 score → 删除 city", "plain");
+        zsc_print_line("// 再看第三节 for...in 与 Object.keys，对比「遍历对象」和「遍历数组」的区别", "plain");
+    </script>
+</body>
+</html>

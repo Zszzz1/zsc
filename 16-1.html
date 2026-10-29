@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 数组常用方法</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-29；使用模型：GLM-5.3-Flash；功能名称：JavaScript数组常用方法可视化演示 -->
+    <style>
+        :root {
+            --zsc-bg-1: #071120;
+            --zsc-bg-2: #11213d;
+            --zsc-bg-3: #1b2d4a;
+            --zsc-panel: rgba(17, 33, 61, 0.6);
+            --zsc-border: rgba(255, 255, 255, 0.14);
+            --zsc-text: #edf4ff;
+            --zsc-muted: #c1cfe5;
+            --zsc-accent: #7dd3fc;
+            --zsc-accent-2: #c4b5fd;
+            --zsc-accent-3: #86efac;
+            --zsc-accent-4: #f9a8d4;
+            --zsc-warn: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            color: var(--zsc-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.16), transparent 30%),
+                radial-gradient(circle at right center, rgba(196, 181, 253, 0.16), transparent 30%),
+                linear-gradient(135deg, var(--zsc-bg-1) 0%, var(--zsc-bg-2) 45%, var(--zsc-bg-3) 100%);
+        }
+
+        .zsc_shell {
+            width: min(1020px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 30px 0 50px;
+        }
+
+        .zsc_header {
+            padding: 32px 28px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(14, 27, 47, 0.95), rgba(24, 42, 69, 0.85));
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 24px 60px rgba(2, 8, 17, 0.45);
+            margin-bottom: 22px;
+        }
+
+        .zsc_top_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .zsc_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--zsc-accent);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(196, 181, 253, 0.14));
+            border: 1px solid rgba(125, 211, 252, 0.32);
+        }
+
+        .zsc_back {
+            text-decoration: none;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            transition: all 0.25s ease;
+        }
+
+        .zsc_back:hover {
+            color: var(--zsc-text);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .zsc_header h1 {
+            margin: 0 0 14px;
+            font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+            letter-spacing: -0.02em;
+        }
+
+        .zsc_intro {
+            margin: 0;
+            color: var(--zsc-muted);
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        .zsc_intro code {
+            color: var(--zsc-accent);
+            background: rgba(125, 211, 252, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_panel {
+            padding: 24px;
+            border-radius: 22px;
+            background: var(--zsc-panel);
+            border: 1px solid var(--zsc-border);
+            box-shadow: 0 20px 45px rgba(8, 17, 32, 0.25);
+            margin-bottom: 22px;
+        }
+
+        .zsc_panel h2 {
+            margin: 0 0 8px;
+            font-size: 1.3rem;
+        }
+
+        .zsc_panel_tip {
+            margin: 0 0 16px;
+            color: var(--zsc-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .zsc_panel_tip code {
+            color: var(--zsc-accent-2);
+            background: rgba(196, 181, 253, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+        }
+
+        /* ===== 数组舞台：把数组画成一排带下标的格子 ===== */
+        .zsc_stage {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 120px;
+            padding: 22px 16px 14px;
+            border-radius: 16px;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                rgba(3, 10, 22, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow-x: auto;
+        }
+
+        .zsc_cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            animation: zsc_pop_in 0.35s ease both;
+        }
+
+        .zsc_cell_value {
+            min-width: 76px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #0d1d33;
+            background: linear-gradient(135deg, var(--zsc-accent), var(--zsc-accent-2));
+            box-shadow: 0 8px 20px rgba(125, 211, 252, 0.25);
+            transition: transform 0.25s ease;
+        }
+
+        .zsc_cell:nth-child(odd) .zsc_cell_value {
+            background: linear-gradient(135deg, var(--zsc-accent-2), var(--zsc-accent-4));
+        }
+
+        .zsc_cell:hover .zsc_cell_value {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .zsc_cell_index {
+            font-family: Consolas, monospace;
+            font-size: 0.75rem;
+            color: var(--zsc-muted);
+            border-top: 1px dashed rgba(255, 255, 255, 0.25);
+            padding-top: 4px;
+            min-width: 76px;
+            text-align: center;
+        }
+
+        .zsc_cell_head,
+        .zsc_cell_tail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 74px;
+            padding: 0 10px;
+            color: var(--zsc-muted);
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        .zsc_cell_head {
+            border-right: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .zsc_cell_tail {
+            border-left: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .zsc_cell.zsc_leaving .zsc_cell_value {
+            animation: zsc_fly_out 0.35s ease both;
+        }
+
+        .zsc_cell.zsc_highlight .zsc_cell_value {
+            outline: 3px solid var(--zsc-accent-3);
+            outline-offset: 2px;
+        }
+
+        @keyframes zsc_pop_in {
+            from { opacity: 0; transform: translateY(-18px) scale(0.7); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes zsc_fly_out {
+            to { opacity: 0; transform: translateY(-26px) scale(0.6); }
+        }
+
+        .zsc_ctrl_row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .zsc_input {
+            width: 110px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(3, 10, 22, 0.6);
+            color: var(--zsc-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .zsc_input:focus {
+            border-color: rgba(125, 211, 252, 0.5);
+        }
+
+        .zsc_btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--zsc-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--zsc-text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .zsc_btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(125, 211, 252, 0.5);
+            background: rgba(125, 211, 252, 0.12);
+        }
+
+        .zsc_btn_warn:hover {
+            border-color: rgba(251, 191, 36, 0.6);
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .zsc_code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 16px 0 0;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.7;
+        }
+
+        /* ===== 结果卡片：展示每个方法返回的新结果 ===== */
+        .zsc_result_row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .zsc_result_card {
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .zsc_result_card h4 {
+            margin: 0 0 10px;
+            font-size: 0.95rem;
+            color: var(--zsc-accent-3);
+        }
+
+        .zsc_chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .zsc_chip {
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-family: Consolas, monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0d1d33;
+            background: linear-gradient(135deg, var(--zsc-accent-3), var(--zsc-accent));
+            animation: zsc_pop_in 0.35s ease both;
+        }
+
+        .zsc_chip_bad {
+            background: linear-gradient(135deg, var(--zsc-warn), var(--zsc-accent-4));
+        }
+
+        .zsc_chip_text {
+            color: var(--zsc-text);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--zsc-border);
+        }
+
+        /* ===== 分数条：迭代方法的形象展示 ===== */
+        .zsc_score_row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .zsc_score_item {
+            display: grid;
+            grid-template-columns: 64px 1fr 52px;
+            align-items: center;
+            gap: 12px;
+            animation: zsc_pop_in 0.4s ease both;
+        }
+
+        .zsc_score_name {
+            font-size: 0.88rem;
+            color: var(--zsc-muted);
+            font-family: Consolas, monospace;
+        }
+
+        .zsc_score_track {
+            height: 16px;
+            border-radius: 999px;
+            background: rgba(3, 10, 22, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .zsc_score_bar {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--zsc-accent), var(--zsc-accent-2));
+            transition: width 0.6s ease;
+        }
+
+        .zsc_score_bar.zsc_fail {
+            background: linear-gradient(90deg, var(--zsc-warn), var(--zsc-accent-4));
+        }
+
+        .zsc_score_val {
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== 运行日志 ===== */
+        .zsc_output {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.9;
+            color: #a5f3fc;
+            background: rgba(3, 10, 22, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            min-height: 130px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .zsc_output .zsc_out_result {
+            color: var(--zsc-accent-3);
+        }
+
+        .zsc_console_tip {
+            margin: 14px 0 0;
+            color: var(--zsc-muted);
+            font-size: 0.85rem;
+        }
+
+        .zsc_footer {
+            margin-top: 26px;
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+        }
+
+        @media (max-width: 640px) {
+            .zsc_shell {
+                width: min(100% - 20px, 1020px);
+            }
+
+            .zsc_header {
+                padding: 22px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <header class="zsc_header">
+            <div class="zsc_top_row">
+                <span class="zsc_badge">第16章 · JavaScript 数组</span>
+                <a class="zsc_back" href="index.html">← 返回首页</a>
+            </div>
+            <h1>JavaScript 数组常用方法</h1>
+            <p class="zsc_intro">
+                数组是存放一组有序数据的容器。下面把数组画成一排<span style="color:var(--zsc-accent)">带下标的彩色格子</span>，
+                每点一次按钮就能看到方法如何改变数组：<code>push / pop / shift / unshift</code> 增删元素，
+                <code>slice / splice / concat / join</code> 截取与拼接，<code>sort / reverse / indexOf / includes</code> 排序查找，
+                <code>map / filter / reduce</code> 迭代加工。所有结果同时输出到页面面板和控制台。
+            </p>
+        </header>
+
+        <!-- ===== 第一区：增删方法（会修改原数组） ===== -->
+        <section class="zsc_panel">
+            <h2>一、增删方法：数组的“入口”与“出口”</h2>
+            <p class="zsc_panel_tip">
+                <code>push</code> 从<strong>尾部</strong>放入、<code>pop</code> 从<strong>尾部</strong>取出；
+                <code>unshift</code> 从<strong>头部</strong>放入、<code>shift</code> 从<strong>头部</strong>取出。
+                观察格子的高亮动画即可看出元素从哪里进出。
+            </p>
+
+            <div class="zsc_stage" id="zsc_stage"></div>
+
+            <div class="zsc_ctrl_row">
+                <input class="zsc_input" id="zsc_fruit_input" type="text" placeholder="如：西瓜" maxlength="4">
+                <button class="zsc_btn" onclick="zsc_do_push()">push() 尾部放入</button>
+                <button class="zsc_btn" onclick="zsc_do_unshift()">unshift() 头部放入</button>
+                <button class="zsc_btn" onclick="zsc_do_pop()">pop() 尾部取出</button>
+                <button class="zsc_btn" onclick="zsc_do_shift()">shift() 头部取出</button>
+                <button class="zsc_btn zsc_btn_warn" onclick="zsc_reset()">↺ 重置数组</button>
+            </div>
+
+            <div class="zsc_code">var zsc_fruits = ["苹果", "香蕉", "葡萄", "樱桃", "猕猴桃"];
+zsc_fruits.push("西瓜");     // 尾部添加，返回新长度
+zsc_fruits.pop();            // 尾部删除，返回被删的元素
+zsc_fruits.unshift("草莓");  // 头部添加，返回新长度
+zsc_fruits.shift();          // 头部删除，返回被删的元素</div>
+        </section>
+
+        <!-- ===== 第二区：截取与拼接 ===== -->
+        <section class="zsc_panel">
+            <h2>二、截取与拼接：slice、splice、concat、join</h2>
+            <p class="zsc_panel_tip">
+                <code>slice(起, 止)</code> <strong>不修改原数组</strong>，切出一段副本（绿框高亮的就是切走的部分）；
+                <code>splice(起, 个数, 新元素...)</code> <strong>会修改原数组</strong>，可删可插；
+                <code>concat</code> 合并数组；<code>join("符")</code> 把数组变成字符串。
+            </p>
+
+            <div class="zsc_result_row">
+                <div class="zsc_result_card">
+                    <h4>slice(1, 4) —— 切片，原数组不变</h4>
+                    <div class="zsc_chips" id="zsc_slice_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>splice(1, 2, "西瓜", "柠檬") —— 剪切替换</h4>
+                    <div class="zsc_chips" id="zsc_splice_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>concat(["西瓜", "柠檬"]) —— 合并新数组</h4>
+                    <div class="zsc_chips" id="zsc_concat_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>join(" → ") —— 拼成字符串</h4>
+                    <div class="zsc_chips" id="zsc_join_out"></div>
+                </div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_do_slice()">运行 slice</button>
+                <button class="zsc_btn" onclick="zsc_do_splice()">运行 splice（修改原数组）</button>
+                <button class="zsc_btn" onclick="zsc_do_concat()">运行 concat</button>
+                <button class="zsc_btn" onclick="zsc_do_join()">运行 join</button>
+            </div>
+
+            <div class="zsc_code">zsc_fruits.slice(1, 4);              // 取下标1~3，返回新数组
+zsc_fruits.splice(1, 2, "西瓜", "柠檬"); // 从下标1删2个，再插入新元素
+zsc_fruits.concat(["西瓜", "柠檬"]);  // 合并，返回新数组
+zsc_fruits.join(" → ");              // 返回字符串"苹果 → 香蕉 → ..."</div>
+        </section>
+
+        <!-- ===== 第三区：排序与查找 ===== -->
+        <section class="zsc_panel">
+            <h2>三、排序与查找：sort、reverse、indexOf、includes</h2>
+            <p class="zsc_panel_tip">
+                <code>sort()</code> 默认按<strong>字符串</strong>比较（所以 100 会排在 25 前面），要传比较函数 <code>(a, b) =&gt; a - b</code> 才是按数字升序；
+                <code>reverse()</code> 倒序；<code>indexOf(值)</code> 返回下标（找不到返回 -1）；<code>includes(值)</code> 返回 true / false。
+            </p>
+
+            <div class="zsc_stage" id="zsc_num_stage"></div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_do_sort_str()">sort() 字符串排序</button>
+                <button class="zsc_btn" onclick="zsc_do_sort_num()">sort((a,b)=&gt;a-b) 数字升序</button>
+                <button class="zsc_btn" onclick="zsc_do_reverse()">reverse() 倒序</button>
+                <input class="zsc_input" id="zsc_find_input" type="text" placeholder="如：77">
+                <button class="zsc_btn" onclick="zsc_do_indexof()">indexOf 查下标</button>
+                <button class="zsc_btn" onclick="zsc_do_includes()">includes 判断存在</button>
+                <button class="zsc_btn zsc_btn_warn" onclick="zsc_reset_num()">↺ 重置数组</button>
+            </div>
+
+            <div class="zsc_code">var zsc_scores = [88, 25, 100, 77, 9];
+zsc_scores.sort();              // ["100", "25", "77", "88", "9"] 字符串序
+zsc_scores.sort(function (a, b) { return a - b; }); // [9, 25, 77, 88, 100]
+zsc_scores.indexOf(77);         // 2（找不到返回 -1）
+zsc_scores.includes(100);       // true</div>
+        </section>
+
+        <!-- ===== 第四区：迭代方法 ===== -->
+        <section class="zsc_panel">
+            <h2>四、迭代方法：forEach、map、filter、reduce、find</h2>
+            <p class="zsc_panel_tip">
+                六位同学的分数数组：<code>[88, 45, 92, 67, 73, 59]</code>。
+                <code>forEach</code> 逐个访问；<code>map</code> 每人加工后返回<strong>新数组</strong>（如全班加 5 分）；
+                <code>filter</code> 筛选出<strong>及格</strong>的同学；<code>reduce</code> 把所有值<strong>累积</strong>成总分；
+                <code>find</code> 找第一个满足条件的值；<code>some / every</code> 判断“有人 / 全都”满足条件。
+            </p>
+
+            <div class="zsc_score_row" id="zsc_score_stage"></div>
+
+            <div class="zsc_result_row">
+                <div class="zsc_result_card">
+                    <h4>map(score + 5) 全班加分 → 新数组</h4>
+                    <div class="zsc_chips" id="zsc_map_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>filter(score &gt;= 60) 及格名单</h4>
+                    <div class="zsc_chips" id="zsc_filter_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>reduce 求总分 / find 第一个 ≥ 90</h4>
+                    <div class="zsc_chips" id="zsc_reduce_out"></div>
+                </div>
+                <div class="zsc_result_card">
+                    <h4>some（有人不及格）/ every（全部及格）</h4>
+                    <div class="zsc_chips" id="zsc_some_out"></div>
+                </div>
+            </div>
+
+            <div class="zsc_ctrl_row">
+                <button class="zsc_btn" onclick="zsc_do_foreach()">forEach 逐个报分</button>
+                <button class="zsc_btn" onclick="zsc_do_map()">map 全班加 5 分</button>
+                <button class="zsc_btn" onclick="zsc_do_filter()">filter 筛选及格</button>
+                <button class="zsc_btn" onclick="zsc_do_reduce()">reduce 求总分</button>
+                <button class="zsc_btn" onclick="zsc_do_find()">find 找第一个 ≥ 90</button>
+                <button class="zsc_btn" onclick="zsc_do_some_every()">some / every 判断</button>
+            </div>
+
+            <div class="zsc_code">zsc_scores.forEach(function (zsc_v) { console.log(zsc_v); });
+var zsc_plus = zsc_scores.map(function (zsc_v) { return zsc_v + 5; });
+var zsc_pass = zsc_scores.filter(function (zsc_v) { return zsc_v >= 60; });
+var zsc_sum  = zsc_scores.reduce(function (zsc_a, zsc_b) { return zsc_a + zsc_b; });</div>
+        </section>
+
+        <!-- ===== 运行结果面板 ===== -->
+        <section class="zsc_panel">
+            <h2>运行结果面板</h2>
+            <div class="zsc_output" id="zsc_output"></div>
+            <p class="zsc_console_tip">提示：按 F12 打开浏览器控制台，可同步查看每次运行的输出。</p>
+        </section>
+
+        <div class="zsc_footer">
+            姓名：张顺昌 · 2026-10-29 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+
+    <script>
+        // ===== 全局状态 =====
+        var zsc_fruits_init = ["苹果", "香蕉", "葡萄", "樱桃", "猕猴桃"];
+        var zsc_fruits = [];
+        var zsc_nums_init = [88, 25, 100, 77, 9];
+        var zsc_nums = [];
+        var zsc_scores = [88, 45, 92, 67, 73, 59];
+        var zsc_names = ["小明", "小红", "小刚", "小丽", "小强", "小芳"];
+
+        // ===== 日志：向结果面板追加一行 =====
+        function zsc_print_line(zsc_text, zsc_is_result) {
+            var zsc_output = document.getElementById("zsc_output");
+            var zsc_line = document.createElement("div");
+            zsc_line.className = zsc_is_result ? "zsc_out_line zsc_out_result" : "zsc_out_line";
+            zsc_line.textContent = zsc_text;
+            zsc_output.appendChild(zsc_line);
+            zsc_output.scrollTop = zsc_output.scrollHeight;
+            console.log(zsc_text);
+        }
+
+        // ===== 渲染：把数组画成一排带下标的格子 =====
+        function zsc_render(zsc_arr, zsc_stage_id, zsc_options) {
+            var zsc_stage = document.getElementById(zsc_stage_id);
+            zsc_stage.innerHTML = "";
+            zsc_options = zsc_options || {};
+
+            var zsc_head = document.createElement("div");
+            zsc_head.className = "zsc_cell_head";
+            zsc_head.textContent = "[ 开头";
+            zsc_stage.appendChild(zsc_head);
+
+            for (var zsc_i = 0; zsc_i < zsc_arr.length; zsc_i++) {
+                var zsc_cell = document.createElement("div");
+                zsc_cell.className = "zsc_cell";
+                zsc_cell.style.animationDelay = (zsc_i * 0.05) + "s";
+
+                var zsc_value = document.createElement("div");
+                zsc_value.className = "zsc_cell_value";
+                zsc_value.textContent = zsc_arr[zsc_i];
+
+                var zsc_index = document.createElement("div");
+                zsc_index.className = "zsc_cell_index";
+                zsc_index.textContent = "下标 " + zsc_i;
+
+                if (zsc_options.zsc_highlight === zsc_i) {
+                    zsc_cell.className += " zsc_highlight";
+                }
+                if (zsc_options.zsc_leaving === zsc_i) {
+                    zsc_cell.className += " zsc_leaving";
+                }
+
+                zsc_cell.appendChild(zsc_value);
+                zsc_cell.appendChild(zsc_index);
+                zsc_stage.appendChild(zsc_cell);
+            }
+
+            var zsc_tail = document.createElement("div");
+            zsc_tail.className = "zsc_cell_tail";
+            zsc_tail.textContent = "结尾 ]";
+            zsc_stage.appendChild(zsc_tail);
+        }
+
+        function zsc_show_fruits(zsc_options) {
+            zsc_render(zsc_fruits, "zsc_stage", zsc_options);
+        }
+
+        function zsc_show_nums(zsc_options) {
+            zsc_render(zsc_nums, "zsc_num_stage", zsc_options);
+        }
+
+        // ===== 一、增删方法 =====
+        function zsc_read_fruit() {
+            var zsc_input = document.getElementById("zsc_fruit_input");
+            var zsc_value = zsc_input.value.replace(/\s/g, "");
+            if (zsc_value === "") {
+                zsc_value = "西瓜";
+            }
+            zsc_input.value = "";
+            return zsc_value;
+        }
+
+        function zsc_do_push() {
+            var zsc_value = zsc_read_fruit();
+            var zsc_new_len = zsc_fruits.push(zsc_value);
+            zsc_show_fruits({ zsc_highlight: zsc_fruits.length - 1 });
+            zsc_print_line("> zsc_fruits.push(\"" + zsc_value + "\")", false);
+            zsc_print_line("从尾部放入，返回新长度 = " + zsc_new_len + "，数组：" + zsc_fruits.join("、"), true);
+        }
+
+        function zsc_do_unshift() {
+            var zsc_value = zsc_read_fruit();
+            var zsc_new_len = zsc_fruits.unshift(zsc_value);
+            zsc_show_fruits({ zsc_highlight: 0 });
+            zsc_print_line("> zsc_fruits.unshift(\"" + zsc_value + "\")", false);
+            zsc_print_line("从头部放入（其余元素下标全部 +1），返回新长度 = " + zsc_new_len + "，数组：" + zsc_fruits.join("、"), true);
+        }
+
+        function zsc_do_pop() {
+            if (zsc_fruits.length === 0) {
+                zsc_print_line("> zsc_fruits.pop()", false);
+                zsc_print_line("数组已空，pop() 返回 undefined", true);
+                return;
+            }
+            var zsc_last = zsc_fruits.length - 1;
+            zsc_show_fruits({ zsc_leaving: zsc_last });
+            setTimeout(function () {
+                var zsc_gone = zsc_fruits.pop();
+                zsc_show_fruits({});
+                zsc_print_line("> zsc_fruits.pop()", false);
+                zsc_print_line("从尾部取出「" + zsc_gone + "」，数组：" + (zsc_fruits.join("、") || "（空）"), true);
+            }, 360);
+        }
+
+        function zsc_do_shift() {
+            if (zsc_fruits.length === 0) {
+                zsc_print_line("> zsc_fruits.shift()", false);
+                zsc_print_line("数组已空，shift() 返回 undefined", true);
+                return;
+            }
+            zsc_show_fruits({ zsc_leaving: 0 });
+            setTimeout(function () {
+                var zsc_gone = zsc_fruits.shift();
+                zsc_show_fruits({});
+                zsc_print_line("> zsc_fruits.shift()", false);
+                zsc_print_line("从头部取出「" + zsc_gone + "」（其余元素下标全部 -1），数组：" + (zsc_fruits.join("、") || "（空）"), true);
+            }, 360);
+        }
+
+        function zsc_reset() {
+            zsc_fruits = zsc_fruits_init.slice();
+            zsc_show_fruits({});
+            zsc_print_line("> 数组已重置：" + zsc_fruits.join("、"), false);
+        }
+
+        // ===== 二、截取与拼接 =====
+        function zsc_fill_chips(zsc_id, zsc_items, zsc_bad) {
+            var zsc_box = document.getElementById(zsc_id);
+            zsc_box.innerHTML = "";
+            for (var zsc_i = 0; zsc_i < zsc_items.length; zsc_i++) {
+                var zsc_chip = document.createElement("span");
+                zsc_chip.className = "zsc_chip" + (zsc_bad ? " zsc_chip_bad" : "");
+                zsc_chip.style.animationDelay = (zsc_i * 0.06) + "s";
+                zsc_chip.textContent = zsc_items[zsc_i];
+                zsc_box.appendChild(zsc_chip);
+            }
+            if (zsc_items.length === 0) {
+                var zsc_empty = document.createElement("span");
+                zsc_empty.className = "zsc_chip zsc_chip_text";
+                zsc_empty.textContent = "（空）";
+                zsc_box.appendChild(zsc_empty);
+            }
+        }
+
+        function zsc_do_slice() {
+            var zsc_part = zsc_fruits.slice(1, 4);
+            zsc_show_fruits({});
+            // 给被切走的下标 1~3 加绿框
+            var zsc_cells = document.querySelectorAll("#zsc_stage .zsc_cell_value");
+            for (var zsc_i = 1; zsc_i <= 3 && zsc_i < zsc_cells.length; zsc_i++) {
+                zsc_cells[zsc_i].style.outline = "3px solid var(--zsc-accent-3)";
+                zsc_cells[zsc_i].style.outlineOffset = "2px";
+            }
+            zsc_fill_chips("zsc_slice_out", zsc_part, false);
+            zsc_print_line("> zsc_fruits.slice(1, 4)　// 含头不含尾", false);
+            zsc_print_line("切出下标 1~3，返回新数组：[" + zsc_part.join(", ") + "]，原数组不变", true);
+        }
+
+        function zsc_do_splice() {
+            var zsc_removed = zsc_fruits.splice(1, 2, "西瓜", "柠檬");
+            zsc_show_fruits({ zsc_highlight: 1 });
+            zsc_fill_chips("zsc_splice_out", zsc_removed, true);
+            zsc_print_line("> zsc_fruits.splice(1, 2, \"西瓜\", \"柠檬\")", false);
+            zsc_print_line("删除下标 1~2 的 " + JSON.stringify(zsc_removed) + "，并在该位置插入新元素，数组：" + zsc_fruits.join("、"), true);
+        }
+
+        function zsc_do_concat() {
+            var zsc_merged = zsc_fruits.concat(["西瓜", "柠檬"]);
+            zsc_show_fruits({});
+            zsc_fill_chips("zsc_concat_out", zsc_merged, false);
+            zsc_print_line("> zsc_fruits.concat([\"西瓜\", \"柠檬\"])", false);
+            zsc_print_line("合并后返回新数组：[" + zsc_merged.join(", ") + "]，原数组不变", true);
+        }
+
+        function zsc_do_join() {
+            var zsc_text = zsc_fruits.join(" → ");
+            zsc_show_fruits({});
+            zsc_fill_chips("zsc_join_out", [zsc_text], false);
+            zsc_print_line("> zsc_fruits.join(\" → \")", false);
+            zsc_print_line("返回字符串：" + zsc_text, true);
+        }
+
+        // ===== 三、排序与查找 =====
+        function zsc_reset_num() {
+            zsc_nums = zsc_nums_init.slice();
+            zsc_show_nums({});
+            zsc_print_line("> 数字数组已重置：" + zsc_nums.join("、"), false);
+        }
+
+        function zsc_do_sort_str() {
+            zsc_nums.sort();
+            zsc_show_nums({});
+            zsc_print_line("> zsc_nums.sort()　// 默认按字符串比较", false);
+            zsc_print_line("结果：" + zsc_nums.join("、") + "　← 100 排在 25 前面，因为先比较首字符 \"1\" < \"2\"", true);
+        }
+
+        function zsc_do_sort_num() {
+            zsc_nums.sort(function (a, b) { return a - b; });
+            zsc_show_nums({});
+            zsc_print_line("> zsc_nums.sort(function (a, b) { return a - b; })", false);
+            zsc_print_line("结果：" + zsc_nums.join("、") + "　← 正确的数字升序", true);
+        }
+
+        function zsc_do_reverse() {
+            zsc_nums.reverse();
+            zsc_show_nums({});
+            zsc_print_line("> zsc_nums.reverse()", false);
+            zsc_print_line("结果：" + zsc_nums.join("、"), true);
+        }
+
+        function zsc_find_target() {
+            var zsc_raw = document.getElementById("zsc_find_input").value.trim();
+            var zsc_value = Number(zsc_raw);
+            if (zsc_raw === "" || isNaN(zsc_value)) {
+                zsc_value = 77;
+            }
+            document.getElementById("zsc_find_input").value = "";
+            return zsc_value;
+        }
+
+        function zsc_do_indexof() {
+            var zsc_value = zsc_find_target();
+            var zsc_pos = zsc_nums.indexOf(zsc_value);
+            zsc_show_nums({ zsc_highlight: zsc_pos >= 0 ? zsc_pos : undefined });
+            zsc_print_line("> zsc_nums.indexOf(" + zsc_value + ")", false);
+            zsc_print_line(zsc_pos >= 0
+                ? "找到了，下标 = " + zsc_pos + "（第 " + (zsc_pos + 1) + " 个）"
+                : "没找到，返回 -1", true);
+        }
+
+        function zsc_do_includes() {
+            var zsc_value = zsc_find_target();
+            var zsc_has = zsc_nums.includes(zsc_value);
+            zsc_show_nums({ zsc_highlight: zsc_has ? zsc_nums.indexOf(zsc_value) : undefined });
+            zsc_print_line("> zsc_nums.includes(" + zsc_value + ")", false);
+            zsc_print_line("返回 " + zsc_has + (zsc_has ? "，数组里存在该值" : "，数组里不存在"), true);
+        }
+
+        // ===== 四、迭代方法 =====
+        function zsc_render_scores(zsc_arr, zsc_delay_base) {
+            var zsc_stage = document.getElementById("zsc_score_stage");
+            zsc_stage.innerHTML = "";
+            for (var zsc_i = 0; zsc_i < zsc_arr.length; zsc_i++) {
+                var zsc_item = document.createElement("div");
+                zsc_item.className = "zsc_score_item";
+                zsc_item.style.animationDelay = (zsc_delay_base + zsc_i * 0.07) + "s";
+
+                var zsc_name = document.createElement("span");
+                zsc_name.className = "zsc_score_name";
+                zsc_name.textContent = zsc_names[zsc_i] || "同学" + (zsc_i + 1);
+
+                var zsc_track = document.createElement("div");
+                zsc_track.className = "zsc_score_track";
+                var zsc_bar = document.createElement("div");
+                zsc_bar.className = "zsc_score_bar" + (zsc_arr[zsc_i] < 60 ? " zsc_fail" : "");
+                zsc_bar.style.width = "0%";
+                zsc_track.appendChild(zsc_bar);
+
+                var zsc_val = document.createElement("span");
+                zsc_val.className = "zsc_score_val";
+                zsc_val.textContent = zsc_arr[zsc_i];
+
+                zsc_item.appendChild(zsc_name);
+                zsc_item.appendChild(zsc_track);
+                zsc_item.appendChild(zsc_val);
+                zsc_stage.appendChild(zsc_item);
+
+                // 延迟一帧设置宽度，触发过渡动画
+                (function (zsc_bar, zsc_v) {
+                    setTimeout(function () {
+                        zsc_bar.style.width = Math.min(zsc_v, 100) + "%";
+                    }, 60);
+                })(zsc_bar, zsc_arr[zsc_i]);
+            }
+        }
+
+        function zsc_do_foreach() {
+            zsc_render_scores(zsc_scores, 0);
+            zsc_print_line("> zsc_scores.forEach(...)　// 逐个访问，无返回值", false);
+            var zsc_i = 0;
+            var zsc_timer = setInterval(function () {
+                if (zsc_i >= zsc_scores.length) {
+                    clearInterval(zsc_timer);
+                    zsc_print_line("遍历完毕，共 " + zsc_scores.length + " 位同学", true);
+                    return;
+                }
+                zsc_print_line(zsc_names[zsc_i] + " 的分数：" + zsc_scores[zsc_i], false);
+                zsc_i++;
+            }, 260);
+        }
+
+        function zsc_do_map() {
+            var zsc_plus = zsc_scores.map(function (zsc_v) { return Math.min(zsc_v + 5, 100); });
+            zsc_render_scores(zsc_plus, 0);
+            zsc_fill_chips("zsc_map_out", zsc_plus, false);
+            zsc_print_line("> zsc_scores.map(v => v + 5)　// 每个元素加工后返回新数组", false);
+            zsc_print_line("加分后：[" + zsc_plus.join(", ") + "]，原数组不变", true);
+        }
+
+        function zsc_do_filter() {
+            var zsc_pass = zsc_scores.filter(function (zsc_v) { return zsc_v >= 60; });
+            zsc_render_scores(zsc_scores, 0);
+            zsc_fill_chips("zsc_filter_out", zsc_pass, false);
+            zsc_print_line("> zsc_scores.filter(v => v >= 60)　// 只留下满足条件的元素", false);
+            zsc_print_line("及格名单：[" + zsc_pass.join(", ") + "]（黄色条为不及格，被过滤掉）", true);
+        }
+
+        function zsc_do_reduce() {
+            var zsc_sum = zsc_scores.reduce(function (a, b) { return a + b; });
+            zsc_render_scores(zsc_scores, 0);
+            zsc_fill_chips("zsc_reduce_out", ["总分 = " + zsc_sum, "平均分 = " + (zsc_sum / zsc_scores.length).toFixed(1)], false);
+            zsc_print_line("> zsc_scores.reduce((a, b) => a + b)　// 两两累积成一个值", false);
+            zsc_print_line("累积过程：88→+45→+92→+67→+73→+59，总分 = " + zsc_sum, true);
+        }
+
+        function zsc_do_find() {
+            var zsc_first = zsc_scores.find(function (zsc_v) { return zsc_v >= 90; });
+            zsc_render_scores(zsc_scores, 0);
+            zsc_fill_chips("zsc_reduce_out", ["第一个 ≥ 90 的分数 = " + zsc_first], false);
+            zsc_print_line("> zsc_scores.find(v => v >= 90)　// 返回第一个满足条件的元素", false);
+            zsc_print_line("找到：" + zsc_first + "（只返回第一个，不继续往后找）", true);
+        }
+
+        function zsc_do_some_every() {
+            var zsc_has_fail = zsc_scores.some(function (zsc_v) { return zsc_v < 60; });
+            var zsc_all_pass = zsc_scores.every(function (zsc_v) { return zsc_v >= 60; });
+            zsc_render_scores(zsc_scores, 0);
+            zsc_fill_chips("zsc_some_out",
+                ["some(有人不及格) = " + zsc_has_fail, "every(全部及格) = " + zsc_all_pass],
+                zsc_has_fail);
+            zsc_print_line("> some / every　// 判断是否“存在 / 全部”满足条件", false);
+            zsc_print_line("some(v => v < 60) = " + zsc_has_fail + "；every(v => v >= 60) = " + zsc_all_pass, true);
+        }
+
+        // ===== 初始化 =====
+        zsc_fruits = zsc_fruits_init.slice();
+        zsc_nums = zsc_nums_init.slice();
+        zsc_show_fruits({});
+        zsc_show_nums({});
+        zsc_render_scores(zsc_scores, 0.2);
+        console.log("===== 张顺昌 16-1 JavaScript数组常用方法 =====");
+        zsc_print_line("// 数组已就绪：点击各按钮体验数组方法，观察格子动画与下标变化", false);
+        zsc_print_line("// 例如：输入「西瓜」点 push()；点 sort() 看字符串排序的坑；点 filter() 筛选及格分数", false);
+    </script>
+</body>
+</html>

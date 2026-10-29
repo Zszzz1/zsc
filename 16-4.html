@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网帖翻译排行榜</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-29；使用模型：GLM-5.3-Flash；功能名称：点击排行与评论排行双Tab列表 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .zsc_shell {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* ===== 顶部返回栏 ===== */
+        .zsc_header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .zsc_back {
+            font-size: 20px;
+            color: #333;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+
+        .zsc_header_title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        /* ===== 排行卡片 ===== */
+        .zsc_rank_card {
+            margin: 12px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        /* ===== Tab 切换 ===== */
+        .zsc_tabs {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .zsc_tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 15px;
+            color: #888;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+
+        .zsc_tab.zsc_active {
+            color: #222;
+            font-weight: 700;
+        }
+
+        .zsc_tab.zsc_active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 3px;
+            background: #e64340;
+            border-radius: 2px;
+        }
+
+        /* ===== 排行列表 ===== */
+        .zsc_rank_list {
+            list-style: none;
+        }
+
+        .zsc_rank_item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .zsc_rank_item:hover {
+            background: #fafafa;
+        }
+
+        .zsc_rank_item:last-child {
+            border-bottom: none;
+        }
+
+        /* 排名序号（所有序号统一灰色方块，与原图一致） */
+        .zsc_rank_num {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #555;
+            background: #eee;
+            margin-right: 12px;
+        }
+
+        /* 标题 */
+        .zsc_rank_title {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 12px;
+        }
+
+        /* 右侧数字 */
+        .zsc_rank_count {
+            flex-shrink: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: #e64340;
+            font-family: Consolas, "Courier New", monospace;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* 空状态 */
+        .zsc_empty {
+            padding: 60px 16px;
+            text-align: center;
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        /* 底部版权 */
+        .zsc_footer {
+            padding: 20px;
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        /* 返回首页按钮 */
+        .zsc_home_link {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e64340;
+            color: #fff;
+            text-align: center;
+            line-height: 44px;
+            font-size: 20px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(230, 67, 64, 0.4);
+            z-index: 20;
+        }
+
+        .zsc_home_link:hover {
+            background: #d03d3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <!-- 顶部返回 -->
+        <header class="zsc_header">
+            <a class="zsc_back" href="index.html">←</a>
+            <div class="zsc_header_title">网帖翻译排行榜</div>
+        </header>
+
+        <!-- 排行卡片 -->
+        <div class="zsc_rank_card">
+            <div class="zsc_tabs">
+                <div class="zsc_tab zsc_active" data-tab="click" onclick="zsc_switch_tab('click')">点击排行</div>
+                <div class="zsc_tab" data-tab="comment" onclick="zsc_switch_tab('comment')">评论排行</div>
+            </div>
+            <ul class="zsc_rank_list" id="zsc_rank_list"></ul>
+        </div>
+
+        <div class="zsc_footer">— 网帖翻译 · 排行榜 —</div>
+    </div>
+
+    <a class="zsc_home_link" href="index.html" title="返回首页">⌂</a>
+
+    <script>
+        // ===== 数据 =====
+        var zsc_click_data = [
+            { title: "中国各城市房子还要卖多少年 (详细数据)", count: 187706 },
+            { title: "任志强：60多年来 我不知道国企给了我们", count: 171180 },
+            { title: "三精制药跳楼老总被查因华润商贿案 省食", count: 127631 },
+            { title: "内地17省铺开不动产统一登记职责整合工作", count: 113865 },
+            { title: "山西煤老板被警察套99年牢 8年投资翻", count: 78270 },
+            { title: "北京城南商场\"沦陷\" 变相降价措施加码", count: 62971 },
+            { title: "中国3D打印技术取得重大突破 近1200人连", count: 27456 },
+            { title: "重稀土空交至全球暴跌 A股或周五无悬急", count: 25322 },
+            { title: "七匹狼早盆上演奇葩一幕：单笔4手卖单刷", count: 20912 },
+            { title: "长油小股东主导股东大会 当场爆料董事长", count: 11667 }
+        ];
+
+        var zsc_comment_data = [
+            { title: "任志强：60多年来 我不知道国企给了我们", count: 3251 },
+            { title: "中国各城市房子还要卖多少年 (详细数据)", count: 2894 },
+            { title: "山西煤老板被警察套99年牢 8年投资翻", count: 2176 },
+            { title: "长油小股东主导股东大会 当场爆料董事长", count: 1983 },
+            { title: "内地17省铺开不动产统一登记职责整合工作", count: 1654 },
+            { title: "北京城南商场\"沦陷\" 变相降价措施加码", count: 1432 },
+            { title: "重稀土空交至全球暴跌 A股或周五无悬急", count: 1298 },
+            { title: "三精制药跳楼老总被查因华润商贿案 省食", count: 1156 },
+            { title: "七匹狼早盆上演奇葩一幕：单笔4手卖单刷", count: 987 },
+            { title: "中国3D打印技术取得重大突破 近1200人连", count: 843 }
+        ];
+
+        var zsc_current_tab = "click";
+
+        // ===== 渲染 =====
+        function zsc_render_list(zsc_items) {
+            var zsc_list = document.getElementById("zsc_rank_list");
+            var zsc_html = "";
+
+            for (var zsc_i = 0; zsc_i < zsc_items.length; zsc_i++) {
+                zsc_html +=
+                    '<li class="zsc_rank_item">' +
+                        '<div class="zsc_rank_num">' + (zsc_i + 1) + '</div>' +
+                        '<div class="zsc_rank_title">' + zsc_items[zsc_i].title + '</div>' +
+                        '<div class="zsc_rank_count">' + zsc_items[zsc_i].count + '</div>' +
+                    '</li>';
+            }
+
+            zsc_list.innerHTML = zsc_html;
+        }
+
+        // ===== Tab 切换 =====
+        function zsc_switch_tab(zsc_tab_name) {
+            if (zsc_current_tab === zsc_tab_name) return;
+            zsc_current_tab = zsc_tab_name;
+
+            // 切换样式
+            var zsc_tabs = document.querySelectorAll(".zsc_tab");
+            for (var zsc_j = 0; zsc_j < zsc_tabs.length; zsc_j++) {
+                zsc_tabs[zsc_j].classList.toggle("zsc_active", zsc_tabs[zsc_j].getAttribute("data-tab") === zsc_tab_name);
+            }
+
+            // 切换数据
+            if (zsc_tab_name === "click") {
+                zsc_render_list(zsc_click_data);
+            } else {
+                zsc_render_list(zsc_comment_data);
+            }
+        }
+
+        // 初始渲染
+        zsc_render_list(zsc_click_data);
+
+        console.log("===== 张顺昌 16-4 排行榜双Tab页 =====");
+        console.log("点击排行 " + zsc_click_data.length + " 条，评论排行 " + zsc_comment_data.length + " 条");
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网帖翻译 - 翻译广场</title>
+    <!-- 姓名：张顺昌；建立时间：2026-10-29；使用模型：GLM-5.3-Flash；功能名称：网帖翻译列表页复刻 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .zsc_shell {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .zsc_header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .zsc_header .zsc_title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .zsc_header .zsc_help {
+            font-size: 13px;
+            color: #e64340;
+            text-decoration: none;
+        }
+
+        .zsc_header .zsc_help::before {
+            content: "?";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            line-height: 16px;
+            text-align: center;
+            border: 1px solid #e64340;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        /* ===== 列表项 ===== */
+        .zsc_list {
+            padding: 0 4px;
+        }
+
+        .zsc_item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .zsc_item:hover {
+            background: #fafafa;
+        }
+
+        /* 头像容器 */
+        .zsc_avatar_wrap {
+            position: relative;
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            overflow: visible;
+        }
+
+        /* 国旗头像 —— 用 CSS 渐变模拟 */
+        .zsc_flag {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 样式 1：蓝 + 红十字（像丹麦/瑞士等） */
+        .zsc_flag_1 {
+            background:
+                linear-gradient(90deg, transparent 15px, #fff 15px 18px, transparent 18px),
+                linear-gradient(0deg, transparent 16px, #fff 16px 19px, transparent 19px),
+                linear-gradient(135deg, #2c5faa 0%, #2c5faa 100%);
+        }
+
+        /* 样式 2：中国红底 + 大黄星（简化） */
+        .zsc_flag_2 {
+            background: #de2910;
+            position: relative;
+        }
+
+        .zsc_flag_2::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 8px;
+            width: 16px;
+            height: 16px;
+            background: #ffde00;
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                2% 35%, 39% 35%
+            );
+        }
+
+        /* 样式 3：红蓝白三色横条（法国） */
+        .zsc_flag_3 {
+            background: linear-gradient(
+                to bottom,
+                #0055a4 0%, #0055a4 33.33%,
+                #fff 33.33%, #fff 66.66%,
+                #ef4135 66.66%, #ef4135 100%
+            );
+        }
+
+        /* 样式 4：红底 + 黄星（越南/土耳其风格） */
+        .zsc_flag_4 {
+            background: #c8102e;
+            position: relative;
+        }
+
+        .zsc_flag_4::after {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                2% 35%, 39% 35%
+            );
+        }
+
+        /* 样式 5：蓝白两色（以色列/芬兰） */
+        .zsc_flag_5 {
+            background:
+                linear-gradient(0deg, transparent 18px, #0038b8 18px 22px, transparent 22px),
+                linear-gradient(90deg, transparent 18px, #0038b8 18px 22px, transparent 22px),
+                #fff;
+        }
+
+        /* 样式 6：红白两色横条（波兰/奥地利） */
+        .zsc_flag_6 {
+            background: linear-gradient(
+                to bottom,
+                #fff 0%, #fff 50%,
+                #dc143c 50%, #dc143c 100%
+            );
+        }
+
+        /* 样式 7：土耳其红底 + 白星月（简化） */
+        .zsc_flag_7 {
+            background: #e30a17;
+            position: relative;
+        }
+
+        .zsc_flag_7::after {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 6px 0 0 -2px #e30a17;
+        }
+
+        /* 样式 8：韩国太极（简化为红蓝对角） */
+        .zsc_flag_8 {
+            background:
+                linear-gradient(45deg, #003478 50%, #c60c30 50%),
+                #fff;
+            background-size: 50% 50%;
+            background-position: 0 0, 100% 100%;
+            background-repeat: no-repeat;
+        }
+
+        /* 右下角"币"角标 */
+        .zsc_coin_badge {
+            position: absolute;
+            right: -4px;
+            bottom: -4px;
+            width: 18px;
+            height: 18px;
+            background: #e64340;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        /* 右侧内容区 */
+        .zsc_content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .zsc_title {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #222;
+            margin-bottom: 6px;
+            /* 单行省略 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .zsc_meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .zsc_meta .zsc_meta_item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .zsc_meta .iconfont {
+            font-size: 13px;
+            color: #bbb;
+        }
+
+        .zsc_meta .zsc_clock {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #bbb;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .zsc_meta .zsc_clock::before {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 50%;
+            width: 1px;
+            height: 4px;
+            background: #bbb;
+            transform: translateX(-50%);
+        }
+
+        .zsc_meta .zsc_clock::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 3px;
+            background: #bbb;
+            transform: translate(-50%, -100%) rotate(90deg);
+        }
+
+        /* 底部版权 */
+        .zsc_footer {
+            padding: 20px;
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 返回首页按钮 */
+        .zsc_home_link {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e64340;
+            color: #fff;
+            text-align: center;
+            line-height: 44px;
+            font-size: 20px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(230, 67, 64, 0.4);
+            z-index: 20;
+        }
+
+        .zsc_home_link:hover {
+            background: #d03d3a;
+        }
+
+        @media (max-width: 480px) {
+            .zsc_shell {
+                max-width: 100%;
+            }
+
+            .zsc_item {
+                padding: 12px;
+            }
+
+            .zsc_meta {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <!-- 顶部导航 -->
+        <header class="zsc_header">
+            <div class="zsc_title">网帖翻译</div>
+            <a class="zsc_help" href="#">新手翻译说明</a>
+        </header>
+
+        <!-- 列表 -->
+        <ul class="zsc_list" id="zsc_list"></ul>
+
+        <!-- 底部 -->
+        <div class="zsc_footer">— 网帖翻译 · 翻译广场 —</div>
+    </div>
+
+    <!-- 返回首页 -->
+    <a class="zsc_home_link" href="index.html" title="返回首页">⌂</a>
+
+    <script>
+        // 模拟数据
+        var zsc_posts = [
+            {
+                flag: 1,
+                title: "X上外网民汇总战况引土网民崩溃，帖子下土网民悲呼：怎么除了日本人和台湾(地区)人，所有人都不支持我们啊....",
+                date: "2026-10-29",
+                author: "种花家一只兔",
+                views: 6936,
+                comments: 51
+            },
+            {
+                flag: 2,
+                title: "土耳其人颠倒叙事搞认知作战，说是中国人先用派大星图片侮辱他们才引发大战，国人出征：自己管不住嘴被骂惨了真够双标真够贱",
+                date: "2026-10-29",
+                author: "熊猫永不为奴",
+                views: 3983,
+                comments: 3
+            },
+            {
+                flag: 3,
+                title: "我们过早地去工业化，把就业和产能拱手让给了中国；移民不受限制，掏空了自己；还向以色列无休止地输送资金、打无休止的战争，最终毁了自己",
+                date: "2026-10-29",
+                author: "茕茕孑",
+                views: 2317,
+                comments: 14
+            },
+            {
+                flag: 4,
+                title: '中国正在加快建设"生育友好型社会"。越南网友讨论育儿成本、彩礼与教育内卷，感叹"生得起养不起"',
+                date: "2026-10-29",
+                author: "分格里",
+                views: 1690,
+                comments: 16
+            },
+            {
+                flag: 5,
+                title: "欧媒：法国的抗议暴乱，让法国经济混乱，人们渴望更多的福利，网友讽刺：领福利的人可不是街头这些抗议的人，他们连工作都没有",
+                date: "2026-10-29",
+                author: "熊猫永不为奴",
+                views: 1425,
+                comments: 9
+            },
+            {
+                flag: 6,
+                title: '为什么这些"老头乐"在中国越来越受欢迎？一条关于中国三轮电动车的短视频引爆油管网友5500条讨论',
+                date: "2026-10-29",
+                author: "文学准青年",
+                views: 3020,
+                comments: 22
+            },
+            {
+                flag: 7,
+                title: "深入研究中国革命史的土耳其学者发表对近期X中土争论的看法，引发网友共鸣：难得看到一个思维正常学识渊博的土耳其人",
+                date: "2026-10-29",
+                author: "碧波荡漾恒河...",
+                views: 8071,
+                comments: 39
+            },
+            {
+                flag: 8,
+                title: '中国攻势"令人惊讶"，在欧洲甚至击败日本车。韩国网民热议现代起亚被中国电动车全面追赶，充满焦虑与不安',
+                date: "2026-10-29",
+                author: "淘子未眠",
+                views: 4212,
+                comments: 7
+            }
+        ];
+
+        var zsc_list = document.getElementById("zsc_list");
+        var zsc_html = "";
+
+        for (var zsc_i = 0; zsc_i < zsc_posts.length; zsc_i++) {
+            var zsc_p = zsc_posts[zsc_i];
+            zsc_html +=
+                '<li class="zsc_item">' +
+                    '<div class="zsc_avatar_wrap">' +
+                        '<div class="zsc_flag zsc_flag_' + zsc_p.flag + '"></div>' +
+                        '<span class="zsc_coin_badge">币</span>' +
+                    '</div>' +
+                    '<div class="zsc_content">' +
+                        '<div class="zsc_title">' + zsc_p.title + '</div>' +
+                        '<div class="zsc_meta">' +
+                            '<span class="zsc_meta_item"><span class="zsc_clock"></span>' + zsc_p.date + '</span>' +
+                            '<span class="zsc_meta_item">' + zsc_p.author + '</span>' +
+                            '<span class="zsc_meta_item"><i class="iconfont icon-sousuo"></i>' + zsc_p.views + '</span>' +
+                            '<span class="zsc_meta_item"><i class="iconfont icon-xiaoxi"></i>' + zsc_p.comments + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</li>';
+        }
+
+        zsc_list.innerHTML = zsc_html;
+
+        console.log("===== 张顺昌 16-3 网帖翻译列表页 =====");
+        console.log("共渲染 " + zsc_posts.length + " 条帖子");
+    </script>
+</body>
+</html>
