@@ -217,3 +217,33 @@
 **提示词**: 提交到github
 
 ---
+
+## 2026-11-02
+
+**模型**: Trae/GLM-5.3-Flash
+
+**提示词**: 完成17-1.html，展示json
+
+---
+
+## 2026-11-02
+
+**模型**: Trae/GLM-5.3-Flash
+
+**提示词**: 完成17-2.html获取接口`https://dog.ceo/api/breeds/image/random`的数据并展示，接口可以跨域访问，使用fetch和原生代码实现
+
+---
+
+## 2026-11-02
+
+**模型**: Trae/GLM-5.3-Flash
+
+**提示词**: 完成17-3.html和17-3-detail.html，显示列表和列表详情，数据来源于接口，使用fetch，列表：`https://dummyjson.com/products?limit=8`，默认商品列表。详情：`https://dummyjson.com/products/1`，根据 ID 获取单个商品。
+
+**提示词**: 你为什么这个加载图片加载的那么慢
+
+**提示词**: 完成17-4.html，对远程数据接口进行测试，支持get、post等，显示返回的数据和错误提示信息，示例post接口：`https://jsonplaceholder.typicode.com/posts`
+
+**提示词**: 提交到github
+
+---

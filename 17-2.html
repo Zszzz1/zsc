@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API 获取随机狗图</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：Fetch获取接口数据随机狗图 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --zsc-accent: #e8853d;
+            --zsc-accent-dark: #d06f2a;
+            --zsc-text: #2b2f36;
+            --zsc-muted: #7a8190;
+            --zsc-bg: #fdf6ef;
+            --zsc-card: #ffffff;
+            --zsc-code-bg: #2b2523;
+            --zsc-radius: 14px;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            background: var(--zsc-bg);
+            color: var(--zsc-text);
+            min-height: 100vh;
+        }
+
+        .zsc_shell {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+        }
+
+        .zsc_back {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zsc-accent);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* ===== 顶部 ===== */
+        .zsc_header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .zsc_header h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .zsc_header h1 span {
+            color: var(--zsc-accent);
+        }
+
+        .zsc_header p {
+            color: var(--zsc-muted);
+            font-size: 14px;
+        }
+
+        .zsc_header code {
+            background: #f3e7d8;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            color: #8a5a2b;
+            word-break: break-all;
+        }
+
+        /* ===== 卡片 ===== */
+        .zsc_card {
+            background: var(--zsc-card);
+            border-radius: var(--zsc-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(120, 80, 30, 0.08);
+        }
+
+        .zsc_card h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zsc-accent);
+        }
+
+        .zsc_card p.zsc_desc {
+            color: var(--zsc-muted);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        /* ===== 图片展示区 ===== */
+        .zsc_stage {
+            text-align: center;
+        }
+
+        .zsc_img_frame {
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3e7d8;
+            min-width: 320px;
+            min-height: 240px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        .zsc_dog_img {
+            display: block;
+            width: 100%;
+            max-width: 480px;
+            max-height: 360px;
+            object-fit: contain;
+            margin: 0 auto;
+        }
+
+        /* 加载中占位 */
+        .zsc_loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #a07b4c;
+            font-size: 14px;
+            background: #f3e7d8;
+        }
+
+        .zsc_spinner {
+            width: 34px;
+            height: 34px;
+            border: 4px solid #e5cfae;
+            border-top-color: var(--zsc-accent);
+            border-radius: 50%;
+            animation: zsc_spin 0.8s linear infinite;
+        }
+
+        @keyframes zsc_spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .zsc_breed {
+            margin-top: 12px;
+            font-size: 16px;
+        }
+
+        .zsc_breed b {
+            color: var(--zsc-accent-dark);
+            text-transform: capitalize;
+        }
+
+        /* ===== 按钮 ===== */
+        .zsc_btn_row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .zsc_btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #fff;
+            background: var(--zsc-accent);
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+
+        .zsc_btn:hover { opacity: 0.88; }
+        .zsc_btn:active { transform: scale(0.97); }
+        .zsc_btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .zsc_btn.zsc_btn_gray { background: #9aa3b5; }
+
+        /* ===== 返回数据展示 ===== */
+        .zsc_code {
+            background: var(--zsc-code-bg);
+            color: #e8ddce;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 12px;
+        }
+
+        .zsc_key { color: #7cc7ff; }
+        .zsc_str { color: #a8e6a3; }
+
+        /* ===== 请求日志 ===== */
+        .zsc_log_list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 2;
+            color: var(--zsc-muted);
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .zsc_log_list li b.zsc_ok { color: #1d7a56; }
+        .zsc_log_list li b.zsc_err { color: #c0392b; }
+
+        /* ===== 错误提示 ===== */
+        .zsc_error_box {
+            display: none;
+            background: #fdecec;
+            color: #c0392b;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .zsc_footer {
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 12px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <a class="zsc_back" href="index.html">← 返回课程首页</a>
+
+        <div class="zsc_header">
+            <h1>Fetch API <span>获取随机狗图</span></h1>
+            <p>接口：<code>GET https://dog.ceo/api/breeds/image/random</code>（免费公开，支持跨域）</p>
+        </div>
+
+        <!-- 1. 图片展示 -->
+        <section class="zsc_card">
+            <h2>接口数据展示</h2>
+            <p class="zsc_desc">
+                点击下方按钮通过 <b>fetch</b> 向服务器发送 GET 请求，服务器返回 JSON 字符串，
+                经 <b>response.json()</b> 解析后得到对象 <code>{ message: "图片地址", status: "success" }</code>，
+                再把 message 中的图片 URL 赋给 &lt;img&gt; 展示。
+            </p>
+            <div class="zsc_stage">
+                <div class="zsc_img_frame">
+                    <div class="zsc_loading" id="zsc_loading">
+                        <div class="zsc_spinner"></div>
+                        <span>正在向服务器请求数据…</span>
+                    </div>
+                    <img class="zsc_dog_img" id="zsc_dog_img" alt="随机狗狗图片" style="visibility: hidden;">
+                </div>
+                <div class="zsc_breed">当前犬种：<b id="zsc_breed_name">等待获取…</b></div>
+                <div class="zsc_btn_row">
+                    <button class="zsc_btn" id="zsc_btn_fetch" onclick="zsc_fetch_dog()">fetch 换一只狗</button>
+                    <button class="zsc_btn zsc_btn_gray" id="zsc_btn_clear" onclick="zsc_clear_log()">清空日志</button>
+                </div>
+                <div class="zsc_error_box" id="zsc_error_box"></div>
+            </div>
+        </section>
+
+        <!-- 2. 原始返回数据 -->
+        <section class="zsc_card">
+            <h2>服务器返回的原始 JSON</h2>
+            <p class="zsc_desc">这就是 fetch 拿到的响应体（JSON 字符串解析后的对象），message 字段即图片地址。</p>
+            <div class="zsc_code" id="zsc_raw_json">暂无数据，请点击上方按钮。</div>
+        </section>
+
+        <!-- 3. 请求日志 -->
+        <section class="zsc_card">
+            <h2>请求日志</h2>
+            <p class="zsc_desc">记录每次 fetch 的状态：HTTP 状态码、耗时、犬种。</p>
+            <ul class="zsc_log_list" id="zsc_log_list">
+                <li>日志将显示在这里…</li>
+            </ul>
+        </section>
+
+        <div class="zsc_footer">— 高级网页设计 · 17-2 Fetch API 随机狗图 · 张顺昌 —</div>
+    </div>
+
+    <script>
+        var zsc_api_url = "https://dog.ceo/api/breeds/image/random";
+        var zsc_http_status = 0;   // 保存 HTTP 状态码，供后续 then 使用
+
+        // ===== 核心：fetch 获取接口数据 =====
+        function zsc_fetch_dog() {
+            var zsc_btn = document.getElementById("zsc_btn_fetch");
+            var zsc_loading = document.getElementById("zsc_loading");
+            var zsc_img = document.getElementById("zsc_dog_img");
+            var zsc_err_box = document.getElementById("zsc_error_box");
+            var zsc_breed = document.getElementById("zsc_breed_name");
+            var zsc_start_time = new Date().getTime();
+
+            // 进入加载状态
+            zsc_btn.disabled = true;
+            zsc_loading.style.display = "flex";
+            zsc_img.style.visibility = "hidden";
+            zsc_err_box.style.display = "none";
+
+            fetch(zsc_api_url)                       // 1. 发送 GET 请求
+                .then(function (zsc_response) {      // 2. 收到响应头
+                    zsc_http_status = zsc_response.status;
+                    if (!zsc_response.ok) {          // HTTP 状态码不是 2xx
+                        throw new Error("HTTP 状态码异常：" + zsc_response.status);
+                    }
+                    return zsc_response.json();      // 3. 把响应体解析为 JS 对象
+                })
+                .then(function (zsc_data) {          // 4. 拿到解析后的数据
+                    var zsc_img_url = zsc_data.message;
+                    var zsc_cost = new Date().getTime() - zsc_start_time;
+
+                    // 从图片地址中提取犬种，如 .../breeds/hound-afghan/... → hound-afghan
+                    var zsc_match = zsc_img_url.match(/breeds\/([^\/]+)\//);
+                    var zsc_name = zsc_match ? zsc_match[1] : "未知";
+
+                    zsc_img.src = zsc_img_url;
+                    zsc_img.onload = function () {
+                        zsc_loading.style.display = "none";
+                        zsc_img.style.visibility = "visible";
+                    };
+                    zsc_breed.textContent = "";
+                    zsc_breed.textContent = zsc_name.replace("-", " ");
+
+                    // 展示原始 JSON（语法着色）
+                    document.getElementById("zsc_raw_json").innerHTML =
+                        '<span class="zsc_punct">{</span>\n' +
+                        '    <span class="zsc_key">"message"</span>: <span class="zsc_str">"' + zsc_img_url + '"</span>,\n' +
+                        '    <span class="zsc_key">"status"</span>: <span class="zsc_str">"' + zsc_data.status + '"</span>\n' +
+                        '<span class="zsc_punct">}</span>';
+
+                    zsc_add_log(true, "HTTP " + zsc_http_status + " · 耗时 " + zsc_cost + "ms · 犬种：" + zsc_name);
+                    console.log("fetch 成功：", zsc_data);
+                })
+                .catch(function (zsc_error) {        // 5. 网络错误等异常处理
+                    zsc_loading.style.display = "none";
+                    zsc_err_box.style.display = "block";
+                    zsc_err_box.textContent = "请求失败：" + zsc_error.message + "（请检查网络连接）";
+                    zsc_add_log(false, zsc_error.message);
+                    console.error("fetch 失败：", zsc_error);
+                })
+                .finally(function () {               // 6. 恢复按钮
+                    zsc_btn.disabled = false;
+                });
+        }
+
+        // ===== 日志 =====
+        function zsc_add_log(zsc_ok, zsc_text) {
+            var zsc_list = document.getElementById("zsc_log_list");
+            var zsc_item = document.createElement("li");
+            var zsc_time = new Date().toLocaleTimeString();
+            var zsc_label = zsc_ok ? '<b class="zsc_ok">[成功]</b>' : '<b class="zsc_err">[失败]</b>';
+            zsc_item.innerHTML = zsc_label + " " + zsc_time + " · " + zsc_text;
+            zsc_list.insertBefore(zsc_item, zsc_list.firstChild);
+        }
+
+        function zsc_clear_log() {
+            var zsc_list = document.getElementById("zsc_log_list");
+            zsc_list.innerHTML = "<li>日志已清空。</li>";
+        }
+
+        // ===== 页面加载即请求一次 =====
+        zsc_fetch_dog();
+        console.log("===== 张顺昌 17-2 Fetch随机狗图 =====");
+    </script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 数据格式演示</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：JSON数据格式演示 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --zsc-accent: #4a6cf7;
+            --zsc-accent-2: #25c1a9;
+            --zsc-text: #2b2f36;
+            --zsc-muted: #7a8190;
+            --zsc-bg: #f4f6fb;
+            --zsc-card: #ffffff;
+            --zsc-code-bg: #1e2330;
+            --zsc-radius: 14px;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            background: var(--zsc-bg);
+            color: var(--zsc-text);
+            min-height: 100vh;
+        }
+
+        .zsc_shell {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+        }
+
+        /* ===== 顶部 ===== */
+        .zsc_header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .zsc_header h1 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .zsc_header h1 span {
+            color: var(--zsc-accent);
+        }
+
+        .zsc_header p {
+            color: var(--zsc-muted);
+            font-size: 14px;
+        }
+
+        .zsc_back {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--zsc-accent);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* ===== 卡片 ===== */
+        .zsc_card {
+            background: var(--zsc-card);
+            border-radius: var(--zsc-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(30, 40, 80, 0.06);
+        }
+
+        .zsc_card h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 4px solid var(--zsc-accent);
+        }
+
+        .zsc_card p.zsc_desc {
+            color: var(--zsc-muted);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        /* ===== 语法类型表格 ===== */
+        .zsc_type_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .zsc_type_item {
+            background: var(--zsc-bg);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .zsc_type_item b {
+            display: block;
+            font-size: 14px;
+            color: var(--zsc-accent);
+            margin-bottom: 4px;
+        }
+
+        .zsc_type_item small {
+            color: var(--zsc-muted);
+            font-size: 12px;
+        }
+
+        /* ===== 代码展示 ===== */
+        .zsc_code {
+            background: var(--zsc-code-bg);
+            color: #d8e0f0;
+            border-radius: 10px;
+            padding: 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .zsc_key { color: #7cc7ff; }
+        .zsc_str { color: #a8e6a3; }
+        .zsc_num { color: #ffc46b; }
+        .zsc_bool { color: #ff8fa3; }
+        .zsc_null { color: #c792ea; }
+        .zsc_punct { color: #8892a8; }
+
+        /* ===== 互转演示区 ===== */
+        .zsc_demo_grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .zsc_demo_grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .zsc_demo_col h3 {
+            font-size: 14px;
+            color: var(--zsc-muted);
+            margin-bottom: 8px;
+        }
+
+        .zsc_demo_col textarea {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #dfe4ee;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+        }
+
+        .zsc_demo_col textarea:focus {
+            border-color: var(--zsc-accent);
+        }
+
+        .zsc_btn_row {
+            display: flex;
+            gap: 10px;
+            margin: 14px 0;
+            flex-wrap: wrap;
+        }
+
+        .zsc_btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #fff;
+            background: var(--zsc-accent);
+            transition: opacity 0.2s ease;
+        }
+
+        .zsc_btn:hover {
+            opacity: 0.85;
+        }
+
+        .zsc_btn.zsc_btn_green {
+            background: var(--zsc-accent-2);
+        }
+
+        .zsc_btn.zsc_btn_gray {
+            background: #9aa3b5;
+        }
+
+        /* ===== 输出提示 ===== */
+        .zsc_output {
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-top: 4px;
+        }
+
+        .zsc_output.zsc_ok {
+            background: #e8f8f2;
+            color: #1d7a56;
+        }
+
+        .zsc_output.zsc_err {
+            background: #fdecec;
+            color: #c0392b;
+        }
+
+        /* ===== 学生表格 ===== */
+        .zsc_table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .zsc_table th,
+        .zsc_table td {
+            border: 1px solid #e6eaf3;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .zsc_table th {
+            background: var(--zsc-accent);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .zsc_table tr:nth-child(even) {
+            background: var(--zsc-bg);
+        }
+
+        .zsc_footer {
+            text-align: center;
+            color: var(--zsc-muted);
+            font-size: 12px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_shell">
+        <div class="zsc_header">
+            <a class="zsc_back" href="index.html">← 返回课程首页</a>
+            <h1>JSON <span>数据格式</span>演示</h1>
+            <p>JavaScript Object Notation —— 轻量级的数据交换格式</p>
+        </div>
+
+        <!-- 1. 什么是 JSON -->
+        <section class="zsc_card">
+            <h2>什么是 JSON</h2>
+            <p class="zsc_desc">
+                JSON（JavaScript Object Notation）是一种轻量级的数据交换格式，采用完全独立于语言的文本格式，
+                易于人阅读和编写，也易于机器解析和生成。它基于 JavaScript 的对象字面量语法，
+                是目前 Web 开发中客户端与服务器交换数据最常用的格式（配合 fetch / AJAX 使用）。
+            </p>
+            <div class="zsc_type_grid">
+                <div class="zsc_type_item"><b>字符串 String</b><small>"张三"（必须双引号）</small></div>
+                <div class="zsc_type_item"><b>数值 Number</b><small>20、3.14</small></div>
+                <div class="zsc_type_item"><b>布尔 Boolean</b><small>true / false</small></div>
+                <div class="zsc_type_item"><b>空值 Null</b><small>null</small></div>
+                <div class="zsc_type_item"><b>数组 Array</b><small>[1, 2, 3]</small></div>
+                <div class="zsc_type_item"><b>对象 Object</b><small>{"键": "值"}</small></div>
+            </div>
+        </section>
+
+        <!-- 2. JSON 语法示例 -->
+        <section class="zsc_card">
+            <h2>JSON 语法示例</h2>
+            <p class="zsc_desc">一个典型的 JSON 数据：由对象和数组嵌套组成，键必须用双引号包裹。</p>
+            <div class="zsc_code">{
+    <span class="zsc_key">"name"</span><span class="zsc_punct">:</span> <span class="zsc_str">"张顺昌"</span><span class="zsc_punct">,</span>
+    <span class="zsc_key">"age"</span><span class="zsc_punct">:</span> <span class="zsc_num">20</span><span class="zsc_punct">,</span>
+    <span class="zsc_key">"isStudent"</span><span class="zsc_punct">:</span> <span class="zsc_bool">true</span><span class="zsc_punct">,</span>
+    <span class="zsc_key">"hobbies"</span><span class="zsc_punct">:</span> <span class="zsc_punct">[</span><span class="zsc_str">"网页设计"</span><span class="zsc_punct">,</span> <span class="zsc_str">"编程"</span><span class="zsc_punct">,</span> <span class="zsc_str">"篮球"</span><span class="zsc_punct">],</span>
+    <span class="zsc_key">"address"</span><span class="zsc_punct">:</span> <span class="zsc_punct">{</span>
+        <span class="zsc_key">"province"</span><span class="zsc_punct">:</span> <span class="zsc_str">"山东"</span><span class="zsc_punct">,</span>
+        <span class="zsc_key">"city"</span><span class="zsc_punct">:</span> <span class="zsc_str">"济南"</span>
+    <span class="zsc_punct">},</span>
+    <span class="zsc_key">"grade"</span><span class="zsc_punct">:</span> <span class="zsc_null">null</span>
+<span class="zsc_punct">}</span></div>
+        </section>
+
+        <!-- 3. parse / stringify 互转演示 -->
+        <section class="zsc_card">
+            <h2>JSON.parse 与 JSON.stringify 互转</h2>
+            <p class="zsc_desc">
+                <b>JSON.parse()</b>：把 JSON 字符串解析为 JS 对象（接收 → 使用）；
+                <b>JSON.stringify()</b>：把 JS 对象序列化为 JSON 字符串（发送 → 传输）。
+                左右两栏互为转换结果，可编辑后再转换体验。
+            </p>
+            <div class="zsc_demo_grid">
+                <div class="zsc_demo_col">
+                    <h3>JSON 字符串（文本）</h3>
+                    <textarea id="zsc_json_input">{
+  "课程": "高级网页设计",
+  "章节": 17,
+  "知识点": ["JSON语法", "parse", "stringify"],
+  "已完成": true,
+  "成绩": null
+}</textarea>
+                </div>
+                <div class="zsc_demo_col">
+                    <h3>JS 对象（typeof 结果见下方提示）</h3>
+                    <textarea id="zsc_obj_input">{
+  课程: "高级网页设计",
+  章节: 17,
+  知识点: ["JSON语法", "parse", "stringify"],
+  已完成: true,
+  成绩: null
+}</textarea>
+                </div>
+            </div>
+            <div class="zsc_btn_row">
+                <button class="zsc_btn" id="zsc_btn_parse" onclick="zsc_do_parse()">JSON.parse() → 解析为对象</button>
+                <button class="zsc_btn zsc_btn_green" id="zsc_btn_stringify" onclick="zsc_do_stringify()">JSON.stringify() → 转为JSON</button>
+                <button class="zsc_btn zsc_btn_gray" id="zsc_btn_reset" onclick="zsc_reset_demo()">重置示例</button>
+            </div>
+            <div class="zsc_output zsc_ok" id="zsc_demo_output">点击按钮查看转换结果，转换成功后另一侧会同步更新。</div>
+        </section>
+
+        <!-- 4. 实战：JSON 数据渲染表格 -->
+        <section class="zsc_card">
+            <h2>实战：用 JSON 数据渲染学生表格</h2>
+            <p class="zsc_desc">
+                下面是一段存储学生信息的 JSON 字符串，页面加载时通过 JSON.parse() 解析成对象数组，再用 JS 动态生成表格行——
+                这正是 fetch 获取服务器数据后的典型处理流程。
+            </p>
+            <table class="zsc_table">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>年龄</th>
+                        <th>专业</th>
+                        <th>平均分</th>
+                    </tr>
+                </thead>
+                <tbody id="zsc_student_tbody"></tbody>
+            </table>
+        </section>
+
+        <div class="zsc_footer">— 高级网页设计 · 17-1 JSON 数据格式演示 · 张顺昌 —</div>
+    </div>
+
+    <script>
+        // ===== 学生数据（模拟服务器返回的 JSON 字符串）=====
+        var zsc_students_json =
+            '[' +
+            '{"id": 2026001, "name": "张顺昌", "age": 20, "major": "网络工程", "score": 92.5},' +
+            '{"id": 2026002, "name": "李明", "age": 21, "major": "计算机科学", "score": 88.0},' +
+            '{"id": 2026003, "name": "王芳", "age": 20, "major": "软件工程", "score": 95.5},' +
+            '{"id": 2026004, "name": "刘洋", "age": 22, "major": "大数据", "score": 85.0},' +
+            '{"id": 2026005, "name": "陈静", "age": 20, "major": "人工智能", "score": 90.0}' +
+            ']';
+
+        // ===== 解析并渲染表格 =====
+        function zsc_render_students() {
+            var zsc_list = JSON.parse(zsc_students_json);   // JSON字符串 → 对象数组
+            var zsc_tbody = document.getElementById("zsc_student_tbody");
+            var zsc_html = "";
+
+            for (var zsc_i = 0; zsc_i < zsc_list.length; zsc_i++) {
+                zsc_html +=
+                    '<tr>' +
+                        '<td>' + zsc_list[zsc_i].id + '</td>' +
+                        '<td>' + zsc_list[zsc_i].name + '</td>' +
+                        '<td>' + zsc_list[zsc_i].age + '</td>' +
+                        '<td>' + zsc_list[zsc_i].major + '</td>' +
+                        '<td>' + zsc_list[zsc_i].score + '</td>' +
+                    '</tr>';
+            }
+            zsc_tbody.innerHTML = zsc_html;
+            return zsc_list;
+        }
+
+        // ===== parse 演示 =====
+        function zsc_do_parse() {
+            var zsc_out = document.getElementById("zsc_demo_output");
+            var zsc_text = document.getElementById("zsc_json_input").value;
+            try {
+                var zsc_obj = JSON.parse(zsc_text);          // JSON字符串 → JS对象
+                document.getElementById("zsc_obj_input").value = zsc_stringify_pretty(zsc_obj);
+                zsc_out.className = "zsc_output zsc_ok";
+                zsc_out.textContent =
+                    "解析成功！typeof 结果为 object。已读取字段：课程=" + zsc_obj["课程"] +
+                    "，章节=" + zsc_obj["章节"] + "，知识点数量=" + zsc_obj["知识点"].length;
+                console.log("parse 结果对象：", zsc_obj);
+            } catch (zsc_e) {
+                zsc_out.className = "zsc_output zsc_err";
+                zsc_out.textContent = "解析失败：" + zsc_e.message + "（请检查键是否用了双引号、有无多余逗号）";
+            }
+        }
+
+        // ===== stringify 演示 =====
+        function zsc_do_stringify() {
+            var zsc_out = document.getElementById("zsc_demo_output");
+            try {
+                // 把 JS 对象字面量文本求值成真对象（课堂演示用）
+                var zsc_obj = (new Function("return (" + document.getElementById("zsc_obj_input").value + ")"))();
+                var zsc_text = JSON.stringify(zsc_obj, null, 2);   // JS对象 → JSON字符串
+                document.getElementById("zsc_json_input").value = zsc_text;
+                zsc_out.className = "zsc_output zsc_ok";
+                zsc_out.textContent = "序列化成功！注意：对象的键已全部自动加上双引号。";
+                console.log("stringify 结果字符串：", zsc_text);
+            } catch (zsc_e) {
+                zsc_out.className = "zsc_output zsc_err";
+                zsc_out.textContent = "序列化失败：" + zsc_e.message;
+            }
+        }
+
+        // ===== 重置 =====
+        function zsc_reset_demo() {
+            document.getElementById("zsc_json_input").value =
+                '{\n  "课程": "高级网页设计",\n  "章节": 17,\n  "知识点": ["JSON语法", "parse", "stringify"],\n  "已完成": true,\n  "成绩": null\n}';
+            document.getElementById("zsc_obj_input").value =
+                '{\n  课程: "高级网页设计",\n  章节: 17,\n  知识点: ["JSON语法", "parse", "stringify"],\n  已完成: true,\n  成绩: null\n}';
+            var zsc_out = document.getElementById("zsc_demo_output");
+            zsc_out.className = "zsc_output zsc_ok";
+            zsc_out.textContent = "已重置示例。";
+        }
+
+        // 简易格式化：把对象转回带无引号键的展示文本
+        function zsc_stringify_pretty(zsc_obj) {
+            var zsc_raw = JSON.stringify(zsc_obj, null, 2);
+            // 仅演示用：把 "键": 还原为 键: 的对象字面量样式
+            return zsc_raw.replace(/"([^"]+)":/g, "$1:");
+        }
+
+        // ===== 页面加载即渲染 =====
+        var zsc_loaded = zsc_render_students();
+        console.log("===== 张顺昌 17-1 JSON演示 =====");
+        console.log("解析得到 " + zsc_loaded.length + " 条学生记录：", zsc_loaded);
+    </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-3 · 商品详情</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：商品详情页（根据ID fetch接口数据） -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #182140 0%, #1d2850 100%);
+            color: #eef1fb;
+            padding: 28px 16px 44px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 900px; margin: 0 auto; }
+
+        /* ===== 顶部 ===== */
+        .zsc_hero {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 16px;
+            padding: 22px 26px 24px;
+            margin-bottom: 20px;
+        }
+        .zsc_hero_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .zsc_badge {
+            background: #86b9f2;
+            color: #14264d;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_links { display: flex; gap: 8px; }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 5px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+        .zsc_h1 { font-size: 26px; font-weight: bold; margin-bottom: 12px; }
+        .zsc_intro { font-size: 13.5px; line-height: 2; color: #aab4d4; word-break: break-all; }
+        .zsc_t_url {
+            display: inline-block;
+            padding: 0 8px;
+            border-radius: 5px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            font-weight: bold;
+            background: rgba(125, 211, 252, .14);
+            color: #7dd3fc;
+        }
+
+        /* ===== 状态 ===== */
+        .zsc_status {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            color: #aab4d4;
+        }
+
+        /* ===== 详情卡片 ===== */
+        .zsc_detail {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 16px;
+            overflow: hidden;
+            display: none;
+        }
+        .zsc_detail_top {
+            display: flex;
+            gap: 24px;
+            padding: 24px;
+        }
+        @media (max-width: 660px) {
+            .zsc_detail_top { flex-direction: column; }
+        }
+
+        /* 图片区 */
+        .zsc_gallery { flex: 0 0 300px; }
+        .zsc_main_img {
+            width: 100%;
+            height: 280px;
+            background: #1a2344;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .zsc_main_img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .zsc_thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .zsc_thumb_box {
+            width: 56px;
+            height: 56px;
+            background: #1a2344;
+            border: 2px solid #2c3865;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .zsc_thumb_box:hover,
+        .zsc_thumb_box.zsc_on { border-color: #7dd3fc; }
+        .zsc_thumb_box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* 信息区 */
+        .zsc_info { flex: 1; min-width: 0; }
+        .zsc_info h2 { font-size: 21px; line-height: 1.5; margin-bottom: 10px; }
+        .zsc_tags { margin-bottom: 14px; }
+        .zsc_tag {
+            display: inline-block;
+            background: rgba(125, 211, 252, .12);
+            color: #7dd3fc;
+            font-size: 12px;
+            border-radius: 999px;
+            padding: 3px 12px;
+            margin: 0 6px 6px 0;
+        }
+        .zsc_price_row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_price {
+            color: #fb923c;
+            font-family: Consolas, monospace;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .zsc_cut {
+            font-size: 13px;
+            color: #4ade80;
+            background: rgba(74, 222, 128, .12);
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+        .zsc_desc {
+            font-size: 14px;
+            line-height: 1.95;
+            color: #aab4d4;
+            margin-bottom: 16px;
+        }
+        .zsc_rate_txt { font-size: 13px; color: #8b97bd; margin-bottom: 6px; }
+        .zsc_rate_txt b { color: #fbbf24; }
+        .zsc_rate_bar {
+            height: 8px;
+            background: #1a2344;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+        .zsc_rate_fill {
+            height: 100%;
+            width: 0;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #fbbf24, #fb923c);
+            transition: width .8s ease;
+        }
+        .zsc_specs { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .zsc_specs td { border-top: 1px solid #2c3865; padding: 9px 6px; }
+        .zsc_specs td:first-child { color: #8b97bd; width: 84px; }
+        .zsc_specs td:last-child { font-weight: bold; }
+
+        /* ===== 原始 JSON ===== */
+        .zsc_h2 { font-size: 17px; font-weight: bold; margin: 22px 2px 12px; }
+        .zsc_code {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.9;
+            color: #dfe4f3;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .zsc_code .zsc_k { color: #7dd3fc; }
+        .zsc_code .zsc_s { color: #4ade80; }
+        .zsc_code .zsc_n { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+
+        <!-- 顶部 -->
+        <header class="zsc_hero">
+            <div class="zsc_hero_top">
+                <span class="zsc_badge">第17课 · 商品详情</span>
+                <div class="zsc_links">
+                    <a class="zsc_home" href="17-3.html">← 返回列表</a>
+                    <a class="zsc_home" href="index.html">返回首页</a>
+                </div>
+            </div>
+            <h1 class="zsc_h1">商品详情（按 ID 获取）</h1>
+            <p class="zsc_intro">
+                从地址栏查询字符串取出 <b>id</b>，拼成接口地址
+                <span class="zsc_t_url" id="zsc_api_url"> https://dummyjson.com/products/1</span>，
+                再用 <b>fetch()</b> 请求，得到单个商品的 JSON 对象后渲染到页面。
+            </p>
+        </header>
+
+        <!-- 状态 -->
+        <div class="zsc_status" id="zsc_status">正在根据 ID 请求接口…</div>
+
+        <!-- 详情卡片 -->
+        <section class="zsc_detail" id="zsc_detail" style="margin-top: 18px;">
+            <div class="zsc_detail_top">
+                <div class="zsc_gallery">
+                    <div class="zsc_main_img"><img id="zsc_main_img" src="" alt="商品主图"></div>
+                    <div class="zsc_thumbs" id="zsc_thumbs"></div>
+                </div>
+                <div class="zsc_info">
+                    <h2 id="zsc_title">—</h2>
+                    <div class="zsc_tags" id="zsc_tags"></div>
+                    <div class="zsc_price_row">
+                        <span class="zsc_price" id="zsc_price">—</span>
+                        <span class="zsc_cut" id="zsc_cut"></span>
+                    </div>
+                    <p class="zsc_desc" id="zsc_desc"></p>
+                    <div class="zsc_rate_txt">综合评分 <b id="zsc_rating">—</b> / 5</div>
+                    <div class="zsc_rate_bar"><div class="zsc_rate_fill" id="zsc_rate_fill"></div></div>
+                    <table class="zsc_specs">
+                        <tr><td>品牌</td><td id="zsc_brand">—</td></tr>
+                        <tr><td>分类</td><td id="zsc_category">—</td></tr>
+                        <tr><td>库存</td><td id="zsc_stock">—</td></tr>
+                        <tr><td>商品 ID</td><td id="zsc_pid">—</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 原始 JSON -->
+        <h2 class="zsc_h2">接口返回的原始 JSON</h2>
+        <div class="zsc_code" id="zsc_json_box">等待请求…</div>
+
+    </div>
+
+    <script>
+        // ===== JSON 语法高亮 =====
+        function zsc_hl(zsc_s) {
+            return zsc_s
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"([^"]*)"\s*:/g, '<span class="zsc_k">"$1"</span>:')
+                .replace(/:\s*"([^"]*)"/g, ': <span class="zsc_s">"$1"</span>')
+                .replace(/:\s*(true|false|null)/g, ': <span class="zsc_n">$1</span>')
+                .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="zsc_n">$1</span>');
+        }
+
+        // ===== 从地址栏取商品 ID =====
+        var zsc_params = new URLSearchParams(window.location.search);
+        var zsc_id = zsc_params.get("id") || "1";     // 没传参数时默认取 1
+
+        // ===== 按 ID 请求详情 =====
+        async function zsc_load() {
+            var zsc_api = "https://dummyjson.com/products/" + encodeURIComponent(zsc_id);
+            document.getElementById("zsc_api_url").textContent = " " + zsc_api;
+
+            try {
+                var zsc_res = await fetch(zsc_api);
+                if (zsc_res.ok === false) {
+                    throw new Error("HTTP 状态码 " + zsc_res.status + (zsc_res.status === 404 ? "（商品不存在）" : ""));
+                }
+                var zsc_p = await zsc_res.json();
+                zsc_render(zsc_p);
+                document.getElementById("zsc_json_box").innerHTML = zsc_hl(JSON.stringify(zsc_p, null, 2));
+                document.getElementById("zsc_status").textContent =
+                    "成功：已获取 ID 为 " + zsc_p.id + " 的商品「" + zsc_p.title + "」";
+                console.log("详情数据：", zsc_p);
+            } catch (zsc_err) {
+                document.getElementById("zsc_status").textContent =
+                    "请求失败：" + zsc_err.message + "（可检查网络后刷新重试）";
+                console.error(zsc_err);
+            }
+        }
+
+        // ===== 渲染详情 =====
+        function zsc_render(zsc_p) {
+            var zsc_detail = document.getElementById("zsc_detail");
+            zsc_detail.style.display = "block";
+
+            document.title = zsc_p.title + " · 商品详情";
+            document.getElementById("zsc_title").textContent = zsc_p.title;
+            document.getElementById("zsc_price").textContent = "$" + zsc_p.price;
+            document.getElementById("zsc_cut").textContent = "限时优惠 -" + Math.round(zsc_p.discountPercentage) + "%";
+            document.getElementById("zsc_desc").textContent = zsc_p.description;
+            document.getElementById("zsc_rating").textContent = zsc_p.rating;
+            document.getElementById("zsc_brand").textContent = zsc_p.brand || "—";
+            document.getElementById("zsc_category").textContent = zsc_p.category;
+            document.getElementById("zsc_stock").textContent = zsc_p.stock + " 件";
+            document.getElementById("zsc_pid").textContent = "#" + zsc_p.id;
+
+            setTimeout(function () {
+                document.getElementById("zsc_rate_fill").style.width = (zsc_p.rating / 5 * 100) + "%";
+            }, 60);
+
+            // 标签
+            var zsc_tags_html = "";
+            zsc_p.tags.forEach(function (zsc_tag) {
+                zsc_tags_html += '<span class="zsc_tag">' + zsc_tag + '</span>';
+            });
+            document.getElementById("zsc_tags").innerHTML = zsc_tags_html;
+
+            // 主图 + 缩略图
+            var zsc_images = (zsc_p.images && zsc_p.images.length) ? zsc_p.images : [zsc_p.thumbnail];
+            document.getElementById("zsc_main_img").src = zsc_images[0];
+
+            var zsc_thumbs_box = document.getElementById("zsc_thumbs");
+            zsc_thumbs_box.innerHTML = "";
+            zsc_images.forEach(function (zsc_src, zsc_i) {
+                var zsc_box = document.createElement("div");
+                zsc_box.className = "zsc_thumb_box" + (zsc_i === 0 ? " zsc_on" : "");
+                zsc_box.innerHTML = '<img src="' + zsc_src + '" alt="缩略图' + (zsc_i + 1) + '">';
+                zsc_box.onclick = function () { zsc_switch(zsc_box, zsc_src); };
+                zsc_thumbs_box.appendChild(zsc_box);
+            });
+        }
+
+        // ===== 缩略图切换主图 =====
+        function zsc_switch(zsc_box, zsc_src) {
+            document.getElementById("zsc_main_img").src = zsc_src;
+            var zsc_all = document.querySelectorAll(".zsc_thumb_box");
+            for (var zsc_i = 0; zsc_i < zsc_all.length; zsc_i++) {
+                zsc_all[zsc_i].className = "zsc_thumb_box";
+            }
+            zsc_box.className = "zsc_thumb_box zsc_on";
+        }
+
+        // 页面打开即请求
+        zsc_load();
+        console.log("===== 张顺昌 17-3 商品详情 =====");
+    </script>
+</body>
+</html>

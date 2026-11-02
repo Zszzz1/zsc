@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-4 · 远程接口测试工具</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：远程数据接口测试工具（GET/POST等） -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #182140 0%, #1d2850 100%);
+            color: #eef1fb;
+            padding: 28px 16px 44px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 900px; margin: 0 auto; }
+
+        /* ===== 顶部 ===== */
+        .zsc_hero {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 16px;
+            padding: 22px 26px 24px;
+        }
+        .zsc_hero_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .zsc_badge {
+            background: #86b9f2;
+            color: #14264d;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 5px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+        .zsc_h1 { font-size: 28px; font-weight: bold; margin-bottom: 12px; }
+        .zsc_intro { font-size: 13.5px; line-height: 2; color: #aab4d4; word-break: break-all; }
+        .zsc_intro code {
+            font-family: Consolas, monospace;
+            color: #7dd3fc;
+            background: rgba(125, 211, 252, .12);
+            border-radius: 5px;
+            padding: 0 6px;
+            font-size: 12.5px;
+        }
+
+        /* ===== 区块标题 ===== */
+        .zsc_h2 { font-size: 17px; font-weight: bold; margin: 24px 2px 12px; }
+
+        /* ===== 表单卡片 ===== */
+        .zsc_panel {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+        }
+        .zsc_row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .zsc_select, .zsc_input, .zsc_textarea {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13.5px;
+            padding: 10px 12px;
+            outline: none;
+            transition: border-color .12s ease;
+        }
+        .zsc_select:focus, .zsc_input:focus, .zsc_textarea:focus { border-color: #7dd3fc; }
+        .zsc_select { flex: 0 0 118px; font-weight: bold; color: #7dd3fc; cursor: pointer; }
+        .zsc_input { flex: 1; min-width: 220px; font-family: Consolas, monospace; font-size: 13px; }
+        .zsc_textarea {
+            width: 100%;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            resize: vertical;
+            min-height: 90px;
+        }
+        .zsc_btn {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+        .zsc_btn:hover { background: #354478; transform: translateY(-2px); }
+        .zsc_btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+        .zsc_btn_main {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            font-weight: bold;
+            padding: 10px 24px;
+        }
+        .zsc_btn_main:hover { background: #2f6fd8; }
+
+        /* 示例按钮区 */
+        .zsc_chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .zsc_chip {
+            background: rgba(125, 211, 252, .1);
+            border: 1px solid rgba(125, 211, 252, .35);
+            color: #7dd3fc;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            border-radius: 999px;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .zsc_chip:hover { background: rgba(125, 211, 252, .22); }
+        .zsc_chip.zsc_chip_err {
+            background: rgba(248, 113, 113, .1);
+            border-color: rgba(248, 113, 113, .35);
+            color: #f87171;
+        }
+
+        /* ===== 字段标签 ===== */
+        .zsc_field { margin-bottom: 14px; }
+        .zsc_label {
+            display: block;
+            font-size: 12.5px;
+            color: #8b97bd;
+            margin-bottom: 6px;
+        }
+        .zsc_label span { color: #7dd3fc; font-family: Consolas, monospace; }
+
+        /* ===== 状态条 ===== */
+        .zsc_status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            align-items: center;
+            background: #1a2344;
+            border: 1px solid #2c3865;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #aab4d4;
+            margin-bottom: 12px;
+        }
+        .zsc_status b { font-family: Consolas, monospace; }
+        .zsc_ok { color: #4ade80; }
+        .zsc_warn { color: #fbbf24; }
+        .zsc_bad { color: #f87171; }
+        .zsc_method_tag {
+            font-family: Consolas, monospace;
+            font-weight: bold;
+            font-size: 12px;
+            color: #7dd3fc;
+        }
+
+        /* ===== 响应数据 ===== */
+        .zsc_code {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.9;
+            color: #dfe4f3;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 340px;
+            overflow-y: auto;
+        }
+        .zsc_code .zsc_k { color: #7dd3fc; }
+        .zsc_code .zsc_s { color: #4ade80; }
+        .zsc_code .zsc_n { color: #fbbf24; }
+
+        /* ===== 错误提示 ===== */
+        .zsc_error {
+            display: none;
+            background: rgba(248, 113, 113, .1);
+            border: 1px solid rgba(248, 113, 113, .45);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 13.5px;
+            line-height: 1.9;
+            color: #fca5a5;
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+        .zsc_error b { color: #f87171; }
+
+        /* ===== 历史记录 ===== */
+        .zsc_history { list-style: none; font-size: 12.5px; color: #aab4d4; }
+        .zsc_history li {
+            border-top: 1px solid #2c3865;
+            padding: 7px 2px;
+            font-family: Consolas, monospace;
+            word-break: break-all;
+        }
+        .zsc_history li:first-child { border-top: none; }
+
+        @media (max-width: 660px) {
+            .zsc_h1 { font-size: 22px; }
+            .zsc_select { flex: 1 0 100px; }
+            .zsc_input { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+
+        <!-- 顶部 -->
+        <header class="zsc_hero">
+            <div class="zsc_hero_top">
+                <span class="zsc_badge">第17课 · 接口测试</span>
+                <a class="zsc_home" href="index.html">← 返回首页</a>
+            </div>
+            <h1 class="zsc_h1">远程接口测试工具</h1>
+            <p class="zsc_intro">
+                用 <code>fetch()</code> 对远程接口发起 <b>GET / POST / PUT / PATCH / DELETE</b> 请求，
+                可自定义请求头和 JSON 请求体，页面显示 HTTP 状态码、耗时、返回数据，以及网络错误、HTTP 错误、JSON 格式错误等提示信息。
+                <br>示例 POST 接口：<code>https://jsonplaceholder.typicode.com/posts</code>
+            </p>
+        </header>
+
+        <!-- 一、请求配置 -->
+        <h2 class="zsc_h2">一、请求配置</h2>
+        <section class="zsc_panel">
+            <!-- 方法与地址 -->
+            <div class="zsc_row">
+                <select class="zsc_select" id="zsc_method">
+                    <option value="GET">GET</option>
+                    <option value="POST" selected>POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <input class="zsc_input" id="zsc_url" type="text"
+                       value="https://jsonplaceholder.typicode.com/posts">
+                <button class="zsc_btn zsc_btn_main" id="zsc_send" onclick="zsc_send()">发送请求</button>
+            </div>
+
+            <!-- 请求头 -->
+            <div class="zsc_field">
+                <label class="zsc_label" for="zsc_headers">请求头 Headers（JSON 格式，可留空）</label>
+                <textarea class="zsc_textarea" id="zsc_headers" spellcheck="false" style="min-height: 62px;">{"Content-Type": "application/json"}</textarea>
+            </div>
+
+            <!-- 请求体 -->
+            <div class="zsc_field">
+                <label class="zsc_label" for="zsc_body">请求体 Body（仅 POST / PUT / PATCH 发送，JSON 格式）</label>
+                <textarea class="zsc_textarea" id="zsc_body" spellcheck="false">{
+  "title": "张顺昌的接口测试",
+  "body": "这是一条通过 fetch POST 提交的数据",
+  "userId": 1
+}</textarea>
+            </div>
+
+            <!-- 快捷示例 -->
+            <label class="zsc_label">快捷示例（点击自动填入并发送）</label>
+            <div class="zsc_chips">
+                <span class="zsc_chip" onclick="zsc_quick('GET', 'https://jsonplaceholder.typicode.com/posts/1')">GET 单条数据</span>
+                <span class="zsc_chip" onclick="zsc_quick('GET', 'https://jsonplaceholder.typicode.com/posts?_limit=3')">GET 列表数据</span>
+                <span class="zsc_chip" onclick="zsc_quick('POST', 'https://jsonplaceholder.typicode.com/posts')">POST 新建数据</span>
+                <span class="zsc_chip" onclick="zsc_quick('PUT', 'https://jsonplaceholder.typicode.com/posts/1')">PUT 整体更新</span>
+                <span class="zsc_chip" onclick="zsc_quick('PATCH', 'https://jsonplaceholder.typicode.com/posts/1')">PATCH 局部更新</span>
+                <span class="zsc_chip" onclick="zsc_quick('DELETE', 'https://jsonplaceholder.typicode.com/posts/1')">DELETE 删除</span>
+                <span class="zsc_chip zsc_chip_err" onclick="zsc_demo_error()">模拟错误（404 / 错误地址）</span>
+            </div>
+        </section>
+
+        <!-- 二、响应结果 -->
+        <h2 class="zsc_h2">二、响应结果</h2>
+        <div class="zsc_status" id="zsc_status_line">
+            <span>状态：<b id="zsc_st_code">—</b></span>
+            <span>耗时：<b id="zsc_st_time">—</b></span>
+            <span>大小：<b id="zsc_st_size">—</b></span>
+            <span id="zsc_st_msg">等待发送请求…</span>
+        </div>
+
+        <div class="zsc_error" id="zsc_error_box"></div>
+        <div class="zsc_code" id="zsc_resp">响应数据将显示在这里。</div>
+
+        <!-- 三、请求历史 -->
+        <h2 class="zsc_h2">三、请求历史</h2>
+        <section class="zsc_panel">
+            <ul class="zsc_history" id="zsc_history">
+                <li>暂无请求记录。</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <script>
+        var zsc_method_el = document.getElementById("zsc_method");
+        var zsc_url_el = document.getElementById("zsc_url");
+        var zsc_headers_el = document.getElementById("zsc_headers");
+        var zsc_body_el = document.getElementById("zsc_body");
+        var zsc_send_btn = document.getElementById("zsc_send");
+        var zsc_error_box = document.getElementById("zsc_error_box");
+        var zsc_resp_el = document.getElementById("zsc_resp");
+        var zsc_history_el = document.getElementById("zsc_history");
+
+        // ===== JSON 语法高亮 =====
+        function zsc_hl(zsc_s) {
+            return zsc_s
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"([^"]*)"\s*:/g, '<span class="zsc_k">"$1"</span>:')
+                .replace(/:\s*"([^"]*)"/g, ': <span class="zsc_s">"$1"</span>')
+                .replace(/:\s*(true|false|null)/g, ': <span class="zsc_n">$1</span>')
+                .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="zsc_n">$1</span>');
+        }
+
+        // ===== 显示错误提示 =====
+        function zsc_show_error(zsc_title, zsc_detail) {
+            zsc_error_box.style.display = "block";
+            zsc_error_box.innerHTML = "<b>" + zsc_title + "</b><br>" + zsc_detail;
+        }
+
+        function zsc_hide_error() {
+            zsc_error_box.style.display = "none";
+            zsc_error_box.innerHTML = "";
+        }
+
+        // ===== 状态条 =====
+        function zsc_set_status(zsc_code, zsc_time, zsc_size, zsc_msg, zsc_cls) {
+            document.getElementById("zsc_st_code").textContent = zsc_code;
+            document.getElementById("zsc_st_time").textContent = zsc_time;
+            document.getElementById("zsc_st_size").textContent = zsc_size;
+            var zsc_msg_el = document.getElementById("zsc_st_msg");
+            zsc_msg_el.textContent = zsc_msg;
+            zsc_msg_el.className = zsc_cls || "";
+        }
+
+        // ===== 请求历史 =====
+        function zsc_add_history(zsc_ok, zsc_text) {
+            var zsc_li = document.createElement("li");
+            zsc_li.innerHTML = (zsc_ok ? '<span class="zsc_ok">✔</span> ' : '<span class="zsc_bad">✘</span> ') + zsc_text;
+            if (zsc_history_el.querySelector("li") && zsc_history_el.querySelector("li").textContent === "暂无请求记录。") {
+                zsc_history_el.innerHTML = "";
+            }
+            zsc_history_el.insertBefore(zsc_li, zsc_history_el.firstChild);
+        }
+
+        // ===== 核心：发送请求 =====
+        async function zsc_send() {
+            zsc_hide_error();
+
+            var zsc_method = zsc_method_el.value.toUpperCase();
+            var zsc_url = zsc_url_el.value.trim();
+            var zsc_body_allowed = (zsc_method === "POST" || zsc_method === "PUT" || zsc_method === "PATCH");
+
+            // 1. 地址校验
+            if (!zsc_url) {
+                zsc_show_error("地址不能为空", "请填写完整的接口地址，例如 https://jsonplaceholder.typicode.com/posts");
+                zsc_set_status("—", "—", "—", "地址为空，未发送", "zsc_bad");
+                return;
+            }
+            if (!/^https?:\/\//i.test(zsc_url)) {
+                zsc_show_error("地址格式错误", "接口地址必须以 http:// 或 https:// 开头，当前填写：" + zsc_url);
+                zsc_set_status("—", "—", "—", "地址格式错误，未发送", "zsc_bad");
+                return;
+            }
+
+            // 2. 请求头校验（必须是 JSON 对象）
+            var zsc_headers = {};
+            var zsc_headers_text = zsc_headers_el.value.trim();
+            if (zsc_headers_text) {
+                try {
+                    zsc_headers = JSON.parse(zsc_headers_text);
+                } catch (zsc_e) {
+                    zsc_show_error("请求头格式错误", "Headers 必须是合法的 JSON 对象：<br>" + zsc_e.message);
+                    zsc_set_status("—", "—", "—", "Headers 解析失败，未发送", "zsc_bad");
+                    return;
+                }
+            }
+
+            // 3. 请求体校验
+            var zsc_body = null;
+            if (zsc_body_allowed) {
+                var zsc_body_text = zsc_body_el.value.trim();
+                if (zsc_body_text) {
+                    try {
+                        zsc_body = zsc_body_text;   // 先确认是合法 JSON
+                        JSON.parse(zsc_body_text);
+                    } catch (zsc_e) {
+                        zsc_show_error("请求体格式错误", "Body 必须是合法的 JSON：<br>" + zsc_e.message);
+                        zsc_set_status("—", "—", "—", "Body 解析失败，未发送", "zsc_bad");
+                        return;
+                    }
+                }
+            }
+
+            // 4. 发起 fetch（20 秒超时）
+            zsc_send_btn.disabled = true;
+            zsc_set_status("请求中", "…", "…", "正在发送 " + zsc_method + " 请求…", "zsc_warn");
+            zsc_resp_el.textContent = "等待服务器响应…";
+
+            var zsc_controller = new AbortController();
+            var zsc_timer = setTimeout(function () { zsc_controller.abort(); }, 20000);
+            var zsc_start = performance.now();
+
+            try {
+                var zsc_options = {
+                    method: zsc_method,
+                    headers: zsc_headers,
+                    signal: zsc_controller.signal
+                };
+                if (zsc_body_allowed && zsc_body) {
+                    zsc_options.body = zsc_body;
+                }
+
+                var zsc_res = await fetch(zsc_url, zsc_options);
+                var zsc_text = await zsc_res.text();                  // 先拿原始文本
+                var zsc_cost = Math.round(performance.now() - zsc_start);
+                var zsc_size = zsc_text.length + " B";
+
+                clearTimeout(zsc_timer);
+
+                // 5. 展示返回数据（能解析 JSON 就美化）
+                var zsc_pretty = zsc_text;
+                var zsc_is_json = false;
+                try {
+                    var zsc_obj = JSON.parse(zsc_text);
+                    zsc_pretty = JSON.stringify(zsc_obj, null, 2);
+                    zsc_is_json = true;
+                } catch (zsc_e) { /* 非 JSON 原样显示 */ }
+                zsc_resp_el.innerHTML = zsc_text
+                    ? (zsc_is_json ? zsc_hl(zsc_pretty) : zsc_pretty.replace(/&/g, "&amp;").replace(/</g, "&lt;"))
+                    : "（服务器返回空内容）";
+
+                // 6. HTTP 状态判断与错误提示
+                if (zsc_res.ok) {
+                    zsc_set_status(zsc_res.status, zsc_cost + " ms", zsc_size, "请求成功 " + zsc_method + " " + zsc_res.status, "zsc_ok");
+                    zsc_add_history(true, zsc_method + " " + zsc_res.status + " · " + zsc_cost + "ms · " + zsc_url);
+                } else {
+                    zsc_set_status(zsc_res.status, zsc_cost + " ms", zsc_size, "HTTP 错误 " + zsc_res.status, "zsc_bad");
+                    zsc_show_error(
+                        "HTTP 错误：" + zsc_res.status + " " + (zsc_res.statusText || ""),
+                        "服务器返回了非 2xx 状态码，说明请求被拒绝或接口不存在。部分接口会把错误说明放在返回数据里，请看下方响应内容。"
+                    );
+                    zsc_add_history(false, zsc_method + " " + zsc_res.status + " · " + zsc_cost + "ms · " + zsc_url);
+                }
+                console.log(zsc_method + " " + zsc_url + " →", zsc_res.status, zsc_text);
+
+            } catch (zsc_err) {
+                clearTimeout(zsc_timer);
+                var zsc_cost2 = Math.round(performance.now() - zsc_start);
+                zsc_resp_el.textContent = "请求未完成，没有收到服务器数据。";
+
+                if (zsc_err.name === "AbortError") {
+                    zsc_show_error("请求超时", "超过 20 秒仍未收到响应，可能是网络太慢或接口无法访问（请求已被中断）。");
+                    zsc_set_status("超时", zsc_cost2 + " ms", "—", "请求超时已中断", "zsc_bad");
+                    zsc_add_history(false, "超时 · " + zsc_method + " " + zsc_url);
+                } else {
+                    zsc_show_error("网络请求失败", zsc_err.message +
+                        "<br>常见原因：地址写错、域名无法访问、接口不允许跨域（CORS）、网络断开。");
+                    zsc_set_status("失败", zsc_cost2 + " ms", "—", "网络异常，未拿到数据", "zsc_bad");
+                    zsc_add_history(false, "网络失败 · " + zsc_method + " " + zsc_url);
+                }
+                console.error("请求异常：", zsc_err);
+
+            } finally {
+                zsc_send_btn.disabled = false;
+            }
+        }
+
+        // ===== 快捷示例：填入后直接发送 =====
+        function zsc_quick(zsc_method, zsc_url) {
+            zsc_method_el.value = zsc_method;
+            zsc_url_el.value = zsc_url;
+            zsc_send();
+        }
+
+        // ===== 演示错误提示 =====
+        function zsc_demo_error() {
+            zsc_method_el.value = "GET";
+            // 这里故意写一个不存在的路径，接口会返回 404，用来演示 HTTP 错误提示
+            zsc_url_el.value = "https://jsonplaceholder.typicode.com/posts/999999999";
+            zsc_send();
+        }
+
+        console.log("===== 张顺昌 17-4 接口测试工具 =====");
+    </script>
+</body>
+</html>
