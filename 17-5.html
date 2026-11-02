@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-5 · JavaScript 两种定时器</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：JavaScript两种定时器演示（setTimeout与setInterval） -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #182140 0%, #1d2850 100%);
+            color: #eef1fb;
+            padding: 28px 16px 44px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 900px; margin: 0 auto; }
+
+        /* ===== 顶部 ===== */
+        .zsc_hero {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 16px;
+            padding: 22px 26px 24px;
+        }
+        .zsc_hero_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .zsc_badge {
+            background: #86b9f2;
+            color: #14264d;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 5px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+        .zsc_h1 { font-size: 28px; font-weight: bold; margin-bottom: 12px; }
+        .zsc_intro { font-size: 13.5px; line-height: 2; color: #aab4d4; }
+        .zsc_intro code {
+            font-family: Consolas, monospace;
+            color: #7dd3fc;
+            background: rgba(125, 211, 252, .12);
+            border-radius: 5px;
+            padding: 0 6px;
+            font-size: 12.5px;
+        }
+
+        /* ===== 区块 ===== */
+        .zsc_h2 { font-size: 17px; font-weight: bold; margin: 24px 2px 12px; }
+        .zsc_panel {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+        }
+        .zsc_desc { font-size: 13px; line-height: 1.9; color: #8b97bd; margin-bottom: 14px; }
+        .zsc_desc code {
+            font-family: Consolas, monospace;
+            color: #7dd3fc;
+            font-size: 12.5px;
+        }
+
+        /* ===== 控件 ===== */
+        .zsc_row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .zsc_input {
+            width: 90px;
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            padding: 9px 12px;
+            outline: none;
+        }
+        .zsc_input:focus { border-color: #7dd3fc; }
+        .zsc_btn {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+        .zsc_btn:hover { background: #354478; transform: translateY(-2px); }
+        .zsc_btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+        .zsc_btn_main { background: #3b82f6; border-color: #3b82f6; font-weight: bold; }
+        .zsc_btn_main:hover { background: #2f6fd8; }
+
+        /* ===== 显示区 ===== */
+        .zsc_display {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-top: 14px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.9;
+            color: #dfe4f3;
+            word-break: break-all;
+        }
+        .zsc_display .zsc_big {
+            font-size: 30px;
+            font-weight: bold;
+            color: #7dd3fc;
+        }
+        .zsc_hint_ok { color: #4ade80; }
+        .zsc_hint_warn { color: #fbbf24; }
+        .zsc_hint_bad { color: #f87171; }
+        .zsc_muted { color: #8b97bd; font-size: 12.5px; }
+
+        /* ===== 时钟 ===== */
+        .zsc_clock {
+            font-family: Consolas, monospace;
+            font-size: 42px;
+            font-weight: bold;
+            color: #7dd3fc;
+            text-align: center;
+            padding: 10px 0 4px;
+            letter-spacing: 2px;
+        }
+
+        /* ===== 日志 ===== */
+        .zsc_log { list-style: none; font-size: 12.5px; color: #aab4d4; font-family: Consolas, monospace; }
+        .zsc_log li { border-top: 1px solid #2c3865; padding: 6px 2px; word-break: break-all; }
+        .zsc_log li:first-child { border-top: none; }
+
+        /* ===== 代码块 ===== */
+        .zsc_code {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.85;
+            color: #dfe4f3;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .zsc_code .zsc_kw { color: #c084fc; }
+        .zsc_code .zsc_fn { color: #7dd3fc; }
+        .zsc_code .zsc_cm { color: #6b78a3; }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+
+        <header class="zsc_hero">
+            <div class="zsc_hero_top">
+                <span class="zsc_badge">第17课 · 定时器</span>
+                <a class="zsc_home" href="index.html">← 返回首页</a>
+            </div>
+            <h1 class="zsc_h1">JavaScript 的两种定时器</h1>
+            <p class="zsc_intro">
+                <b>setTimeout</b>：延迟一段时间后<b>只执行一次</b>，用 <code>clearTimeout()</code> 取消。<br>
+                <b>setInterval</b>：每隔一段时间<b>重复执行</b>，用 <code>clearInterval()</code> 停止。
+            </p>
+        </header>
+
+        <!-- 一、setTimeout -->
+        <h2 class="zsc_h2">一、setTimeout：延迟执行一次</h2>
+        <section class="zsc_panel">
+            <p class="zsc_desc">
+                点击「延时执行」后，等待设定的秒数，再输出一句话；等待期间点「取消定时器」就调用 <code>clearTimeout()</code> 把它清掉，消息不会出现。
+            </p>
+            <div class="zsc_row">
+                <span class="zsc_muted">延迟</span>
+                <input class="zsc_input" id="zsc_delay" type="number" value="3" min="1" max="30">
+                <span class="zsc_muted">秒</span>
+                <button class="zsc_btn zsc_btn_main" id="zsc_btn_timeout" onclick="zsc_start_timeout()">延时执行</button>
+                <button class="zsc_btn" id="zsc_btn_cancel" onclick="zsc_cancel_timeout()">取消定时器</button>
+            </div>
+            <div class="zsc_display" id="zsc_timeout_out">
+                <span class="zsc_muted">状态：</span><span id="zsc_timeout_state" class="zsc_hint_warn">未启动</span>
+                <div class="zsc_muted" id="zsc_timeout_countdown" style="margin-top: 6px;">点击按钮开始倒计时…</div>
+            </div>
+        </section>
+
+        <!-- 二、setInterval -->
+        <h2 class="zsc_h2">二、setInterval：每隔一段时间重复执行</h2>
+        <section class="zsc_panel">
+            <p class="zsc_desc">
+                点击「开始计数」后每 1 秒执行一次回调，计数器加 1；「暂停」调用 <code>clearInterval()</code> 停止，「清零」把计数归零。
+            </p>
+            <div class="zsc_row">
+                <button class="zsc_btn zsc_btn_main" id="zsc_btn_interval" onclick="zsc_start_interval()">开始计数</button>
+                <button class="zsc_btn" onclick="zsc_stop_interval()">暂停</button>
+                <button class="zsc_btn" onclick="zsc_reset_interval()">清零</button>
+            </div>
+            <div class="zsc_display">
+                <span class="zsc_big" id="zsc_count">0</span>
+                <span class="zsc_muted"> 次（每秒 +1）</span>
+                <div class="zsc_muted" id="zsc_interval_state" style="margin-top: 4px;">状态：已停止 · 定时器 ID：无</div>
+            </div>
+        </section>
+
+        <!-- 三、实时时钟 -->
+        <h2 class="zsc_h2">三、实战：用 setInterval 做实时时钟</h2>
+        <section class="zsc_panel">
+            <p class="zsc_desc">每隔 1 秒触发一次回调，把当前时间写进页面，时钟就会一直走。</p>
+            <div class="zsc_clock" id="zsc_clock">--:--:--</div>
+            <div class="zsc_muted" style="text-align: center;" id="zsc_clock_date">—</div>
+        </section>
+
+        <!-- 四、日志 -->
+        <h2 class="zsc_h2">四、定时器运行日志</h2>
+        <section class="zsc_panel">
+            <ul class="zsc_log" id="zsc_log">
+                <li>暂无记录（操作上方按钮后这里会追加日志）。</li>
+            </ul>
+        </section>
+
+        <!-- 代码参考 -->
+        <h2 class="zsc_h2">五、核心代码</h2>
+        <div class="zsc_code"><span class="zsc_cm">// 1. setTimeout：只执行一次，返回定时器 ID</span>
+<span class="zsc_kw">var</span> zsc_t = <span class="zsc_fn">setTimeout</span>(<span class="zsc_kw">function</span> () {
+    console.log(<span class="zsc_str">"3 秒后执行，只执行一次"</span>);
+}, 3000);
+<span class="zsc_fn">clearTimeout</span>(zsc_t);        <span class="zsc_cm">// 取消（还没来得及执行时）</span>
+
+<span class="zsc_cm">// 2. setInterval：每隔一段时间执行一次，返回定时器 ID</span>
+<span class="zsc_kw">var</span> zsc_i = <span class="zsc_fn">setInterval</span>(<span class="zsc_kw">function</span> () {
+    console.log(<span class="zsc_str">"每 1 秒执行一次"</span>);
+}, 1000);
+<span class="zsc_fn">clearInterval</span>(zsc_i);        <span class="zsc_cm">// 停止循环</span></div>
+
+    </div>
+
+    <script>
+        // ===== 日志 =====
+        var zsc_log_el = document.getElementById("zsc_log");
+        function zsc_add_log(zsc_text, zsc_cls) {
+            var zsc_li = document.createElement("li");
+            var zsc_now = new Date().toLocaleTimeString("zh-CN", { hour12: false });
+            zsc_li.innerHTML = '<span class="zsc_muted">' + zsc_now + '</span> · ' +
+                '<span class="' + (zsc_cls || "") + '">' + zsc_text + '</span>';
+            if (zsc_log_el.firstChild && zsc_log_el.firstChild.textContent.indexOf("暂无记录") > -1) {
+                zsc_log_el.innerHTML = "";
+            }
+            zsc_log_el.insertBefore(zsc_li, zsc_log_el.firstChild);
+        }
+
+        // ============================================================
+        // 一、setTimeout：延迟执行一次 + clearTimeout 取消
+        // ============================================================
+        var zsc_timeout_id = null;       // 保存 setTimeout 的返回值（定时器 ID）
+        var zsc_countdown_id = null;     // 倒计时用的 setInterval 的返回值
+
+        function zsc_start_timeout() {
+            var zsc_sec = parseInt(document.getElementById("zsc_delay").value, 10);
+
+            // 输入校验
+            if (isNaN(zsc_sec) || zsc_sec < 1 || zsc_sec > 30) {
+                document.getElementById("zsc_timeout_state").className = "zsc_hint_bad";
+                document.getElementById("zsc_timeout_state").textContent = "请输入 1~30 之间的秒数";
+                return;
+            }
+
+            // 先清掉可能存在的旧定时器，避免重复
+            zsc_cancel_timeout(true);
+
+            document.getElementById("zsc_timeout_state").className = "zsc_hint_warn";
+            document.getElementById("zsc_timeout_state").textContent = "等待中…";
+            zsc_add_log("setTimeout 启动：延迟 " + zsc_sec + " 秒", "zsc_hint_warn");
+
+            // 倒计时显示（只是给人看进度）
+            var zsc_left = zsc_sec;
+            var zsc_cd_el = document.getElementById("zsc_timeout_countdown");
+            zsc_cd_el.textContent = "倒计时：" + zsc_left + " 秒";
+            zsc_countdown_id = setInterval(function () {
+                zsc_left--;
+                zsc_cd_el.textContent = zsc_left > 0 ? ("倒计时：" + zsc_left + " 秒") : "倒计时结束";
+                if (zsc_left <= 0) {
+                    clearInterval(zsc_countdown_id);
+                    zsc_countdown_id = null;
+                }
+            }, 1000);
+
+            // 核心：延迟执行一次
+            zsc_timeout_id = setTimeout(function () {
+                document.getElementById("zsc_timeout_state").className = "zsc_hint_ok";
+                document.getElementById("zsc_timeout_state").textContent = "已执行";
+                zsc_cd_el.textContent = "消息已输出：定时器到点了！";
+                zsc_add_log("setTimeout 回调执行：定时器到点了！", "zsc_hint_ok");
+                console.log("[setTimeout] 定时器到点了！");
+                zsc_timeout_id = null;
+            }, zsc_sec * 1000);
+        }
+
+        function zsc_cancel_timeout(zsc_is_silent) {
+            if (zsc_timeout_id !== null) {
+                clearTimeout(zsc_timeout_id);      // 核心：清除延时任务
+                zsc_timeout_id = null;
+                document.getElementById("zsc_timeout_state").className = "zsc_hint_bad";
+                document.getElementById("zsc_timeout_state").textContent = "已取消（clearTimeout）";
+                document.getElementById("zsc_timeout_countdown").textContent = "定时器已被清除，消息不会再出现。";
+                if (!zsc_is_silent) {
+                    zsc_add_log("clearTimeout 清除成功，延时任务已取消", "zsc_hint_bad");
+                }
+            } else if (!zsc_is_silent) {
+                zsc_add_log("当前没有等待中的 setTimeout", "zsc_hint_warn");
+            }
+            if (zsc_countdown_id !== null) {
+                clearInterval(zsc_countdown_id);
+                zsc_countdown_id = null;
+            }
+        }
+
+        // ============================================================
+        // 二、setInterval：重复执行 + clearInterval 停止
+        // ============================================================
+        var zsc_interval_id = null;   // 保存 setInterval 的返回值
+        var zsc_count = 0;
+
+        function zsc_start_interval() {
+            if (zsc_interval_id !== null) {   // 已在运行就不重复创建
+                zsc_add_log("计数器已在运行，无需重复启动", "zsc_hint_warn");
+                return;
+            }
+            zsc_add_log("setInterval 启动：每 1000ms 执行一次", "zsc_hint_warn");
+
+            zsc_interval_id = setInterval(function () {
+                zsc_count++;
+                document.getElementById("zsc_count").textContent = zsc_count;
+                console.log("[setInterval] 第 " + zsc_count + " 次执行");
+            }, 1000);
+
+            document.getElementById("zsc_interval_state").textContent =
+                "状态：运行中 · 定时器 ID：" + zsc_interval_id;
+        }
+
+        function zsc_stop_interval() {
+            if (zsc_interval_id === null) {
+                zsc_add_log("计数器没有在运行，无需暂停", "zsc_hint_warn");
+                return;
+            }
+            clearInterval(zsc_interval_id);      // 核心：停止循环
+            zsc_add_log("clearInterval 停止循环，共执行 " + zsc_count + " 次", "zsc_hint_bad");
+            zsc_interval_id = null;
+            document.getElementById("zsc_interval_state").textContent = "状态：已暂停 · 定时器 ID：无";
+        }
+
+        function zsc_reset_interval() {
+            zsc_count = 0;
+            document.getElementById("zsc_count").textContent = "0";
+            zsc_add_log("计数已清零", "");
+        }
+
+        // ============================================================
+        // 三、实时时钟（setInterval 实战）
+        // ============================================================
+        function zsc_tick() {
+            var zsc_now = new Date();
+            var zsc_h = String(zsc_now.getHours()).padStart(2, "0");
+            var zsc_m = String(zsc_now.getMinutes()).padStart(2, "0");
+            var zsc_s = String(zsc_now.getSeconds()).padStart(2, "0");
+            document.getElementById("zsc_clock").textContent = zsc_h + ":" + zsc_m + ":" + zsc_s;
+            document.getElementById("zsc_clock_date").textContent =
+                zsc_now.getFullYear() + " 年 " + (zsc_now.getMonth() + 1) + " 月 " + zsc_now.getDate() + " 日";
+        }
+        zsc_tick();                        // 先显示一次，避免空白
+        setInterval(zsc_tick, 1000);       // 之后每秒刷新
+
+        console.log("===== 张顺昌 17-5 两种定时器 =====");
+    </script>
+</body>
+</html>

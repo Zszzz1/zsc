@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-6 · Promise / async 异步流程演示（包饺子）</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-02；使用模型：GLM-5.3-Flash；功能名称：Promise与async异步操作演示（包饺子流程） -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #182140 0%, #1d2850 100%);
+            color: #eef1fb;
+            padding: 28px 16px 44px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 900px; margin: 0 auto; }
+
+        /* ===== 顶部 ===== */
+        .zsc_hero {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 16px;
+            padding: 22px 26px 24px;
+        }
+        .zsc_hero_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .zsc_badge {
+            background: #86b9f2;
+            color: #14264d;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 5px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+        .zsc_h1 { font-size: 28px; font-weight: bold; margin-bottom: 12px; }
+        .zsc_intro { font-size: 13.5px; line-height: 2; color: #aab4d4; }
+        .zsc_intro code {
+            font-family: Consolas, monospace;
+            color: #7dd3fc;
+            background: rgba(125, 211, 252, .12);
+            border-radius: 5px;
+            padding: 0 6px;
+            font-size: 12.5px;
+        }
+
+        /* ===== 区块 ===== */
+        .zsc_h2 { font-size: 17px; font-weight: bold; margin: 24px 2px 12px; }
+        .zsc_panel {
+            background: #212c50;
+            border: 1px solid #323f6e;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+        }
+        .zsc_bar_row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .zsc_btn {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+        .zsc_btn:hover { background: #354478; transform: translateY(-2px); }
+        .zsc_btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .zsc_btn_main { background: #3b82f6; border-color: #3b82f6; font-weight: bold; }
+        .zsc_btn_main:hover { background: #2f6fd8; }
+        .zsc_btn_ghost { background: #1a2344; border-color: #2c3865; }
+
+        /* ===== 总状态条 ===== */
+        .zsc_total {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            align-items: center;
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #aab4d4;
+        }
+        .zsc_total b { font-family: Consolas, monospace; color: #7dd3fc; }
+        .zsc_total .zsc_now_running { color: #fbbf24; }
+        .zsc_total .zsc_all_done { color: #4ade80; }
+
+        /* ===== 流程列表 ===== */
+        .zsc_flow { margin-top: 16px; }
+        .zsc_step {
+            display: grid;
+            grid-template-columns: 34px 92px 1fr 92px;
+            gap: 12px;
+            align-items: center;
+            background: #1a2344;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            transition: border-color .2s ease, background .2s ease;
+        }
+        .zsc_step.zsc_running {
+            border-color: #fbbf24;
+            background: #232544;
+        }
+        .zsc_step.zsc_done {
+            border-color: rgba(74, 222, 128, .55);
+            background: #1b2b3a;
+        }
+        .zsc_dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #2c3865;
+            color: #8b97bd;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Consolas, monospace;
+        }
+        .zsc_step.zsc_running .zsc_dot { background: #fbbf24; color: #1a2344; }
+        .zsc_step.zsc_done .zsc_dot { background: #4ade80; color: #14264d; }
+        .zsc_name { font-size: 14px; font-weight: bold; }
+        .zsc_name small { display: block; font-size: 11.5px; color: #8b97bd; font-weight: normal; margin-top: 2px; }
+        .zsc_prog_wrap {
+            height: 10px;
+            background: #131b36;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        .zsc_prog_fill {
+            height: 100%;
+            width: 0;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #3b82f6, #7dd3fc);
+            transition: width .1s linear;
+        }
+        .zsc_step.zsc_running .zsc_prog_fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .zsc_step.zsc_done .zsc_prog_fill { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .zsc_state {
+            font-size: 12px;
+            color: #8b97bd;
+            text-align: right;
+            font-family: Consolas, monospace;
+        }
+        .zsc_step.zsc_running .zsc_state { color: #fbbf24; }
+        .zsc_step.zsc_done .zsc_state { color: #4ade80; }
+
+        /* 并行说明 */
+        .zsc_parallel_note {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: #7dd3fc;
+            background: rgba(125, 211, 252, .1);
+            border: 1px dashed rgba(125, 211, 252, .45);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: -2px 0 10px 46px;
+        }
+
+        /* ===== 日志 ===== */
+        .zsc_log { list-style: none; font-size: 12.5px; color: #aab4d4; font-family: Consolas, monospace; }
+        .zsc_log li { border-top: 1px solid #2c3865; padding: 6px 2px; word-break: break-all; }
+        .zsc_log li:first-child { border-top: none; }
+
+        /* ===== 代码块 ===== */
+        .zsc_code {
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.85;
+            color: #dfe4f3;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .zsc_code .kw { color: #c084fc; }
+        .zsc_code .fn { color: #7dd3fc; }
+        .zsc_code .cm { color: #6b78a3; }
+        .zsc_code .st { color: #4ade80; }
+
+        @media (max-width: 560px) {
+            .zsc_step { grid-template-columns: 30px 1fr; }
+            .zsc_prog_wrap { grid-column: 1 / -1; }
+            .zsc_state { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+
+        <header class="zsc_hero">
+            <div class="zsc_hero_top">
+                <span class="zsc_badge">第17课 · 异步编程</span>
+                <a class="zsc_home" href="index.html">← 返回首页</a>
+            </div>
+            <h1 class="zsc_h1">Promise / async 异步流程：包饺子</h1>
+            <p class="zsc_intro">
+                每一步都用 <code>setTimeout</code> 包进 <b>Promise</b> 来模拟耗时：<br>
+                买原料 → 取原料 →（<b>和面</b> 与 <b>和馅</b> 同时进行）→ 包饺子 → 吃饺子。<br>
+                并行用 <code>Promise.all()</code>，串行用 <code>await</code> / <code>.then()</code>；页面上实时显示每步进度与总耗时。
+            </p>
+        </header>
+
+        <!-- 一、控制区 -->
+        <h2 class="zsc_h2">一、开始演示</h2>
+        <section class="zsc_panel">
+            <div class="zsc_bar_row">
+                <button class="zsc_btn zsc_btn_main" id="zsc_btn_async" onclick="zsc_run_async()">用 async / await 演示</button>
+                <button class="zsc_btn" id="zsc_btn_promise" onclick="zsc_run_promise()">用 Promise.then 链演示</button>
+                <button class="zsc_btn zsc_btn_ghost" id="zsc_btn_reset" onclick="zsc_reset()">重置</button>
+            </div>
+            <div class="zsc_total" id="zsc_total">
+                <span>总状态：<b id="zsc_total_state">未开始</b></span>
+                <span>已用时：<b id="zsc_total_time">0.0 s</b></span>
+                <span class="zsc_now_running" id="zsc_total_tip">点击按钮开始包饺子</span>
+            </div>
+        </section>
+
+        <!-- 二、流程 -->
+        <h2 class="zsc_h2">二、饺子制作流程</h2>
+        <section class="zsc_panel">
+            <div class="zsc_flow" id="zsc_flow">
+
+                <div class="zsc_step" id="zsc_step_buy">
+                    <div class="zsc_dot">1</div>
+                    <div class="zsc_name">买原料<small>约 6 秒</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_buy"></div></div>
+                    <div class="zsc_state" id="zsc_state_buy">等待中</div>
+                </div>
+
+                <div class="zsc_step" id="zsc_step_take">
+                    <div class="zsc_dot">2</div>
+                    <div class="zsc_name">取原料<small>约 2 秒</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_take"></div></div>
+                    <div class="zsc_state" id="zsc_state_take">等待中</div>
+                </div>
+
+                <div class="zsc_parallel_note">⇅ 下面两步同时开始：和面 + 和馅</div>
+
+                <div class="zsc_step" id="zsc_step_dough">
+                    <div class="zsc_dot">3</div>
+                    <div class="zsc_name">和面<small>约 3 秒 · 与和馅并行</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_dough"></div></div>
+                    <div class="zsc_state" id="zsc_state_dough">等待中</div>
+                </div>
+
+                <div class="zsc_step" id="zsc_step_filling">
+                    <div class="zsc_dot">4</div>
+                    <div class="zsc_name">和馅<small>约 3 秒 · 与和面并行</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_filling"></div></div>
+                    <div class="zsc_state" id="zsc_state_filling">等待中</div>
+                </div>
+
+                <div class="zsc_step" id="zsc_step_wrap">
+                    <div class="zsc_dot">5</div>
+                    <div class="zsc_name">包饺子<small>约 4 秒 · 和面、和馅都完成后</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_wrap"></div></div>
+                    <div class="zsc_state" id="zsc_state_wrap">等待中</div>
+                </div>
+
+                <div class="zsc_step" id="zsc_step_eat">
+                    <div class="zsc_dot">6</div>
+                    <div class="zsc_name">吃饺子<small>约 2 秒 · 包完才吃</small></div>
+                    <div class="zsc_prog_wrap"><div class="zsc_prog_fill" id="zsc_fill_eat"></div></div>
+                    <div class="zsc_state" id="zsc_state_eat">等待中</div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 三、日志 -->
+        <h2 class="zsc_h2">三、执行日志</h2>
+        <section class="zsc_panel">
+            <ul class="zsc_log" id="zsc_log">
+                <li>暂无记录（点击上方按钮开始）。</li>
+            </ul>
+        </section>
+
+        <!-- 四、代码 -->
+        <h2 class="zsc_h2">四、核心代码</h2>
+        <div class="zsc_code"><span class="cm">// 用 setTimeout 模拟一个耗时任务，包成 Promise</span>
+<span class="kw">function</span> <span class="fn">zsc_sleep</span>(zsc_key, zsc_ms) {
+    <span class="kw">return new</span> <span class="fn">Promise</span>(<span class="kw">function</span> (zsc_resolve) {
+        zsc_set_running(zsc_key);
+        <span class="fn">setTimeout</span>(<span class="kw">function</span> () {
+            zsc_set_done(zsc_key);
+            zsc_resolve();
+        }, zsc_ms);
+    });
+}
+
+<span class="cm">// async / await 版：串行 + 并行</span>
+<span class="kw">async function</span> <span class="fn">zsc_make_dumplings</span>() {
+    <span class="kw">await</span> <span class="fn">zsc_sleep</span>(<span class="st">"buy"</span>, 6000);       <span class="cm">// 买原料 6 秒</span>
+    <span class="kw">await</span> <span class="fn">zsc_sleep</span>(<span class="st">"take"</span>, 2000);      <span class="cm">// 取原料 2 秒</span>
+    <span class="kw">await</span> <span class="fn">Promise.all</span>([             <span class="cm">// 和面、和馅同时进行</span>
+        <span class="fn">zsc_sleep</span>(<span class="st">"dough"</span>, 3000),
+        <span class="fn">zsc_sleep</span>(<span class="st">"filling"</span>, 3000)
+    ]);
+    <span class="kw">await</span> <span class="fn">zsc_sleep</span>(<span class="st">"wrap"</span>, 4000);     <span class="cm">// 包饺子 4 秒</span>
+    <span class="kw">await</span> <span class="fn">zsc_sleep</span>(<span class="st">"eat"</span>, 2000);      <span class="cm">// 吃饺子 2 秒</span>
+}</div>
+
+    </div>
+
+    <script>
+        // ===== 各步骤配置（毫秒）=====
+        var zsc_steps = {
+            buy:     { name: "买原料", ms: 6000 },
+            take:    { name: "取原料", ms: 2000 },
+            dough:   { name: "和面",   ms: 3000 },
+            filling: { name: "和馅",   ms: 3000 },
+            wrap:    { name: "包饺子", ms: 4000 },
+            eat:     { name: "吃饺子", ms: 2000 }
+        };
+
+        var zsc_running = false;      // 防止重复点击
+        var zsc_start_at = 0;         // 总开始时间
+
+        // ===== 日志 =====
+        var zsc_log_el = document.getElementById("zsc_log");
+        function zsc_add_log(zsc_text, zsc_cls) {
+            var zsc_li = document.createElement("li");
+            var zsc_t = ((performance.now() - zsc_start_at) / 1000).toFixed(1);
+            zsc_li.innerHTML = '<span style="color:#8b97bd">+' + zsc_t + 's</span> · ' +
+                '<span style="color:' + (zsc_cls || "#aab4d4") + '">' + zsc_text + '</span>';
+            if (zsc_log_el.firstChild && zsc_log_el.firstChild.textContent.indexOf("暂无记录") > -1) {
+                zsc_log_el.innerHTML = "";
+            }
+            zsc_log_el.insertBefore(zsc_li, zsc_log_el.firstChild);
+        }
+
+        // ===== 步骤状态控制 =====
+        function zsc_set_running(zsc_key) {
+            var zsc_step = document.getElementById("zsc_step_" + zsc_key);
+            zsc_step.className = "zsc_step zsc_running";
+            document.getElementById("zsc_state_" + zsc_key).textContent = "进行中…";
+            zsc_add_log("开始：" + zsc_steps[zsc_key].name, "#fbbf24");
+            console.log("[开始]", zsc_steps[zsc_key].name);
+        }
+
+        function zsc_set_fill(zsc_key, zsc_pct) {
+            document.getElementById("zsc_fill_" + zsc_key).style.width = (zsc_pct * 100) + "%";
+        }
+
+        function zsc_set_done(zsc_key) {
+            var zsc_step = document.getElementById("zsc_step_" + zsc_key);
+            zsc_step.className = "zsc_step zsc_done";
+            zsc_set_fill(zsc_key, 1);
+            document.getElementById("zsc_state_" + zsc_key).textContent =
+                "完成 " + (zsc_steps[zsc_key].ms / 1000) + "s";
+            zsc_add_log("完成：" + zsc_steps[zsc_key].name, "#4ade80");
+            console.log("[完成]", zsc_steps[zsc_key].name);
+        }
+
+        // ===== 核心：setTimeout 包成 Promise（每个流程耗时）=====
+        function zsc_sleep(zsc_key, zsc_ms) {
+            return new Promise(function (zsc_resolve) {
+                zsc_set_running(zsc_key);
+                var zsc_begin = performance.now();
+
+                // 进度条每 50ms 刷新一次
+                var zsc_tick = setInterval(function () {
+                    var zsc_pct = Math.min(1, (performance.now() - zsc_begin) / zsc_ms);
+                    zsc_set_fill(zsc_key, zsc_pct);
+                }, 50);
+
+                // 真正“耗时”的地方
+                setTimeout(function () {
+                    clearInterval(zsc_tick);
+                    zsc_set_done(zsc_key);
+                    zsc_resolve(zsc_steps[zsc_key].name);
+                }, zsc_ms);
+            });
+        }
+
+        // ===== 按钮禁用/恢复 =====
+        function zsc_lock(zsc_locked) {
+            zsc_running = zsc_locked;
+            document.getElementById("zsc_btn_async").disabled = zsc_locked;
+            document.getElementById("zsc_btn_promise").disabled = zsc_locked;
+            document.getElementById("zsc_btn_reset").disabled = zsc_locked;
+        }
+
+        function zsc_start_common() {
+            zsc_reset_page_only();
+            zsc_lock(true);
+            zsc_start_at = performance.now();
+            document.getElementById("zsc_total_state").textContent = "进行中";
+            document.getElementById("zsc_total_tip").textContent = "正在准备原料…";
+            zsc_add_log("===== 开始包饺子（" + zsc_way + "）=====", "#7dd3fc");
+        }
+
+        // 总耗时实时刷新
+        var zsc_total_timer = null;
+        function zsc_start_clock() {
+            zsc_total_timer = setInterval(function () {
+                document.getElementById("zsc_total_time").textContent =
+                    ((performance.now() - zsc_start_at) / 1000).toFixed(1) + " s";
+            }, 100);
+        }
+        function zsc_stop_clock() {
+            if (zsc_total_timer) {
+                clearInterval(zsc_total_timer);
+                zsc_total_timer = null;
+            }
+        }
+
+        // ===== 方式一：async / await =====
+        var zsc_way = "async/await";
+
+        async function zsc_run_async() {
+            zsc_way = "async/await";
+            zsc_start_common();
+            zsc_start_clock();
+
+            // 串行：买原料 → 取原料
+            await zsc_sleep("buy", zsc_steps.buy.ms);
+            await zsc_sleep("take", zsc_steps.take.ms);
+
+            // 并行：和面 + 和馅 同时开始，都完成才继续
+            document.getElementById("zsc_total_tip").textContent = "和面、和馅同时进行中…";
+            zsc_add_log("和面与和馅同时开始（Promise.all）", "#7dd3fc");
+            await Promise.all([
+                zsc_sleep("dough", zsc_steps.dough.ms),
+                zsc_sleep("filling", zsc_steps.filling.ms)
+            ]);
+            zsc_add_log("和面、和馅都已完成，可以包饺子了", "#7dd3fc");
+
+            // 串行：包饺子 → 吃饺子
+            await zsc_sleep("wrap", zsc_steps.wrap.ms);
+            document.getElementById("zsc_total_tip").textContent = "饺子包好了，开吃！";
+            await zsc_sleep("eat", zsc_steps.eat.ms);
+
+            zsc_finish();
+        }
+
+        // ===== 方式二：Promise .then 链 =====
+        function zsc_run_promise() {
+            zsc_way = "Promise.then";
+            zsc_start_common();
+            zsc_start_clock();
+
+            zsc_sleep("buy", zsc_steps.buy.ms)
+                .then(function () {
+                    return zsc_sleep("take", zsc_steps.take.ms);
+                })
+                .then(function () {
+                    document.getElementById("zsc_total_tip").textContent = "和面、和馅同时进行中…";
+                    zsc_add_log("和面与和馅同时开始（Promise.all）", "#7dd3fc");
+                    return Promise.all([
+                        zsc_sleep("dough", zsc_steps.dough.ms),
+                        zsc_sleep("filling", zsc_steps.filling.ms)
+                    ]);
+                })
+                .then(function () {
+                    zsc_add_log("和面、和馅都已完成，可以包饺子了", "#7dd3fc");
+                    return zsc_sleep("wrap", zsc_steps.wrap.ms);
+                })
+                .then(function () {
+                    document.getElementById("zsc_total_tip").textContent = "饺子包好了，开吃！";
+                    return zsc_sleep("eat", zsc_steps.eat.ms);
+                })
+                .then(function () {
+                    zsc_finish();
+                })
+                .catch(function (zsc_err) {
+                    zsc_add_log("出错：" + zsc_err.message, "#f87171");
+                    console.error(zsc_err);
+                    zsc_lock(false);
+                    zsc_stop_clock();
+                });
+        }
+
+        // ===== 全部完成 =====
+        function zsc_finish() {
+            zsc_stop_clock();
+            var zsc_total = ((performance.now() - zsc_start_at) / 1000).toFixed(1);
+            document.getElementById("zsc_total_time").textContent = zsc_total + " s";
+            document.getElementById("zsc_total_state").textContent = "全部完成";
+            document.getElementById("zsc_total_state").className = "zsc_all_done";
+            document.getElementById("zsc_total_tip").textContent = "饺子真好吃！总耗时 " + zsc_total + " 秒";
+
+            zsc_add_log("===== 全部完成，总耗时 " + zsc_total + " 秒 =====", "#4ade80");
+            zsc_add_log("说明：和面与和馅并行，比串行节省约 3 秒", "#8b97bd");
+            console.log("全部完成，总耗时", zsc_total, "秒");
+
+            zsc_lock(false);
+        }
+
+        // ===== 只重置页面状态（不清日志）=====
+        function zsc_reset_page_only() {
+            var zsc_keys = ["buy", "take", "dough", "filling", "wrap", "eat"];
+            zsc_keys.forEach(function (zsc_k) {
+                document.getElementById("zsc_step_" + zsc_k).className = "zsc_step";
+                document.getElementById("zsc_fill_" + zsc_k).style.width = "0";
+                document.getElementById("zsc_state_" + zsc_k).textContent = "等待中";
+            });
+            zsc_stop_clock();
+            document.getElementById("zsc_total_time").textContent = "0.0 s";
+            document.getElementById("zsc_total_state").textContent = "未开始";
+            document.getElementById("zsc_total_state").className = "";
+            document.getElementById("zsc_total_tip").textContent = "点击按钮开始包饺子";
+        }
+
+        // ===== 重置（含日志）=====
+        function zsc_reset() {
+            zsc_reset_page_only();
+            zsc_log_el.innerHTML = "<li>暂无记录（点击上方按钮开始）。</li>";
+            console.log("已重置");
+        }
+
+        console.log("===== 张顺昌 17-6 异步包饺子 =====");
+    </script>
+</body>
+</html>
