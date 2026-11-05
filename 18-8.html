@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-8 · 智能客服数据大屏（ECharts）</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：DeepSeek-V4.1-Flash；功能名称：基于 ECharts 的三列智能客服数据大屏（含中国地图） -->
+    <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/china-geo.js"></script>
+    <style>
+        :root {
+            --zsc_bg-0: #04101f;
+            --zsc_bg-1: #071a2e;
+            --zsc_panel: rgba(9, 28, 48, 0.82);
+            --zsc_border: rgba(56, 189, 248, 0.22);
+            --zsc_text: #e8f4ff;
+            --zsc_muted: #7ea3c4;
+            --zsc_accent: #38bdf8;
+            --zsc_accent-2: #a5f3fc;
+            --zsc_green: #34d399;
+            --zsc_purple: #a78bfa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.16), transparent 42%),
+                radial-gradient(circle at 0% 100%, rgba(167, 139, 250, 0.12), transparent 38%),
+                linear-gradient(180deg, var(--zsc_bg-1) 0%, var(--zsc_bg-0) 100%);
+            color: var(--zsc_text);
+            overflow: hidden;
+        }
+
+        .zsc_dashboard {
+            height: 100vh;
+            padding: 12px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .zsc_header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 0 4px;
+        }
+        .zsc_header_title {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--zsc_accent-2);
+            text-shadow: 0 0 18px rgba(56, 189, 248, 0.55);
+        }
+        .zsc_header_title span { color: var(--zsc_accent); font-size: 13px; letter-spacing: 1px; margin-left: 10px; }
+        .zsc_header_side {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 12.5px;
+            color: var(--zsc_muted);
+        }
+        .zsc_live {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--zsc_border);
+            border-radius: 999px;
+            padding: 4px 12px;
+            color: var(--zsc_accent);
+            background: rgba(56, 189, 248, 0.08);
+        }
+        .zsc_live::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--zsc_green);
+            box-shadow: 0 0 10px var(--zsc_green);
+            animation: zsc_pulse 1.4s infinite;
+        }
+        @keyframes zsc_pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.75); }
+        }
+        .zsc_home {
+            color: var(--zsc_muted);
+            text-decoration: none;
+            border: 1px solid var(--zsc_border);
+            border-radius: 999px;
+            padding: 4px 12px;
+        }
+        .zsc_home:hover { color: var(--zsc_accent-2); border-color: var(--zsc_accent); }
+
+        .zsc_grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1.55fr 1fr;
+            gap: 14px;
+        }
+        .zsc_col {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 14px;
+            min-height: 0;
+        }
+        .zsc_col_center { grid-template-rows: 1.45fr 0.75fr; }
+
+        .zsc_panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 10px 12px 8px;
+            border: 1px solid var(--zsc_border);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(13, 40, 66, 0.86) 0%, var(--zsc_panel) 100%);
+            box-shadow: inset 0 0 26px rgba(56, 189, 248, 0.07), 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        .zsc_panel::before,
+        .zsc_panel::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 1px solid rgba(125, 211, 252, 0.6);
+            pointer-events: none;
+        }
+        .zsc_panel::before { left: -1px; top: -1px; border-right: none; border-bottom: none; }
+        .zsc_panel::after { right: -1px; bottom: -1px; border-left: none; border-top: none; }
+
+        .zsc_panel_title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #bfe4ff;
+            padding-left: 10px;
+            position: relative;
+            margin-bottom: 4px;
+            flex: none;
+        }
+        .zsc_panel_title::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 12px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, var(--zsc_accent), var(--zsc_purple));
+        }
+        .zsc_chart {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+        }
+
+        .zsc_footer {
+            flex: none;
+            font-size: 11.5px;
+            color: #5f7f9f;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1100px) {
+            body { overflow: auto; }
+            .zsc_dashboard { height: auto; }
+            .zsc_grid { grid-template-columns: 1fr; }
+            .zsc_col, .zsc_col_center { grid-template-rows: none; }
+            .zsc_panel { height: 300px; }
+            .zsc_panel_map { height: 420px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_dashboard">
+        <header class="zsc_header">
+            <div class="zsc_header_side">
+                <span class="zsc_live">实时监控</span>
+                <span>在线坐席 128 · 排队 6</span>
+            </div>
+            <div class="zsc_header_title">智能客服运营数据大屏 <span>SMART SERVICE DASHBOARD</span></div>
+            <div class="zsc_header_side">
+                <span id="zsc_clock">—</span>
+                <a class="zsc_home" href="index.html">返回首页</a>
+            </div>
+        </header>
+
+        <main class="zsc_grid">
+            <section class="zsc_col">
+                <div class="zsc_panel">
+                    <h3 class="zsc_panel_title">近 7 日咨询与解决趋势</h3>
+                    <div class="zsc_chart" id="zsc_line"></div>
+                </div>
+                <div class="zsc_panel">
+                    <h3 class="zsc_panel_title">咨询渠道占比</h3>
+                    <div class="zsc_chart" id="zsc_donut"></div>
+                </div>
+            </section>
+
+            <section class="zsc_col zsc_col_center">
+                <div class="zsc_panel zsc_panel_map">
+                    <h3 class="zsc_panel_title">全国各省份咨询量分布</h3>
+                    <div class="zsc_chart" id="zsc_map"></div>
+                </div>
+                <div class="zsc_panel">
+                    <h3 class="zsc_panel_title">各业务模块工单量</h3>
+                    <div class="zsc_chart" id="zsc_bar"></div>
+                </div>
+            </section>
+
+            <section class="zsc_col">
+                <div class="zsc_panel">
+                    <h3 class="zsc_panel_title">一次解决率</h3>
+                    <div class="zsc_chart" id="zsc_gauge"></div>
+                </div>
+                <div class="zsc_panel">
+                    <h3 class="zsc_panel_title">城市咨询量 TOP5</h3>
+                    <div class="zsc_chart" id="zsc_city"></div>
+                </div>
+            </section>
+        </main>
+
+        <div class="zsc_footer">
+            <span>数据来源：智能客服系统运营库（示例数据） · 图表由本地 ECharts 渲染</span>
+            <span>张顺昌 · 高级网页设计课堂实践</span>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var zsc_text = "#e8f4ff";
+            var zsc_muted = "#7ea3c4";
+            var zsc_axis = "#24405f";
+            var zsc_split = "rgba(56, 189, 248, 0.14)";
+
+            if (typeof echarts === "undefined" || !window.zsc_china_geo) {
+                document.querySelectorAll(".zsc_chart").forEach(function (zsc_el) {
+                    zsc_el.style.cssText = "display:flex;align-items:center;justify-content:center;color:#8a6d3b;font-size:13px;";
+                    zsc_el.textContent = "依赖加载失败：请确认 cdn/echarts.min.js 与 cdn/china-geo.js 是否存在。";
+                });
+                return;
+            }
+
+            echarts.registerMap("zsc_china", window.zsc_china_geo);
+
+            var zsc_charts = [];
+            function zsc_create(zsc_id, zsc_option) {
+                var zsc_dom = document.getElementById(zsc_id);
+                var zsc_chart = echarts.init(zsc_dom);
+                zsc_chart.setOption(zsc_option);
+                zsc_charts.push(zsc_chart);
+                return zsc_chart;
+            }
+
+            // ========== 左上：近 7 日趋势 ==========
+            zsc_create("zsc_line", {
+                backgroundColor: "transparent",
+                tooltip: { trigger: "axis", backgroundColor: "rgba(8, 26, 45, .94)", borderColor: "#2f6d9e", textStyle: { color: zsc_text, fontSize: 12 } },
+                legend: { right: 4, top: 0, itemWidth: 10, itemHeight: 10, textStyle: { color: zsc_muted, fontSize: 11 } },
+                grid: { left: 38, right: 12, top: 32, bottom: 22 },
+                xAxis: {
+                    type: "category",
+                    boundaryGap: false,
+                    data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+                    axisLine: { lineStyle: { color: zsc_axis } },
+                    axisTick: { show: false },
+                    axisLabel: { color: zsc_muted, fontSize: 11 }
+                },
+                yAxis: {
+                    type: "value",
+                    splitLine: { lineStyle: { color: zsc_split } },
+                    axisLabel: { color: zsc_muted, fontSize: 11 }
+                },
+                series: [
+                    {
+                        name: "咨询量",
+                        type: "line",
+                        smooth: true,
+                        symbol: "circle",
+                        symbolSize: 5,
+                        data: [320, 358, 412, 389, 446, 512, 487],
+                        lineStyle: { width: 2, color: "#38bdf8" },
+                        itemStyle: { color: "#38bdf8" },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: "rgba(56, 189, 248, .34)" },
+                                { offset: 1, color: "rgba(56, 189, 248, 0)" }
+                            ])
+                        }
+                    },
+                    {
+                        name: "解决量",
+                        type: "line",
+                        smooth: true,
+                        symbol: "circle",
+                        symbolSize: 5,
+                        data: [289, 330, 381, 360, 412, 478, 455],
+                        lineStyle: { width: 2, color: "#34d399" },
+                        itemStyle: { color: "#34d399" },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: "rgba(52, 211, 153, .28)" },
+                                { offset: 1, color: "rgba(52, 211, 153, 0)" }
+                            ])
+                        }
+                    }
+                ]
+            });
+
+            // ========== 左下：渠道占比 ==========
+            zsc_create("zsc_donut", {
+                backgroundColor: "transparent",
+                color: ["#38bdf8", "#818cf8", "#34d399", "#fbbf24", "#f472b6"],
+                tooltip: { trigger: "item", backgroundColor: "rgba(8, 26, 45, .94)", borderColor: "#2f6d9e", textStyle: { color: zsc_text, fontSize: 12 }, formatter: "{b}<br/>占比 {d}%（{c} 单）" },
+                legend: { bottom: 0, itemWidth: 9, itemHeight: 9, itemGap: 10, textStyle: { color: zsc_muted, fontSize: 11 } },
+                series: [{
+                    type: "pie",
+                    radius: ["44%", "68%"],
+                    center: ["50%", "43%"],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderColor: "#08182b", borderWidth: 2 },
+                    label: { color: "#cfe7ff", fontSize: 11, formatter: "{d}%" },
+                    labelLine: { length: 6, length2: 6, lineStyle: { color: "#3f6a90" } },
+                    data: [
+                        { value: 38, name: "网页" },
+                        { value: 27, name: "APP" },
+                        { value: 18, name: "小程序" },
+                        { value: 11, name: "电话" },
+                        { value: 6, name: "邮件" }
+                    ]
+                }]
+            });
+
+            // ========== 中上：中国地图 ==========
+            var zsc_province_data = [
+                { name: "北京市", value: 128 }, { name: "上海市", value: 112 },
+                { name: "广东省", value: 96 }, { name: "浙江省", value: 78 },
+                { name: "江苏省", value: 72 }, { name: "山东省", value: 60 },
+                { name: "四川省", value: 48 }, { name: "河南省", value: 44 },
+                { name: "湖北省", value: 40 }, { name: "湖南省", value: 36 },
+                { name: "福建省", value: 34 }, { name: "安徽省", value: 30 },
+                { name: "河北省", value: 28 }, { name: "陕西省", value: 26 },
+                { name: "辽宁省", value: 24 }, { name: "重庆市", value: 23 },
+                { name: "天津市", value: 22 }, { name: "江西省", value: 21 },
+                { name: "广西壮族自治区", value: 20 }, { name: "云南省", value: 18 },
+                { name: "贵州省", value: 17 }, { name: "山西省", value: 16 },
+                { name: "台湾省", value: 15 }, { name: "黑龙江省", value: 14 },
+                { name: "吉林省", value: 12 }, { name: "香港特别行政区", value: 12 },
+                { name: "内蒙古自治区", value: 11 }, { name: "新疆维吾尔自治区", value: 10 },
+                { name: "甘肃省", value: 9 }, { name: "海南省", value: 8 },
+                { name: "宁夏回族自治区", value: 7 }, { name: "青海省", value: 6 },
+                { name: "西藏自治区", value: 5 }, { name: "澳门特别行政区", value: 4 }
+            ];
+
+            zsc_create("zsc_map", {
+                backgroundColor: "transparent",
+                tooltip: {
+                    trigger: "item",
+                    backgroundColor: "rgba(8, 26, 45, .94)",
+                    borderColor: "#2f6d9e",
+                    textStyle: { color: zsc_text, fontSize: 12 },
+                    formatter: function (zsc_p) {
+                        var zsc_v = zsc_p.value;
+                        return zsc_p.name + "<br/>咨询量 " + (isNaN(zsc_v) ? 0 : zsc_v) + " 单";
+                    }
+                },
+                visualMap: {
+                    min: 0,
+                    max: 130,
+                    left: 10,
+                    bottom: 10,
+                    itemWidth: 10,
+                    itemHeight: 78,
+                    text: ["高", "低"],
+                    textGap: 8,
+                    textStyle: { color: zsc_muted, fontSize: 11 },
+                    inRange: { color: ["#0b2a4a", "#14507a", "#1e7fa8", "#38bdf8", "#a5f3fc"] },
+                    calculable: true
+                },
+                series: [{
+                    type: "map",
+                    map: "zsc_china",
+                    roam: false,
+                    zoom: 1.05,
+                    layoutCenter: ["52%", "52%"],
+                    layoutSize: "98%",
+                    label: { show: false },
+                    itemStyle: {
+                        areaColor: "#0d2b4a",
+                        borderColor: "#3d7fae",
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        label: { show: true, color: "#ffffff", fontSize: 11 },
+                        itemStyle: { areaColor: "#2f8fd0", borderColor: "#a5f3fc" }
+                    },
+                    data: zsc_province_data
+                }]
+            });
+
+            // ========== 中下：业务模块工单量 ==========
+            zsc_create("zsc_bar", {
+                backgroundColor: "transparent",
+                tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "rgba(8, 26, 45, .94)", borderColor: "#2f6d9e", textStyle: { color: zsc_text, fontSize: 12 } },
+                grid: { left: 44, right: 14, top: 22, bottom: 20 },
+                xAxis: {
+                    type: "category",
+                    data: ["售前咨询", "售后服务", "工单处理", "投诉建议", "技术支持"],
+                    axisLine: { lineStyle: { color: zsc_axis } },
+                    axisTick: { show: false },
+                    axisLabel: { color: zsc_muted, fontSize: 11, interval: 0 }
+                },
+                yAxis: {
+                    type: "value",
+                    splitLine: { lineStyle: { color: zsc_split } },
+                    axisLabel: { color: zsc_muted, fontSize: 11 }
+                },
+                series: [{
+                    type: "bar",
+                    barWidth: "46%",
+                    data: [128, 156, 98, 74, 62],
+                    label: { show: true, position: "top", color: "#bfe4ff", fontSize: 11 },
+                    itemStyle: {
+                        borderRadius: [4, 4, 0, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "#7dd3fc" },
+                            { offset: 1, color: "rgba(56, 189, 248, .18)" }
+                        ])
+                    },
+                    emphasis: { itemStyle: { color: "#a5f3fc" } }
+                }]
+            });
+
+            // ========== 右上：一次解决率仪表盘 ==========
+            zsc_create("zsc_gauge", {
+                backgroundColor: "transparent",
+                series: [{
+                    type: "gauge",
+                    startAngle: 210,
+                    endAngle: -30,
+                    min: 0,
+                    max: 100,
+                    radius: "78%",
+                    center: ["50%", "56%"],
+                    progress: { show: true, width: 12, itemStyle: { color: "#38bdf8" } },
+                    axisLine: { lineStyle: { width: 12, color: [[1, "rgba(56, 189, 248, .16)"]] } },
+                    pointer: { width: 4, length: "62%", itemStyle: { color: "#a5f3fc" } },
+                    axisTick: { show: false },
+                    splitLine: { show: false },
+                    axisLabel: { show: false },
+                    anchor: { show: true, size: 10, itemStyle: { color: "#a5f3fc", borderColor: "#38bdf8", borderWidth: 2 } },
+                    title: { offsetCenter: [0, "82%"], color: zsc_muted, fontSize: 12 },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: [0, "50%"],
+                        fontSize: 22,
+                        fontWeight: "bold",
+                        color: "#a5f3fc",
+                        formatter: "{value}%"
+                    },
+                    data: [{ value: 92.6, name: "一次解决率" }]
+                }]
+            });
+
+            // ========== 右下：城市咨询量 TOP5 ==========
+            zsc_create("zsc_city", {
+                backgroundColor: "transparent",
+                tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "rgba(8, 26, 45, .94)", borderColor: "#2f6d9e", textStyle: { color: zsc_text, fontSize: 12 } },
+                grid: { left: 56, right: 40, top: 12, bottom: 16 },
+                xAxis: { type: "value", show: false, max: 140 },
+                yAxis: {
+                    type: "category",
+                    inverse: true,
+                    data: ["杭州", "深圳", "广州", "上海", "北京"],
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: "#bfe4ff", fontSize: 12 }
+                },
+                series: [{
+                    type: "bar",
+                    barWidth: 11,
+                    showBackground: true,
+                    backgroundStyle: { color: "rgba(56, 189, 248, .08)", borderRadius: 6 },
+                    label: { show: true, position: "right", color: "#a5f3fc", fontSize: 11, formatter: "{c} 单" },
+                    itemStyle: {
+                        borderRadius: 6,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: "#6366f1" },
+                            { offset: 1, color: "#38bdf8" }
+                        ])
+                    },
+                    data: [68, 79, 86, 112, 128]
+                }]
+            });
+
+            // ========== 自适应与时钟 ==========
+            var zsc_resize_timer = null;
+            window.addEventListener("resize", function () {
+                clearTimeout(zsc_resize_timer);
+                zsc_resize_timer = setTimeout(function () {
+                    zsc_charts.forEach(function (zsc_c) { zsc_c.resize(); });
+                }, 120);
+            });
+
+            var zsc_clock = document.getElementById("zsc_clock");
+            function zsc_update_clock() {
+                var zsc_now = new Date();
+                var zsc_pad = function (zsc_n) { return zsc_n < 10 ? "0" + zsc_n : "" + zsc_n; };
+                zsc_clock.textContent = zsc_now.getFullYear() + "-" + zsc_pad(zsc_now.getMonth() + 1) + "-" + zsc_pad(zsc_now.getDate())
+                    + " " + zsc_pad(zsc_now.getHours()) + ":" + zsc_pad(zsc_now.getMinutes()) + ":" + zsc_pad(zsc_now.getSeconds());
+            }
+            zsc_update_clock();
+            setInterval(zsc_update_clock, 1000);
+
+            console.log("===== 张顺昌 18-8 ECharts 数据大屏 =====");
+            console.log("ECharts 版本：", echarts.version);
+            console.log("图表数量：", zsc_charts.length);
+        })();
+    </script>
+</body>
+</html>
