@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-6 · Mermaid 智能客服流程图与 ER 图</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：GLM-5.3-Flash；功能名称：基于 Mermaid 的智能客服系统流程图与 ER 图 -->
+    <script src="cdn/mermaid.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fa;
+            color: #1f2d3d;
+            padding: 26px 16px 42px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 1080px; margin: 0 auto; }
+
+        .zsc_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_badge {
+            background: #e8ecf6;
+            border: 1px solid #b9c6e0;
+            color: #2b4c7e;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #ffffff;
+            border: 1px solid #c7d2e3;
+            color: #2b4c7e;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #eef2fa; }
+
+        .zsc_h1 { font-size: 27px; font-weight: bold; margin-bottom: 8px; }
+        .zsc_intro { font-size: 13px; line-height: 1.95; color: #5b6b80; margin-bottom: 18px; }
+        .zsc_intro b { color: #2b4c7e; }
+
+        .zsc_card {
+            background: #ffffff;
+            border: 1px solid #d3dce9;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 24px rgba(31, 45, 61, .06);
+        }
+        .zsc_card_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .zsc_card_head h2 { font-size: 18px; color: #2b4c7e; }
+        .zsc_tag {
+            font-size: 12px;
+            color: #2b4c7e;
+            background: #eef3fc;
+            border: 1px solid #c7d7ef;
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+        .zsc_desc {
+            font-size: 12.5px;
+            line-height: 1.9;
+            color: #6b7c92;
+            margin-bottom: 12px;
+        }
+
+        .zsc_diagram {
+            border: 1px solid #e1e8f2;
+            border-radius: 12px;
+            background: #fbfcff;
+            padding: 14px;
+            overflow-x: auto;
+            text-align: center;
+        }
+        .zsc_diagram svg { max-width: 100%; }
+
+        .zsc_code_box {
+            margin-top: 12px;
+            border: 1px solid #e1e8f2;
+            border-radius: 10px;
+            background: #f7f9fd;
+            overflow: hidden;
+        }
+        .zsc_code_box summary {
+            cursor: pointer;
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #2b4c7e;
+            padding: 10px 14px;
+            user-select: none;
+        }
+        .zsc_code_box summary:hover { background: #eef3fc; }
+        .zsc_code {
+            margin: 0;
+            padding: 14px;
+            border-top: 1px solid #e1e8f2;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            line-height: 1.75;
+            color: #334155;
+            background: #ffffff;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .zsc_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 12.5px;
+        }
+        .zsc_table th, .zsc_table td {
+            border: 1px solid #dce4f0;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .zsc_table th {
+            background: #eef3fc;
+            color: #2b4c7e;
+            font-weight: bold;
+        }
+        .zsc_table td:nth-child(1) { font-family: Consolas, monospace; color: #2b4c7e; }
+
+        .zsc_note {
+            background: #ffffff;
+            border: 1px dashed #c7d2e3;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 12.5px;
+            line-height: 1.95;
+            color: #5b6b80;
+        }
+        .zsc_note b { color: #2b4c7e; }
+        .zsc_note code {
+            font-family: Consolas, monospace;
+            background: #f1f5fb;
+            border-radius: 4px;
+            padding: 1px 5px;
+            color: #2b4c7e;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+        <div class="zsc_top">
+            <span class="zsc_badge">第18课 · Mermaid 绘图</span>
+            <a class="zsc_home" href="index.html">← 返回首页</a>
+        </div>
+
+        <h1 class="zsc_h1">Mermaid：智能客服系统流程图与 ER 图</h1>
+        <p class="zsc_intro">
+            用 <b>Mermaid</b> 的文本语法描述图表：流程图（flowchart）刻画智能客服从接入、理解、检索生成到人工兜底与反馈闭环的完整链路；
+            ER 图（erDiagram）刻画用户、会话、消息、知识库、工单与满意度评价之间的数据关系。图表由浏览器端本地脚本渲染，不访问外部 CDN。
+        </p>
+
+        <div class="zsc_card">
+            <div class="zsc_card_head">
+                <h2>一、智能客服系统业务流程图</h2>
+                <span class="zsc_tag">flowchart TD</span>
+            </div>
+            <p class="zsc_desc">
+                四个分组依次为接入层、理解层、检索与生成层、服务闭环；菱形判断节点表示知识召回与置信度校验，虚线表示数据回流驱动知识库与模型迭代。
+            </p>
+            <div class="zsc_diagram" id="zsc_flow_box">
+<pre class="zsc_mermaid" id="zsc_flow">
+flowchart TD
+    subgraph S1["接入层"]
+        A1["网页 / APP / 小程序"] --> A2["会话创建与身份识别"]
+        A3["电话 / 邮件 / 工单"] --> A2
+        A2 --> A4["预处理：去噪 · 纠错 · 敏感词审核"]
+    end
+
+    subgraph S2["理解层"]
+        A4 --> B1["意图识别"]
+        B1 --> B2["多轮对话状态跟踪"]
+        B2 --> B3{"知识库能否召回?"}
+    end
+
+    subgraph S3["检索与生成层"]
+        B3 -->|命中| C1["混合检索：BM25 + 向量"]
+        C1 --> C2["重排序 Rerank"]
+        C2 --> C3["LLM 生成答案 + 引用溯源"]
+        C3 --> C4{"置信度达标?"}
+    end
+
+    subgraph S4["服务闭环"]
+        C4 -->|是| D1["返回答案给用户"]
+        B3 -->|未命中| D2["转人工坐席"]
+        C4 -->|否| D2
+        D2 --> D3["坐席处理 / 创建工单"]
+        D3 --> D4["工单归档 + 知识沉淀"]
+        D1 --> D5["满意度评价"]
+        D4 --> D5
+        D5 --> D6["日志与指标回流"]
+        D6 --> D7["知识库与模型迭代"]
+        D7 -.-> C1
+    end
+</pre>
+            </div>
+            <details class="zsc_code_box">
+                <summary>查看 Mermaid 源码</summary>
+<pre class="zsc_code">flowchart TD
+    subgraph S1["接入层"]
+        A1["网页 / APP / 小程序"] --&gt; A2["会话创建与身份识别"]
+        A3["电话 / 邮件 / 工单"] --&gt; A2
+        A2 --&gt; A4["预处理：去噪 · 纠错 · 敏感词审核"]
+    end
+
+    subgraph S2["理解层"]
+        A4 --&gt; B1["意图识别"]
+        B1 --&gt; B2["多轮对话状态跟踪"]
+        B2 --&gt; B3{"知识库能否召回?"}
+    end
+
+    subgraph S3["检索与生成层"]
+        B3 --&gt;|命中| C1["混合检索：BM25 + 向量"]
+        C1 --&gt; C2["重排序 Rerank"]
+        C2 --&gt; C3["LLM 生成答案 + 引用溯源"]
+        C3 --&gt; C4{"置信度达标?"}
+    end
+
+    subgraph S4["服务闭环"]
+        C4 --&gt;|是| D1["返回答案给用户"]
+        B3 --&gt;|未命中| D2["转人工坐席"]
+        C4 --&gt;|否| D2
+        D2 --&gt; D3["坐席处理 / 创建工单"]
+        D3 --&gt; D4["工单归档 + 知识沉淀"]
+        D1 --&gt; D5["满意度评价"]
+        D4 --&gt; D5
+        D5 --&gt; D6["日志与指标回流"]
+        D6 --&gt; D7["知识库与模型迭代"]
+        D7 -.-> C1
+    end</pre>
+            </details>
+        </div>
+
+        <div class="zsc_card">
+            <div class="zsc_card_head">
+                <h2>二、核心数据表 ER 图</h2>
+                <span class="zsc_tag">erDiagram</span>
+            </div>
+            <p class="zsc_desc">
+                以会话为中心：一个用户可发起多次会话，会话包含多条消息；消息可触发多次知识召回；召回不当时升级为工单并沉淀知识条目；每次会话最多一条满意度评价。
+            </p>
+            <div class="zsc_diagram" id="zsc_er_box">
+<pre class="zsc_mermaid" id="zsc_er">
+erDiagram
+    USER ||--o{ CONVERSATION : "发起"
+    CONVERSATION ||--|{ MESSAGE : "包含"
+    CONVERSATION ||--o{ TICKET : "升级"
+    CONVERSATION ||--o| SATISFACTION : "评价"
+    AGENT ||--o{ TICKET : "承接"
+    MESSAGE ||--o{ RETRIEVAL_LOG : "触发"
+    KB_ENTRY ||--|{ QA_CHUNK : "切分"
+    QA_CHUNK ||--o{ RETRIEVAL_LOG : "被召回"
+
+    USER {
+        bigint user_id PK "用户ID"
+        string nickname "昵称"
+        string channel "接入渠道"
+        datetime created_at "创建时间"
+    }
+
+    CONVERSATION {
+        bigint conv_id PK "会话ID"
+        bigint user_id FK "所属用户"
+        string status "bot / agent / closed"
+        datetime started_at "开始时间"
+    }
+
+    MESSAGE {
+        bigint msg_id PK "消息ID"
+        bigint conv_id FK "所属会话"
+        string role "user / assistant / agent"
+        text content "消息内容"
+        float confidence "置信度"
+        datetime sent_at "发送时间"
+    }
+
+    AGENT {
+        bigint agent_id PK "坐席ID"
+        string name "坐席姓名"
+        string skill_group "技能组"
+        string work_status "在线状态"
+    }
+
+    TICKET {
+        bigint ticket_id PK "工单ID"
+        bigint conv_id FK "来源会话"
+        bigint agent_id FK "承接坐席"
+        string priority "优先级"
+        string status "处理状态"
+    }
+
+    KB_ENTRY {
+        bigint entry_id PK "知识ID"
+        string title "标题"
+        string category "分类"
+        datetime updated_at "更新时间"
+    }
+
+    QA_CHUNK {
+        bigint chunk_id PK "切片ID"
+        bigint entry_id FK "所属知识"
+        text content "切片文本"
+        vector embedding "向量表示"
+    }
+
+    RETRIEVAL_LOG {
+        bigint log_id PK "日志ID"
+        bigint msg_id FK "触发消息"
+        bigint chunk_id FK "召回切片"
+        float score "相关性得分"
+        datetime logged_at "记录时间"
+    }
+
+    SATISFACTION {
+        bigint rating_id PK "评价ID"
+        bigint conv_id FK "所属会话"
+        int score "评分 1-5"
+        string comment "评价内容"
+    }
+</pre>
+            </div>
+
+            <table class="zsc_table">
+                <thead>
+                    <tr><th>实体</th><th>中文含义</th><th>关键字段</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>USER</td><td>用户</td><td>user_id、channel</td></tr>
+                    <tr><td>CONVERSATION</td><td>会话</td><td>conv_id、status</td></tr>
+                    <tr><td>MESSAGE</td><td>消息</td><td>msg_id、role、confidence</td></tr>
+                    <tr><td>AGENT</td><td>人工坐席</td><td>agent_id、skill_group</td></tr>
+                    <tr><td>TICKET</td><td>工单</td><td>ticket_id、priority、status</td></tr>
+                    <tr><td>KB_ENTRY</td><td>知识条目</td><td>entry_id、category</td></tr>
+                    <tr><td>QA_CHUNK</td><td>知识切片</td><td>chunk_id、embedding</td></tr>
+                    <tr><td>RETRIEVAL_LOG</td><td>召回日志</td><td>log_id、score</td></tr>
+                    <tr><td>SATISFACTION</td><td>满意度评价</td><td>rating_id、score</td></tr>
+                </tbody>
+            </table>
+
+            <details class="zsc_code_box">
+                <summary>查看 Mermaid 源码</summary>
+<pre class="zsc_code">erDiagram
+    USER ||--o{ CONVERSATION : "发起"
+    CONVERSATION ||--|{ MESSAGE : "包含"
+    CONVERSATION ||--o{ TICKET : "升级"
+    CONVERSATION ||--o| SATISFACTION : "评价"
+    AGENT ||--o{ TICKET : "承接"
+    MESSAGE ||--o{ RETRIEVAL_LOG : "触发"
+    KB_ENTRY ||--|{ QA_CHUNK : "切分"
+    QA_CHUNK ||--o{ RETRIEVAL_LOG : "被召回"
+
+    USER {
+        bigint user_id PK "用户ID"
+        string nickname "昵称"
+        string channel "接入渠道"
+        datetime created_at "创建时间"
+    }
+
+    CONVERSATION {
+        bigint conv_id PK "会话ID"
+        bigint user_id FK "所属用户"
+        string status "bot / agent / closed"
+        datetime started_at "开始时间"
+    }
+
+    MESSAGE {
+        bigint msg_id PK "消息ID"
+        bigint conv_id FK "所属会话"
+        string role "user / assistant / agent"
+        text content "消息内容"
+        float confidence "置信度"
+        datetime sent_at "发送时间"
+    }
+
+    AGENT {
+        bigint agent_id PK "坐席ID"
+        string name "坐席姓名"
+        string skill_group "技能组"
+        string work_status "在线状态"
+    }
+
+    TICKET {
+        bigint ticket_id PK "工单ID"
+        bigint conv_id FK "来源会话"
+        bigint agent_id FK "承接坐席"
+        string priority "优先级"
+        string status "处理状态"
+    }
+
+    KB_ENTRY {
+        bigint entry_id PK "知识ID"
+        string title "标题"
+        string category "分类"
+        datetime updated_at "更新时间"
+    }
+
+    QA_CHUNK {
+        bigint chunk_id PK "切片ID"
+        bigint entry_id FK "所属知识"
+        text content "切片文本"
+        vector embedding "向量表示"
+    }
+
+    RETRIEVAL_LOG {
+        bigint log_id PK "日志ID"
+        bigint msg_id FK "触发消息"
+        bigint chunk_id FK "召回切片"
+        float score "相关性得分"
+        datetime logged_at "记录时间"
+    }
+
+    SATISFACTION {
+        bigint rating_id PK "评价ID"
+        bigint conv_id FK "所属会话"
+        int score "评分 1-5"
+        string comment "评价内容"
+    }</pre>
+            </details>
+        </div>
+
+        <div class="zsc_note">
+            <b>实现说明：</b>页面通过 <code>&lt;script src="cdn/mermaid.min.js"&gt;</code> 引入本地 Mermaid，
+            每个图表的源码写在 <code>&lt;pre class="zsc_mermaid"&gt;</code> 中；脚本调用
+            <code>mermaid.initialize()</code> 配置主题与字体，再用 <code>mermaid.run()</code> 统一渲染。
+            修改源码后刷新页面即可看到新图，无需手工绘图。
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var zsc_mermaid = window.mermaid;
+            var zsc_flow_box = document.getElementById("zsc_flow_box");
+            var zsc_er_box = document.getElementById("zsc_er_box");
+
+            if (!zsc_mermaid) {
+                zsc_flow_box.textContent = "Mermaid 加载失败，请确认 cdn/mermaid.min.js 是否存在。";
+                zsc_er_box.textContent = "Mermaid 加载失败，请确认 cdn/mermaid.min.js 是否存在。";
+                return;
+            }
+
+            zsc_mermaid.initialize({
+                startOnLoad: false,
+                theme: "base",
+                securityLevel: "loose",
+                fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+                themeVariables: {
+                    primaryColor: "#e8f0fe",
+                    primaryTextColor: "#1f2d3d",
+                    primaryBorderColor: "#2b4c7e",
+                    lineColor: "#7b8ba6",
+                    secondaryColor: "#f4f7fd",
+                    tertiaryColor: "#ffffff",
+                    background: "#ffffff",
+                    fontSize: "14px"
+                },
+                flowchart: {
+                    htmlLabels: true,
+                    curve: "basis",
+                    useMaxWidth: true
+                },
+                er: {
+                    diagramPadding: 14,
+                    entityPadding: 12,
+                    useMaxWidth: true
+                }
+            });
+
+            var zsc_nodes = Array.prototype.slice.call(document.querySelectorAll(".zsc_mermaid"));
+
+            zsc_mermaid.run({ nodes: zsc_nodes }).then(function () {
+                console.log("===== 张顺昌 18-6 Mermaid ======");
+                console.log("Mermaid 版本：", zsc_mermaid.version || "unknown");
+                console.log("已渲染图表数量：", document.querySelectorAll(".zsc_diagram svg").length);
+            }).catch(function (zsc_err) {
+                console.error("Mermaid 渲染失败：", zsc_err);
+            });
+        })();
+    </script>
+</body>
+</html>

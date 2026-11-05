@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-7 · Three.js 3D 图表（柱状图 / 环形图）</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：DeepSeek-V4.1-Flash；功能名称：基于 Three.js 的 3D 柱状图与 3D 环形图 -->
+    <script src="cdn/three.min.js"></script>
+    <script src="cdn/OrbitControls.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fa;
+            color: #1f2d3d;
+            padding: 26px 16px 42px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 1080px; margin: 0 auto; }
+
+        .zsc_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_badge {
+            background: #e8ecf6;
+            border: 1px solid #b9c6e0;
+            color: #2b4c7e;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #ffffff;
+            border: 1px solid #c7d2e3;
+            color: #2b4c7e;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #eef2fa; }
+
+        .zsc_h1 { font-size: 27px; font-weight: bold; margin-bottom: 8px; }
+        .zsc_intro { font-size: 13px; line-height: 1.95; color: #5b6b80; margin-bottom: 18px; }
+        .zsc_intro b { color: #2b4c7e; }
+
+        .zsc_card {
+            background: #ffffff;
+            border: 1px solid #d3dce9;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 24px rgba(31, 45, 61, .06);
+        }
+        .zsc_card_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .zsc_card_head h2 { font-size: 18px; color: #2b4c7e; }
+        .zsc_tag {
+            font-size: 12px;
+            color: #2b4c7e;
+            background: #eef3fc;
+            border: 1px solid #c7d7ef;
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+        .zsc_desc {
+            font-size: 12.5px;
+            line-height: 1.9;
+            color: #6b7c92;
+            margin-bottom: 12px;
+        }
+
+        .zsc_stage {
+            position: relative;
+            height: 430px;
+            border: 1px solid #e1e8f2;
+            border-radius: 12px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 18%, #ffffff 0%, #f3f7fd 45%, #e8f0fa 100%);
+        }
+        .zsc_stage canvas { display: block; }
+        .zsc_hint {
+            position: absolute;
+            left: 14px;
+            bottom: 12px;
+            font-size: 12px;
+            color: #7b8ba6;
+            background: rgba(255, 255, 255, .82);
+            border: 1px solid #e1e8f2;
+            border-radius: 999px;
+            padding: 4px 12px;
+            pointer-events: none;
+        }
+        .zsc_fallback {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #8a6d3b;
+            background: #fdf7e8;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .zsc_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 12px;
+            font-size: 12.5px;
+            color: #5b6b80;
+        }
+        .zsc_legend_item { display: inline-flex; align-items: center; gap: 6px; }
+        .zsc_legend_dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .zsc_note {
+            background: #ffffff;
+            border: 1px dashed #c7d2e3;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 12.5px;
+            line-height: 1.95;
+            color: #5b6b80;
+        }
+        .zsc_note b { color: #2b4c7e; }
+        .zsc_note code {
+            font-family: Consolas, monospace;
+            background: #f1f5fb;
+            border-radius: 4px;
+            padding: 1px 5px;
+            color: #2b4c7e;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+        <div class="zsc_top">
+            <span class="zsc_badge">第18课 · Three.js 3D 图表</span>
+            <a class="zsc_home" href="index.html">← 返回首页</a>
+        </div>
+
+        <h1 class="zsc_h1">Three.js：3D 柱状图与 3D 环形图</h1>
+        <p class="zsc_intro">
+            用 <b>Three.js</b> 在 WebGL 中搭建三维场景：柱状图用立方体几何体（BoxGeometry）按数据缩放高度，
+            环形图用挤压几何体（ExtrudeGeometry）生成带厚度的扇环。两个图表都支持<b>拖拽旋转、滚轮缩放</b>，并会缓慢自转。
+        </p>
+
+        <div class="zsc_card">
+            <div class="zsc_card_head">
+                <h2>一、3D 柱状图：上半年访问量</h2>
+                <span class="zsc_tag">BoxGeometry</span>
+            </div>
+            <p class="zsc_desc">
+                六根柱子分别对应 1—6 月的访问量，柱高由数据等比换算；地面网格辅助观察空间感，月名与数值用 Canvas 贴图精灵始终朝向镜头。
+            </p>
+            <div class="zsc_stage" id="zsc_bar_stage">
+                <div class="zsc_hint">拖拽旋转 · 滚轮缩放</div>
+                <div class="zsc_fallback" id="zsc_bar_fallback">当前浏览器无法创建 WebGL 上下文，3D 图表无法显示。</div>
+            </div>
+            <div class="zsc_legend" id="zsc_bar_legend">
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#7dd3fc"></span>1月 · 42 万</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#38bdf8"></span>2月 · 58 万</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#818cf8"></span>3月 · 51 万</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#a78bfa"></span>4月 · 73 万</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#34d399"></span>5月 · 66 万</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#fbbf24"></span>6月 · 88 万</span>
+            </div>
+        </div>
+
+        <div class="zsc_card">
+            <div class="zsc_card_head">
+                <h2>二、3D 环形图：客服请求占比</h2>
+                <span class="zsc_tag">ExtrudeGeometry</span>
+            </div>
+            <p class="zsc_desc">
+                用 Shape 画出扇环轮廓、再用 ExtrudeGeometry 挤出厚度，得到可以转动的立体环形图；每段的高度固定、角度按占比分配。
+            </p>
+            <div class="zsc_stage" id="zsc_pie_stage">
+                <div class="zsc_hint">拖拽旋转 · 滚轮缩放</div>
+                <div class="zsc_fallback" id="zsc_pie_fallback">当前浏览器无法创建 WebGL 上下文，3D 图表无法显示。</div>
+            </div>
+            <div class="zsc_legend" id="zsc_pie_legend">
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#7dd3fc"></span>智能问答 · 38%</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#818cf8"></span>工单处理 · 24%</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#34d399"></span>知识检索 · 18%</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#fbbf24"></span>人工坐席 · 12%</span>
+                <span class="zsc_legend_item"><span class="zsc_legend_dot" style="background:#f472b6"></span>其他 · 8%</span>
+            </div>
+        </div>
+
+        <div class="zsc_note">
+            <b>实现说明：</b>页面通过 <code>&lt;script src="cdn/three.min.js"&gt;</code> 与
+            <code>&lt;script src="cdn/OrbitControls.js"&gt;</code> 引入本地依赖；
+            柱状图用 <code>THREE.Mesh + BoxGeometry</code> 按数值缩放，环形图用
+            <code>THREE.Shape.absarc()</code> 生成扇环后 <code>ExtrudeGeometry</code> 挤出厚度；
+            文字标签是把中文画到 <code>canvas</code> 上再转成 <code>CanvasTexture</code> 的精灵（Sprite）。
+            渲染器尺寸随容器变化自动调整，并用 <code>requestAnimationFrame</code> 保持动画循环。
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var zsc_font = '"Microsoft YaHei", "PingFang SC", sans-serif';
+
+            if (typeof THREE === "undefined") {
+                document.getElementById("zsc_bar_fallback").style.display = "flex";
+                document.getElementById("zsc_pie_fallback").style.display = "flex";
+                document.getElementById("zsc_bar_fallback").textContent = "Three.js 加载失败，请确认 cdn/three.min.js 是否存在。";
+                document.getElementById("zsc_pie_fallback").textContent = "Three.js 加载失败，请确认 cdn/three.min.js 是否存在。";
+                return;
+            }
+
+            // ================= 公共：文字标签精灵 =================
+            function zsc_label(text, color) {
+                var zsc_cv = document.createElement("canvas");
+                zsc_cv.width = 512;
+                zsc_cv.height = 160;
+                var zsc_cx = zsc_cv.getContext("2d");
+                zsc_cx.font = "bold 64px " + zsc_font;
+                zsc_cx.textAlign = "center";
+                zsc_cx.textBaseline = "middle";
+                zsc_cx.fillStyle = color;
+                zsc_cx.fillText(text, 256, 80);
+
+                var zsc_tex = new THREE.CanvasTexture(zsc_cv);
+                zsc_tex.minFilter = THREE.LinearFilter;
+                var zsc_mat = new THREE.SpriteMaterial({ map: zsc_tex, transparent: true, depthTest: false });
+                var zsc_sprite = new THREE.Sprite(zsc_mat);
+                zsc_sprite.scale.set(2.4, 0.75, 1);
+                return zsc_sprite;
+            }
+
+            // ================= 场景一：3D 柱状图 =================
+            var zsc_bar_data = [
+                { name: "1月", value: 42, color: 0x7dd3fc, css: "#7dd3fc" },
+                { name: "2月", value: 58, color: 0x38bdf8, css: "#38bdf8" },
+                { name: "3月", value: 51, color: 0x818cf8, css: "#818cf8" },
+                { name: "4月", value: 73, color: 0xa78bfa, css: "#a78bfa" },
+                { name: "5月", value: 66, color: 0x34d399, css: "#34d399" },
+                { name: "6月", value: 88, color: 0xfbbf24, css: "#fbbf24" }
+            ];
+
+            var zsc_bar_stage = document.getElementById("zsc_bar_stage");
+            var zsc_bar_scene, zsc_bar_camera, zsc_bar_renderer, zsc_bar_controls;
+
+            function zsc_init_bar() {
+                var zsc_w = zsc_bar_stage.clientWidth || 900;
+                var zsc_h = zsc_bar_stage.clientHeight || 430;
+
+                zsc_bar_scene = new THREE.Scene();
+                zsc_bar_camera = new THREE.PerspectiveCamera(44, zsc_w / zsc_h, 0.1, 200);
+                zsc_bar_camera.position.set(10.5, 8.5, 12);
+                zsc_bar_camera.lookAt(0, 2.2, 0);
+
+                zsc_bar_renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                zsc_bar_renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                zsc_bar_renderer.setSize(zsc_w, zsc_h);
+                zsc_bar_stage.appendChild(zsc_bar_renderer.domElement);
+
+                zsc_bar_scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+                var zsc_bar_dir = new THREE.DirectionalLight(0xffffff, 0.85);
+                zsc_bar_dir.position.set(6, 12, 9);
+                zsc_bar_scene.add(zsc_bar_dir);
+                var zsc_bar_fill = new THREE.DirectionalLight(0xbcd4f5, 0.35);
+                zsc_bar_fill.position.set(-8, 6, -6);
+                zsc_bar_scene.add(zsc_bar_fill);
+
+                var zsc_grid = new THREE.GridHelper(17, 17, 0xb8c8e0, 0xe2ebf7);
+                zsc_grid.position.y = 0;
+                zsc_bar_scene.add(zsc_grid);
+
+                var zsc_max_value = 0;
+                zsc_bar_data.forEach(function (zsc_d) { zsc_max_value = Math.max(zsc_max_value, zsc_d.value); });
+
+                var zsc_bar_geo = new THREE.BoxGeometry(1, 1, 1);
+                zsc_bar_data.forEach(function (zsc_d, zsc_i) {
+                    var zsc_bar_h = zsc_d.value / zsc_max_value * 7.2;
+                    var zsc_mat = new THREE.MeshLambertMaterial({ color: zsc_d.color });
+                    var zsc_mesh = new THREE.Mesh(zsc_bar_geo, zsc_mat);
+                    zsc_mesh.scale.set(1.15, zsc_bar_h, 1.15);
+                    zsc_mesh.position.set((zsc_i - 2.5) * 1.9, zsc_bar_h / 2, 0);
+                    zsc_bar_scene.add(zsc_mesh);
+
+                    var zsc_name_label = zsc_label(zsc_d.name + "  " + zsc_d.value + " 万", "#2b4c7e");
+                    zsc_name_label.scale.set(2.7, 0.85, 1);
+                    zsc_name_label.position.set(zsc_mesh.position.x, zsc_bar_h + 0.9, 0);
+                    zsc_bar_scene.add(zsc_name_label);
+                });
+
+                zsc_bar_controls = new THREE.OrbitControls(zsc_bar_camera, zsc_bar_renderer.domElement);
+                zsc_bar_controls.target.set(0, 2.2, 0);
+                zsc_bar_controls.enableDamping = true;
+                zsc_bar_controls.dampingFactor = 0.08;
+                zsc_bar_controls.enablePan = false;
+                zsc_bar_controls.minDistance = 12;
+                zsc_bar_controls.maxDistance = 34;
+                zsc_bar_controls.maxPolarAngle = Math.PI / 2.05;
+                zsc_bar_controls.autoRotate = true;
+                zsc_bar_controls.autoRotateSpeed = 0.55;
+                zsc_bar_controls.update();
+            }
+
+            // ================= 场景二：3D 环形图 =================
+            var zsc_pie_data = [
+                { name: "智能问答", value: 38, color: 0x7dd3fc },
+                { name: "工单处理", value: 24, color: 0x818cf8 },
+                { name: "知识检索", value: 18, color: 0x34d399 },
+                { name: "人工坐席", value: 12, color: 0xfbbf24 },
+                { name: "其他", value: 8, color: 0xf472b6 }
+            ];
+
+            var zsc_pie_stage = document.getElementById("zsc_pie_stage");
+            var zsc_pie_scene, zsc_pie_camera, zsc_pie_renderer, zsc_pie_controls;
+
+            function zsc_init_pie() {
+                var zsc_w = zsc_pie_stage.clientWidth || 900;
+                var zsc_h = zsc_pie_stage.clientHeight || 430;
+
+                zsc_pie_scene = new THREE.Scene();
+                zsc_pie_camera = new THREE.PerspectiveCamera(42, zsc_w / zsc_h, 0.1, 200);
+                zsc_pie_camera.position.set(0, 9.5, 9.5);
+                zsc_pie_camera.lookAt(0, 0.4, 0);
+
+                zsc_pie_renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                zsc_pie_renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                zsc_pie_renderer.setSize(zsc_w, zsc_h);
+                zsc_pie_stage.appendChild(zsc_pie_renderer.domElement);
+
+                zsc_pie_scene.add(new THREE.AmbientLight(0xffffff, 0.82));
+                var zsc_pie_dir = new THREE.DirectionalLight(0xffffff, 0.9);
+                zsc_pie_dir.position.set(5, 12, 8);
+                zsc_pie_scene.add(zsc_pie_dir);
+
+                // 底盘
+                var zsc_plate = new THREE.Mesh(
+                    new THREE.CylinderGeometry(4.5, 4.5, 0.14, 72),
+                    new THREE.MeshLambertMaterial({ color: 0xf1f5fb })
+                );
+                zsc_plate.position.y = -0.07;
+                zsc_pie_scene.add(zsc_plate);
+
+                var zsc_inner = 2.1;
+                var zsc_outer = 4.15;
+                var zsc_depth = 0.55;
+                var zsc_total = 0;
+                zsc_pie_data.forEach(function (zsc_d) { zsc_total += zsc_d.value; });
+
+                var zsc_start = Math.PI / 2;      // 从 12 点方向开始，顺时针排布
+                zsc_pie_data.forEach(function (zsc_d) {
+                    var zsc_sweep = zsc_d.value / zsc_total * Math.PI * 2;
+                    var zsc_end = zsc_start - zsc_sweep;
+
+                    var zsc_shape = new THREE.Shape();
+                    // 外弧（顺时针）→ 内弧（逆时针）→ 闭合，得到不带孔洞的扇环轮廓
+                    zsc_shape.absarc(0, 0, zsc_outer, zsc_start, zsc_end, true);
+                    zsc_shape.lineTo(zsc_inner * Math.cos(zsc_end), zsc_inner * Math.sin(zsc_end));
+                    zsc_shape.absarc(0, 0, zsc_inner, zsc_end, zsc_start, false);
+                    zsc_shape.lineTo(zsc_outer * Math.cos(zsc_start), zsc_outer * Math.sin(zsc_start));
+
+                    var zsc_geo = new THREE.ExtrudeGeometry(zsc_shape, {
+                        depth: zsc_depth,
+                        bevelEnabled: false,
+                        curveSegments: 72
+                    });
+                    zsc_geo.rotateX(-Math.PI / 2);
+
+                    var zsc_mesh = new THREE.Mesh(
+                        zsc_geo,
+                        new THREE.MeshLambertMaterial({ color: zsc_d.color })
+                    );
+                    zsc_pie_scene.add(zsc_mesh);
+
+                    // 扇环外侧的百分比标签
+                    var zsc_mid = (zsc_start + zsc_end) / 2;
+                    var zsc_seg_label = zsc_label(zsc_d.name + " " + zsc_d.value + "%", "#2b4c7e");
+                    zsc_seg_label.scale.set(2.2, 0.7, 1);
+                    zsc_seg_label.position.set(
+                        Math.cos(zsc_mid) * (zsc_outer + 0.85),
+                        0.95,
+                        -Math.sin(zsc_mid) * (zsc_outer + 0.85)
+                    );
+                    zsc_pie_scene.add(zsc_seg_label);
+
+                    zsc_start = zsc_end;
+                });
+
+                zsc_pie_controls = new THREE.OrbitControls(zsc_pie_camera, zsc_pie_renderer.domElement);
+                zsc_pie_controls.target.set(0, 0.4, 0);
+                zsc_pie_controls.enableDamping = true;
+                zsc_pie_controls.dampingFactor = 0.08;
+                zsc_pie_controls.enablePan = false;
+                zsc_pie_controls.minDistance = 8;
+                zsc_pie_controls.maxDistance = 26;
+                zsc_pie_controls.maxPolarAngle = Math.PI / 2.05;
+                zsc_pie_controls.autoRotate = true;
+                zsc_pie_controls.autoRotateSpeed = 0.7;
+                zsc_pie_controls.update();
+            }
+
+            // ================= 初始化与渲染循环 =================
+            var zsc_clock = new THREE.Clock();
+
+            function zsc_animate() {
+                requestAnimationFrame(zsc_animate);
+                var zsc_delta = zsc_clock.getDelta();
+
+                if (zsc_bar_controls) {
+                    zsc_bar_controls.update(zsc_delta);
+                    zsc_bar_renderer.render(zsc_bar_scene, zsc_bar_camera);
+                }
+                if (zsc_pie_controls) {
+                    zsc_pie_controls.update(zsc_delta);
+                    zsc_pie_renderer.render(zsc_pie_scene, zsc_pie_camera);
+                }
+            }
+
+            function zsc_resize() {
+                if (zsc_bar_renderer) {
+                    var zsc_bw = zsc_bar_stage.clientWidth;
+                    var zsc_bh = zsc_bar_stage.clientHeight;
+                    zsc_bar_camera.aspect = zsc_bw / zsc_bh;
+                    zsc_bar_camera.updateProjectionMatrix();
+                    zsc_bar_renderer.setSize(zsc_bw, zsc_bh);
+                }
+                if (zsc_pie_renderer) {
+                    var zsc_pw = zsc_pie_stage.clientWidth;
+                    var zsc_ph = zsc_pie_stage.clientHeight;
+                    zsc_pie_camera.aspect = zsc_pw / zsc_ph;
+                    zsc_pie_camera.updateProjectionMatrix();
+                    zsc_pie_renderer.setSize(zsc_pw, zsc_ph);
+                }
+            }
+
+            try {
+                zsc_init_bar();
+                zsc_init_pie();
+                window.addEventListener("resize", zsc_resize);
+                zsc_animate();
+                console.log("===== 张顺昌 18-7 Three.js =====");
+                console.log("THREE 版本：", THREE.REVISION);
+                console.log("已创建 3D 图表：柱状图 + 环形图");
+            } catch (zsc_err) {
+                console.error("Three.js 初始化失败：", zsc_err);
+                document.getElementById("zsc_bar_fallback").style.display = "flex";
+                document.getElementById("zsc_pie_fallback").style.display = "flex";
+                document.getElementById("zsc_bar_fallback").textContent = "3D 初始化失败：" + zsc_err.message;
+                document.getElementById("zsc_pie_fallback").textContent = "3D 初始化失败：" + zsc_err.message;
+            }
+        })();
+    </script>
+</body>
+</html>

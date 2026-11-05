@@ -256,4 +256,12 @@
 
 **提示词**: 实现18-4.html，其中包括echarts的俩个图：基础南丁格尔玫瑰图和圆角环形图，cdn文件下载到cdn目录下。示例代码为官方 pie-roseType-simple 与 polar-roundCap 示例。
 
+**提示词**: 实现18-6.html，实现基于mermaid的智能客服系统的流程图和er图，cdn文件下载到cdn目录下。
+
+## 2026-11-05
+
+**模型**: Trae/DeepSeek-V4.1-Flash
+
+**提示词**: 实现18-7.html，实现基于three.js的两个图表，cdn文件下载到cdn目录下。
+
 ---
