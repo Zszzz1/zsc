@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-1 · Canvas 粒子动画（张顺昌）</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：GLM-5.3-Flash；功能名称：Canvas粒子文字动画（姓名张顺昌） -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: radial-gradient(circle at 50% 30%, #1a2450 0%, #0a0f22 60%, #060913 100%);
+            color: #eef1fb;
+            min-height: 100vh;
+            padding: 24px 16px 36px;
+            display: flex;
+            flex-direction: column;
+        }
+        .zsc_wrap { max-width: 1000px; margin: 0 auto; width: 100%; flex: 1; display: flex; flex-direction: column; }
+
+        .zsc_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_badge {
+            background: rgba(125, 211, 252, .14);
+            border: 1px solid rgba(125, 211, 252, .4);
+            color: #7dd3fc;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+
+        .zsc_h1 { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .zsc_intro { font-size: 13px; line-height: 1.9; color: #8b97bd; margin-bottom: 16px; }
+        .zsc_intro b { color: #7dd3fc; }
+
+        /* 画布舞台 */
+        .zsc_stage {
+            position: relative;
+            background: #0a0f22;
+            border: 1px solid #2c3865;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(59, 130, 246, .18);
+        }
+        #zsc_canvas {
+            display: block;
+            width: 100%;
+            height: 460px;
+        }
+        .zsc_hint {
+            position: absolute;
+            left: 16px;
+            bottom: 14px;
+            font-size: 12px;
+            color: #6b78a3;
+            pointer-events: none;
+        }
+        .zsc_name_tag {
+            position: absolute;
+            right: 18px;
+            bottom: 12px;
+            font-size: 12.5px;
+            color: #7dd3fc;
+            pointer-events: none;
+            font-family: Consolas, monospace;
+        }
+
+        /* 控制栏 */
+        .zsc_bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .zsc_btn {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+        .zsc_btn:hover { background: #354478; transform: translateY(-2px); }
+        .zsc_btn_main { background: #3b82f6; border-color: #3b82f6; font-weight: bold; }
+        .zsc_btn_main:hover { background: #2f6fd8; }
+        .zsc_status { font-size: 12.5px; color: #8b97bd; font-family: Consolas, monospace; margin-left: auto; }
+
+        .zsc_note {
+            margin-top: 14px;
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 12.5px;
+            line-height: 1.9;
+            color: #aab4d4;
+        }
+        .zsc_note code {
+            font-family: Consolas, monospace;
+            color: #7dd3fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+        <div class="zsc_top">
+            <span class="zsc_badge">第18课 · Canvas 动画</span>
+            <a class="zsc_home" href="index.html">← 返回首页</a>
+        </div>
+
+        <h1 class="zsc_h1">Canvas 粒子文字动画</h1>
+        <p class="zsc_intro">
+            用 <b>canvas</b> 取文字像素点，生成上千个粒子；<b>requestAnimationFrame</b> 逐帧让粒子向目标位置聚合，拼出姓名
+            <b>张顺昌</b>。鼠标靠近会把粒子推开，移开后自动归位。
+        </p>
+
+        <div class="zsc_stage">
+            <canvas id="zsc_canvas"></canvas>
+            <div class="zsc_hint">移动鼠标试试 · 粒子会被推开</div>
+            <div class="zsc_name_tag">作者：张顺昌</div>
+        </div>
+
+        <div class="zsc_bar">
+            <button class="zsc_btn zsc_btn_main" onclick="zsc_gather()">重新聚合成名字</button>
+            <button class="zsc_btn" onclick="zsc_scatter()">炸开粒子</button>
+            <button class="zsc_btn" onclick="zsc_recolor()">换个配色</button>
+            <span class="zsc_status" id="zsc_status">粒子数：— · FPS：—</span>
+        </div>
+
+        <div class="zsc_note">
+            原理：先用离屏 canvas 画一遍文字「张顺昌」，<code>getImageData()</code> 按固定间隔读取不透明的像素坐标作为粒子的目标点；
+            再用 <code>requestAnimationFrame</code> 每帧把粒子当前位置向目标点插值（缓动），就形成了从散乱到成形的动画。
+        </div>
+    </div>
+
+    <script>
+        var zsc_canvas = document.getElementById("zsc_canvas");
+        var zsc_ctx = zsc_canvas.getContext("2d");
+        var zsc_status = document.getElementById("zsc_status");
+
+        var zsc_w = 0;                  // 逻辑宽
+        var zsc_h = 0;                  // 逻辑高
+        var zsc_dpr = window.devicePixelRatio || 1;
+        var zsc_particles = [];
+        var zsc_mode = "gather";        // gather 聚合 / scatter 炸开
+        var zsc_palette = 0;            // 配色方案序号
+
+        var zsc_palettes = [
+            ["#7dd3fc", "#3b82f6", "#a78bfa"],   // 蓝紫
+            ["#fbbf24", "#fb923c", "#f87171"],   // 暖橙
+            ["#4ade80", "#22d3ee", "#a3e635"]    // 青绿
+        ];
+
+        var zsc_mouse = { x: -9999, y: -9999 };
+
+        // ===== 画布尺寸（适配高分屏）=====
+        function zsc_resize() {
+            zsc_w = zsc_canvas.clientWidth;
+            zsc_h = zsc_canvas.clientHeight;
+            zsc_canvas.width = Math.round(zsc_w * zsc_dpr);
+            zsc_canvas.height = Math.round(zsc_h * zsc_dpr);
+            zsc_ctx.setTransform(zsc_dpr, 0, 0, zsc_dpr, 0, 0);
+        }
+
+        // ===== 采样文字像素，得到粒子目标点 =====
+        function zsc_sample_text() {
+            var zsc_off = document.createElement("canvas");
+            zsc_off.width = zsc_w;
+            zsc_off.height = zsc_h;
+            var zsc_off_ctx = zsc_off.getContext("2d");
+
+            zsc_off_ctx.fillStyle = "#fff";
+            zsc_off_ctx.textAlign = "center";
+            zsc_off_ctx.textBaseline = "middle";
+
+            // 字号随画布宽度自适应
+            var zsc_font_size = Math.min(zsc_w / 4.2, zsc_h / 2.4);
+            zsc_off_ctx.font = "bold " + zsc_font_size + "px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            zsc_off_ctx.fillText("张顺昌", zsc_w / 2, zsc_h / 2 - 8);
+
+            var zsc_img = zsc_off_ctx.getImageData(0, 0, zsc_w, zsc_h).data;
+            var zsc_step = Math.max(4, Math.round(zsc_font_size / 26));   // 采样间隔
+            var zsc_points = [];
+
+            for (var zsc_y = 0; zsc_y < zsc_h; zsc_y += zsc_step) {
+                for (var zsc_x = 0; zsc_x < zsc_w; zsc_x += zsc_step) {
+                    var zsc_idx = (zsc_y * zsc_w + zsc_x) * 4;
+                    if (zsc_img[zsc_idx + 3] > 128) {         // 该像素是文字（不透明）
+                        zsc_points.push({ x: zsc_x, y: zsc_y });
+                    }
+                }
+            }
+            return zsc_points;
+        }
+
+        // ===== 初始化粒子 =====
+        function zsc_init_particles() {
+            zsc_resize();
+            var zsc_points = zsc_sample_text();
+            var zsc_colors = zsc_palettes[zsc_palette];
+
+            zsc_particles = zsc_points.map(function (zsc_p, zsc_i) {
+                return {
+                    x: Math.random() * zsc_w,                        // 初始散乱位置
+                    y: Math.random() * zsc_h,
+                    tx: zsc_p.x,                                     // 目标位置
+                    ty: zsc_p.y,
+                    vx: (Math.random() - 0.5) * 12,                  // 炸开时的速度
+                    vy: (Math.random() - 0.5) * 12,
+                    r: 1.2 + Math.random() * 1.4,
+                    color: zsc_colors[zsc_i % zsc_colors.length],
+                    delay: Math.random() * 0.25                     // 错峰聚合，更好看
+                };
+            });
+
+            zsc_status.textContent = "粒子数：" + zsc_particles.length + " · FPS：—";
+            zsc_mode = "gather";
+        }
+
+        // ===== 每帧绘制 =====
+        var zsc_last_time = performance.now();
+        var zsc_fps = 0;
+
+        function zsc_loop(zsc_now) {
+            var zsc_dt_ms = Math.min(300, Math.max(0, zsc_now - zsc_last_time));   // 单帧真实间隔（毫秒）
+            zsc_last_time = zsc_now;
+            var zsc_dt = zsc_dt_ms / 16.7;                                         // 归一化到 60fps
+            zsc_fps = Math.round(1000 / Math.max(1, zsc_now - (zsc_loop.zsc_prev || zsc_now)));
+            zsc_loop.zsc_prev = zsc_now;
+
+            // 缓动系数按“时间”计算：不管帧率高低，约 1.5 秒内都能聚合完成
+            var zsc_k = Math.min(1, 1 - Math.pow(0.0025, zsc_dt_ms / 1000));
+
+            // 半透明覆盖，形成拖尾
+            zsc_ctx.fillStyle = "rgba(10, 15, 34, 0.22)";
+            zsc_ctx.fillRect(0, 0, zsc_w, zsc_h);
+
+            zsc_particles.forEach(function (zsc_p) {
+                if (zsc_mode === "gather") {
+                    if (zsc_p.delay > 0) {                 // 错峰启动
+                        zsc_p.delay -= zsc_dt_ms / 1000;
+                    } else {
+                        var zsc_dx = zsc_p.tx - zsc_p.x;
+                        var zsc_dy = zsc_p.ty - zsc_p.y;
+                        zsc_p.x += zsc_dx * zsc_k;
+                        zsc_p.y += zsc_dy * zsc_k;
+
+                        // 到位后轻微呼吸抖动
+                        if (Math.abs(zsc_dx) < 0.6 && Math.abs(zsc_dy) < 0.6) {
+                            zsc_p.x = zsc_p.tx + Math.sin(zsc_now / 420 + zsc_p.tx) * 0.6;
+                            zsc_p.y = zsc_p.ty + Math.cos(zsc_now / 380 + zsc_p.ty) * 0.6;
+                        }
+                    }
+                } else {
+                    // 炸开：速度衰减 + 边界反弹
+                    zsc_p.x += zsc_p.vx * zsc_dt;
+                    zsc_p.y += zsc_p.vy * zsc_dt;
+                    zsc_p.vx *= 0.985;
+                    zsc_p.vy *= 0.985;
+                    if (zsc_p.x < 0 || zsc_p.x > zsc_w) zsc_p.vx *= -1;
+                    if (zsc_p.y < 0 || zsc_p.y > zsc_h) zsc_p.vy *= -1;
+                }
+
+                // 鼠标排斥
+                var zsc_mdx = zsc_p.x - zsc_mouse.x;
+                var zsc_mdy = zsc_p.y - zsc_mouse.y;
+                var zsc_dist2 = zsc_mdx * zsc_mdx + zsc_mdy * zsc_mdy;
+                if (zsc_dist2 < 4900 && zsc_dist2 > 0.01) {     // 70px 内推开
+                    var zsc_dist = Math.sqrt(zsc_dist2);
+                    var zsc_force = (70 - zsc_dist) / 70;
+                    zsc_p.x += (zsc_mdx / zsc_dist) * zsc_force * 14 * zsc_dt;
+                    zsc_p.y += (zsc_mdy / zsc_dist) * zsc_force * 14 * zsc_dt;
+                }
+
+                // 绘制粒子
+                zsc_ctx.beginPath();
+                zsc_ctx.arc(zsc_p.x, zsc_p.y, zsc_p.r, 0, Math.PI * 2);
+                zsc_ctx.fillStyle = zsc_p.color;
+                zsc_ctx.fill();
+            });
+
+            zsc_status.textContent = "粒子数：" + zsc_particles.length +
+                " · FPS：" + zsc_fps + " · 状态：" + (zsc_mode === "gather" ? "聚合" : "炸开");
+
+            requestAnimationFrame(zsc_loop);
+        }
+
+        // ===== 交互 =====
+        function zsc_gather() {
+            zsc_mode = "gather";
+            zsc_particles.forEach(function (zsc_p) { zsc_p.delay = Math.random() * 0.25; });
+        }
+
+        function zsc_scatter() {
+            zsc_mode = "scatter";
+            zsc_particles.forEach(function (zsc_p) {
+                var zsc_angle = Math.random() * Math.PI * 2;
+                var zsc_speed = 3 + Math.random() * 9;
+                zsc_p.vx = Math.cos(zsc_angle) * zsc_speed;
+                zsc_p.vy = Math.sin(zsc_angle) * zsc_speed;
+            });
+        }
+
+        function zsc_recolor() {
+            zsc_palette = (zsc_palette + 1) % zsc_palettes.length;
+            var zsc_colors = zsc_palettes[zsc_palette];
+            zsc_particles.forEach(function (zsc_p, zsc_i) {
+                zsc_p.color = zsc_colors[zsc_i % zsc_colors.length];
+            });
+        }
+
+        zsc_canvas.addEventListener("mousemove", function (zsc_e) {
+            var zsc_rect = zsc_canvas.getBoundingClientRect();
+            zsc_mouse.x = zsc_e.clientX - zsc_rect.left;
+            zsc_mouse.y = zsc_e.clientY - zsc_rect.top;
+        });
+        zsc_canvas.addEventListener("mouseleave", function () {
+            zsc_mouse.x = -9999;
+            zsc_mouse.y = -9999;
+        });
+
+        // 窗口尺寸变化时重新采样
+        var zsc_resize_timer = null;
+        window.addEventListener("resize", function () {
+            clearTimeout(zsc_resize_timer);
+            zsc_resize_timer = setTimeout(zsc_init_particles, 260);
+        });
+
+        // ===== 启动 =====
+        zsc_init_particles();
+        zsc_ctx.fillStyle = "#0a0f22";
+        zsc_ctx.fillRect(0, 0, zsc_w, zsc_h);
+        requestAnimationFrame(zsc_loop);
+        console.log("===== 张顺昌 18-1 Canvas 粒子动画 =====");
+    </script>
+</body>
+</html>

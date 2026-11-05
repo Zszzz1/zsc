@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-4 · ECharts 图表演示（玫瑰图 / 圆角环形图）</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：GLM-5.3-Flash；功能名称：ECharts南丁格尔玫瑰图与圆角环形图演示 -->
+    <script src="cdn/echarts.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fa;
+            color: #1f2d3d;
+            padding: 26px 16px 42px;
+            min-height: 100vh;
+        }
+        .zsc_wrap { max-width: 1080px; margin: 0 auto; }
+
+        .zsc_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_badge {
+            background: #e8ecf6;
+            border: 1px solid #b9c6e0;
+            color: #2b4c7e;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #ffffff;
+            border: 1px solid #c7d2e3;
+            color: #2b4c7e;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #eef2fa; }
+
+        .zsc_h1 { font-size: 27px; font-weight: bold; margin-bottom: 8px; }
+        .zsc_intro { font-size: 13px; line-height: 1.95; color: #5b6b80; margin-bottom: 18px; }
+        .zsc_intro b { color: #2b4c7e; }
+
+        .zsc_card {
+            background: #ffffff;
+            border: 1px solid #d3dce9;
+            border-radius: 14px;
+            padding: 18px 20px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 24px rgba(31, 45, 61, .06);
+        }
+        .zsc_card_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .zsc_h2 { font-size: 17px; font-weight: bold; color: #21384f; }
+        .zsc_ref {
+            font-size: 12px;
+            color: #2b6cb0;
+            text-decoration: none;
+            background: #eef4fb;
+            border: 1px solid #c3d8ee;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        .zsc_ref:hover { background: #e2edf9; }
+
+        /* 图表容器 */
+        .zsc_chart {
+            width: 100%;
+            border-radius: 10px;
+            background: #fbfcff;
+            border: 1px solid #e4eaf3;
+        }
+        #zsc_rose { height: 560px; }
+        #zsc_polar { height: 460px; }
+
+        .zsc_code {
+            margin-top: 14px;
+            background: #0f172a;
+            border: 1px solid #2c3865;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            line-height: 1.8;
+            color: #dfe4f3;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .zsc_note {
+            background: #ffffff;
+            border: 1px solid #d3dce9;
+            border-left: 4px solid #2b6cb0;
+            border-radius: 12px;
+            padding: 13px 18px;
+            font-size: 12.5px;
+            line-height: 1.95;
+            color: #5b6b80;
+        }
+        .zsc_note b { color: #2b4c7e; }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+        <div class="zsc_top">
+            <span class="zsc_badge">第18课 · ECharts 图表</span>
+            <a class="zsc_home" href="index.html">← 返回首页</a>
+        </div>
+
+        <h1 class="zsc_h1">ECharts 图表演示</h1>
+        <p class="zsc_intro">
+            引入本地 <b>cdn/echarts.min.js</b>（5.5.1，已下载到项目 cdn 目录，不依赖外网），
+            用 <b>echarts.init()</b> 初始化容器，再 <b>setOption()</b> 传入配置对象即可绘图。
+            两个示例分别对应 ECharts 官方示例库中的 <b>pie-roseType-simple</b> 与 <b>polar-roundCap</b>。
+        </p>
+
+        <!-- ===== 图一：南丁格尔玫瑰图 ===== -->
+        <section class="zsc_card">
+            <div class="zsc_card_head">
+                <h2 class="zsc_h2">图一 · 基础南丁格尔玫瑰图</h2>
+                <a class="zsc_ref" href="https://echarts.apache.org/examples/zh/editor.html?c=pie-roseType-simple"
+                   target="_blank" rel="noopener">官方示例 ↗</a>
+            </div>
+            <div class="zsc_chart" id="zsc_rose"></div>
+            <pre class="zsc_code">option = {
+  legend: { top: 'bottom' },
+  toolbox: {
+    show: true,
+    feature: {
+      mark: { show: true },
+      dataView: { show: true, readOnly: false },
+      restore: { show: true },
+      saveAsImage: { show: true }
+    }
+  },
+  series: [
+    {
+      name: 'Nightingale Chart',
+      type: 'pie',
+      radius: [50, 250],
+      center: ['50%', '50%'],
+      roseType: 'area',
+      itemStyle: { borderRadius: 8 },
+      data: [
+        { value: 40, name: 'rose 1' },
+        { value: 38, name: 'rose 2' },
+        { value: 32, name: 'rose 3' },
+        { value: 30, name: 'rose 4' },
+        { value: 28, name: 'rose 5' },
+        { value: 26, name: 'rose 6' },
+        { value: 22, name: 'rose 7' },
+        { value: 18, name: 'rose 8' }
+      ]
+    }
+  ]
+};</pre>
+        </section>
+
+        <!-- ===== 图二：圆角环形图 ===== -->
+        <section class="zsc_card">
+            <div class="zsc_card_head">
+                <h2 class="zsc_h2">图二 · 圆角环形图（极坐标 roundCap）</h2>
+                <a class="zsc_ref" href="https://echarts.apache.org/examples/zh/editor.html?c=polar-roundCap"
+                   target="_blank" rel="noopener">官方示例 ↗</a>
+            </div>
+            <div class="zsc_chart" id="zsc_polar"></div>
+            <pre class="zsc_code">option = {
+  angleAxis: {
+    max: 2,
+    startAngle: 30,
+    splitLine: { show: false }
+  },
+  radiusAxis: {
+    type: 'category',
+    data: ['v', 'w', 'x', 'y', 'z'],
+    z: 10
+  },
+  polar: {},
+  series: [
+    {
+      type: 'bar',
+      data: [4, 3, 2, 1, 0],
+      coordinateSystem: 'polar',
+      name: 'Without Round Cap',
+      itemStyle: { borderColor: 'red', opacity: 0.8, borderWidth: 1 }
+    },
+    {
+      type: 'bar',
+      data: [4, 3, 2, 1, 0],
+      coordinateSystem: 'polar',
+      name: 'With Round Cap',
+      roundCap: true,
+      itemStyle: { borderColor: 'green', opacity: 0.8, borderWidth: 1 }
+    }
+  ],
+  legend: {
+    show: true,
+    data: ['Without Round Cap', 'With Round Cap']
+  }
+};</pre>
+        </section>
+
+        <div class="zsc_note">
+            <b>说明：</b>玫瑰图用 <b>roseType: 'area'</b> 让扇区半径随数值变化，<b>itemStyle.borderRadius</b> 做圆角；
+            图二用 <b>polar</b> 极坐标系 + 两组 <b>type: 'bar'</b> 对比，第二组开启 <b>roundCap</b> 显示圆角端点。
+            两个图表都带 toolbox（数据视图 / 还原 / 保存图片），可点击右上角工具按钮操作。
+        </div>
+    </div>
+
+    <script>
+        // ===== 图一：南丁格尔玫瑰图 =====
+        var zsc_rose_dom = document.getElementById("zsc_rose");
+        var zsc_rose_chart = echarts.init(zsc_rose_dom);
+
+        var zsc_rose_option = {
+            legend: {
+                top: "bottom"
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                }
+            },
+            series: [
+                {
+                    name: "Nightingale Chart",
+                    type: "pie",
+                    radius: [50, 250],
+                    center: ["50%", "50%"],
+                    roseType: "area",
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+                    data: [
+                        { value: 40, name: "rose 1" },
+                        { value: 38, name: "rose 2" },
+                        { value: 32, name: "rose 3" },
+                        { value: 30, name: "rose 4" },
+                        { value: 28, name: "rose 5" },
+                        { value: 26, name: "rose 6" },
+                        { value: 22, name: "rose 7" },
+                        { value: 18, name: "rose 8" }
+                    ]
+                }
+            ]
+        };
+        zsc_rose_chart.setOption(zsc_rose_option);
+
+        // ===== 图二：圆角环形图（极坐标柱状图） =====
+        var zsc_polar_dom = document.getElementById("zsc_polar");
+        var zsc_polar_chart = echarts.init(zsc_polar_dom);
+
+        var zsc_polar_option = {
+            angleAxis: {
+                max: 2,
+                startAngle: 30,
+                splitLine: {
+                    show: false
+                }
+            },
+            radiusAxis: {
+                type: "category",
+                data: ["v", "w", "x", "y", "z"],
+                z: 10
+            },
+            polar: {},
+            series: [
+                {
+                    type: "bar",
+                    data: [4, 3, 2, 1, 0],
+                    coordinateSystem: "polar",
+                    name: "Without Round Cap",
+                    itemStyle: {
+                        borderColor: "red",
+                        opacity: 0.8,
+                        borderWidth: 1
+                    }
+                },
+                {
+                    type: "bar",
+                    data: [4, 3, 2, 1, 0],
+                    coordinateSystem: "polar",
+                    name: "With Round Cap",
+                    roundCap: true,
+                    itemStyle: {
+                        borderColor: "green",
+                        opacity: 0.8,
+                        borderWidth: 1
+                    }
+                }
+            ],
+            legend: {
+                show: true,
+                data: ["Without Round Cap", "With Round Cap"]
+            }
+        };
+        zsc_polar_chart.setOption(zsc_polar_option);
+
+        // ===== 窗口尺寸变化时自适应 =====
+        window.addEventListener("resize", function () {
+            zsc_rose_chart.resize();
+            zsc_polar_chart.resize();
+        });
+
+        console.log("===== 张顺昌 18-4 ECharts 图表演示 =====");
+        console.log("ECharts 版本：", echarts.version);
+    </script>
+</body>
+</html>

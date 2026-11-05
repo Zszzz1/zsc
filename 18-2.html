@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-2 · Canvas 电商系统架构图</title>
+    <!-- 姓名：张顺昌；建立时间：2026-11-05；使用模型：GLM-5.3-Flash；功能名称：Canvas绘制电商系统架构图 -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1a2450 0%, #0b1126 55%, #070c1c 100%);
+            color: #eef1fb;
+            min-height: 100vh;
+            padding: 24px 16px 40px;
+        }
+        .zsc_wrap { max-width: 1120px; margin: 0 auto; }
+
+        .zsc_top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .zsc_badge {
+            background: rgba(125, 211, 252, .14);
+            border: 1px solid rgba(125, 211, 252, .4);
+            color: #7dd3fc;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+        .zsc_home {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            color: #dfe4f3;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 999px;
+        }
+        .zsc_home:hover { background: #354478; }
+
+        .zsc_h1 { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+        .zsc_intro { font-size: 13px; line-height: 1.9; color: #8b97bd; margin-bottom: 16px; }
+        .zsc_intro b { color: #7dd3fc; }
+
+        .zsc_stage {
+            background: #0a0f22;
+            border: 1px solid #2c3865;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(59, 130, 246, .15);
+        }
+        #zsc_canvas { display: block; width: 100%; }
+
+        .zsc_bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .zsc_btn {
+            background: #2a3760;
+            border: 1px solid #46558a;
+            border-radius: 10px;
+            color: #eef1fb;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+        .zsc_btn:hover { background: #354478; transform: translateY(-2px); }
+        .zsc_btn_main { background: #3b82f6; border-color: #3b82f6; font-weight: bold; }
+        .zsc_btn_main:hover { background: #2f6fd8; }
+
+        .zsc_status {
+            font-size: 12.5px;
+            color: #8b97bd;
+            font-family: Consolas, monospace;
+            margin-left: auto;
+            max-width: 62%;
+            text-align: right;
+        }
+
+        .zsc_note {
+            margin-top: 14px;
+            background: #131b36;
+            border: 1px solid #2c3865;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 12.5px;
+            line-height: 2;
+            color: #aab4d4;
+        }
+        .zsc_note b { color: #7dd3fc; }
+        .zsc_note code {
+            font-family: Consolas, monospace;
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+    <div class="zsc_wrap">
+        <div class="zsc_top">
+            <span class="zsc_badge">第18课 · Canvas 绘图</span>
+            <a class="zsc_home" href="index.html">← 返回首页</a>
+        </div>
+
+        <h1 class="zsc_h1">电商系统架构图（Canvas 绘制）</h1>
+        <p class="zsc_intro">
+            整张架构图全部由 <b>canvas 2D</b> 绘制：圆角矩形、连接箭头、文字、图例都用绘图 API 完成，没有使用任何图片。
+            鼠标移到任意模块上会高亮，并显示该模块的职责说明。
+        </p>
+
+        <div class="zsc_stage">
+            <canvas id="zsc_canvas"></canvas>
+        </div>
+
+        <div class="zsc_bar">
+            <button class="zsc_btn zsc_btn_main" onclick="zsc_draw()">重新绘制</button>
+            <button class="zsc_btn" onclick="zsc_save_png()">保存为 PNG</button>
+            <span class="zsc_status" id="zsc_status">悬停模块查看说明</span>
+        </div>
+
+        <div class="zsc_note">
+            <b>分层说明：</b>用户层（浏览器 / App / 小程序）→ 接入层（CDN、API 网关、负载均衡）→ 应用层（商品、搜索、用户、订单、支付、库存六大服务）
+            → 中间件层（消息队列、缓存、任务调度、监控日志）→ 数据层（MySQL、Redis、Elasticsearch、对象存储）。<br>
+            核心 API 为 <code>fillRect()</code>、<code>arc()</code>、<code>moveTo()/lineTo()</code>、<code>fillText()</code>；圆角矩形用 <code>arcTo()</code> 拼出。
+        </div>
+    </div>
+
+    <script>
+        var zsc_canvas = document.getElementById("zsc_canvas");
+        var zsc_ctx = zsc_canvas.getContext("2d");
+        var zsc_status = document.getElementById("zsc_status");
+
+        var zsc_W = 1120;          // 逻辑宽度
+        var zsc_H = 660;           // 逻辑高度
+        var zsc_dpr = window.devicePixelRatio || 1;
+        var zsc_boxes = [];        // 所有模块矩形（用于命中检测）
+        var zsc_hover = -1;        // 当前悬停的模块下标
+
+        // ===== 分层配色 =====
+        var zsc_layer_colors = {
+            user:     { bg: "rgba(125, 211, 252, .12)", border: "#7dd3fc", text: "#a5e4ff" },
+            access:   { bg: "rgba(167, 139, 250, .12)", border: "#a78bfa", text: "#c4b5fd" },
+            app:      { bg: "rgba(59, 130, 246, .14)",  border: "#3b82f6", text: "#93c5fd" },
+            middle:   { bg: "rgba(251, 191, 36, .12)",  border: "#fbbf24", text: "#fcd34d" },
+            data:     { bg: "rgba(74, 222, 128, .12)",  border: "#4ade80", text: "#86efac" }
+        };
+
+        // ===== 工具：圆角矩形 =====
+        function zsc_round_rect(zsc_x, zsc_y, zsc_w, zsc_h, zsc_r) {
+            var zsc_c = zsc_ctx;
+            zsc_c.beginPath();
+            zsc_c.moveTo(zsc_x + zsc_r, zsc_y);
+            zsc_c.arcTo(zsc_x + zsc_w, zsc_y, zsc_x + zsc_w, zsc_y + zsc_h, zsc_r);
+            zsc_c.arcTo(zsc_x + zsc_w, zsc_y + zsc_h, zsc_x, zsc_y + zsc_h, zsc_r);
+            zsc_c.arcTo(zsc_x, zsc_y + zsc_h, zsc_x, zsc_y, zsc_r);
+            zsc_c.arcTo(zsc_x, zsc_y, zsc_x + zsc_w, zsc_y, zsc_r);
+            zsc_c.closePath();
+        }
+
+        // ===== 工具：模块卡片 =====
+        function zsc_box(zsc_x, zsc_y, zsc_w, zsc_h, zsc_title, zsc_sub, zsc_layer, zsc_tip) {
+            var zsc_scheme = zsc_layer_colors[zsc_layer];
+            var zsc_index = zsc_boxes.length;
+            zsc_boxes.push({ x: zsc_x, y: zsc_y, w: zsc_w, h: zsc_h, title: zsc_title, tip: zsc_tip });
+
+            // 卡片底
+            zsc_round_rect(zsc_x, zsc_y, zsc_w, zsc_h, 10);
+            zsc_ctx.fillStyle = zsc_index === zsc_hover ? "rgba(255,255,255,.10)" : zsc_scheme.bg;
+            zsc_ctx.fill();
+            zsc_ctx.lineWidth = zsc_index === zsc_hover ? 2 : 1;
+            zsc_ctx.strokeStyle = zsc_index === zsc_hover ? "#ffffff" : zsc_scheme.border;
+            zsc_ctx.stroke();
+
+            // 标题
+            zsc_ctx.textAlign = "center";
+            zsc_ctx.textBaseline = "middle";
+            zsc_ctx.fillStyle = zsc_scheme.text;
+            zsc_ctx.font = "bold 15px 'Microsoft YaHei', sans-serif";
+            zsc_ctx.fillText(zsc_title, zsc_x + zsc_w / 2, zsc_y + zsc_h / 2 - (zsc_sub ? 8 : 0));
+
+            // 副标题
+            if (zsc_sub) {
+                zsc_ctx.fillStyle = "rgba(180, 195, 230, .7)";
+                zsc_ctx.font = "11.5px 'Microsoft YaHei', sans-serif";
+                zsc_ctx.fillText(zsc_sub, zsc_x + zsc_w / 2, zsc_y + zsc_h / 2 + 11);
+            }
+        }
+
+        // ===== 工具：层背景带 =====
+        function zsc_band(zsc_y, zsc_h, zsc_label, zsc_color) {
+            zsc_round_rect(24, zsc_y, 1072, zsc_h, 14);
+            zsc_ctx.fillStyle = "rgba(255,255,255,.025)";
+            zsc_ctx.fill();
+            zsc_ctx.lineWidth = 1;
+            zsc_ctx.strokeStyle = "rgba(255,255,255,.05)";
+            zsc_ctx.stroke();
+
+            // 左侧竖排层名
+            zsc_ctx.save();
+            zsc_ctx.translate(58, zsc_y + zsc_h / 2);
+            zsc_ctx.fillStyle = zsc_color;
+            zsc_ctx.font = "bold 14px 'Microsoft YaHei', sans-serif";
+            zsc_ctx.textAlign = "center";
+            zsc_ctx.textBaseline = "middle";
+            var zsc_chars = zsc_label.split("");
+            var zsc_gap = 20;
+            var zsc_start = -(zsc_chars.length - 1) * zsc_gap / 2;
+            zsc_chars.forEach(function (zsc_ch, zsc_i) {
+                zsc_ctx.fillText(zsc_ch, 0, zsc_start + zsc_i * zsc_gap);
+            });
+            zsc_ctx.restore();
+        }
+
+        // ===== 工具：垂直箭头 =====
+        function zsc_arrow_down(zsc_x, zsc_y1, zsc_y2, zsc_label) {
+            zsc_ctx.strokeStyle = "rgba(125, 211, 252, .45)";
+            zsc_ctx.lineWidth = 1.5;
+            zsc_ctx.beginPath();
+            zsc_ctx.moveTo(zsc_x, zsc_y1);
+            zsc_ctx.lineTo(zsc_x, zsc_y2 - 7);
+            zsc_ctx.stroke();
+
+            // 箭头
+            zsc_ctx.beginPath();
+            zsc_ctx.moveTo(zsc_x, zsc_y2);
+            zsc_ctx.lineTo(zsc_x - 4.5, zsc_y2 - 8);
+            zsc_ctx.lineTo(zsc_x + 4.5, zsc_y2 - 8);
+            zsc_ctx.closePath();
+            zsc_ctx.fillStyle = "rgba(125, 211, 252, .65)";
+            zsc_ctx.fill();
+
+            if (zsc_label) {
+                zsc_ctx.fillStyle = "rgba(140, 160, 200, .8)";
+                zsc_ctx.font = "10.5px 'Microsoft YaHei', sans-serif";
+                zsc_ctx.textAlign = "left";
+                zsc_ctx.fillText(zsc_label, zsc_x + 7, (zsc_y1 + zsc_y2) / 2);
+            }
+        }
+
+        // ===== 主绘制 =====
+        function zsc_draw() {
+            zsc_boxes = [];
+
+            // 尺寸（按宽度等比缩放高度）
+            var zsc_css_w = zsc_canvas.clientWidth;
+            var zsc_css_h = Math.round(zsc_css_w * zsc_H / zsc_W);
+            zsc_canvas.style.height = zsc_css_h + "px";
+            zsc_canvas.width = Math.round(zsc_css_w * zsc_dpr);
+            zsc_canvas.height = Math.round(zsc_css_h * zsc_dpr);
+
+            // 按逻辑坐标绘制
+            zsc_ctx.setTransform(zsc_dpr * zsc_css_w / zsc_W, 0, 0, zsc_dpr * zsc_css_w / zsc_W, 0, 0);
+
+            // 背景
+            zsc_ctx.fillStyle = "#0a0f22";
+            zsc_ctx.fillRect(0, 0, zsc_W, zsc_H);
+
+            // 标题
+            zsc_ctx.textAlign = "center";
+            zsc_ctx.textBaseline = "middle";
+            zsc_ctx.fillStyle = "#eef1fb";
+            zsc_ctx.font = "bold 24px 'Microsoft YaHei', sans-serif";
+            zsc_ctx.fillText("电商系统架构图", zsc_W / 2, 30);
+            zsc_ctx.fillStyle = "rgba(139, 151, 189, .8)";
+            zsc_ctx.font = "12.5px 'Microsoft YaHei', sans-serif";
+            zsc_ctx.fillText("高级网页设计 · Canvas 绘制 · 张顺昌", zsc_W / 2, 52);
+
+            // ===== 1. 用户层 y=76 h=76 =====
+            zsc_band(76, 76, "用户层", zsc_layer_colors.user.border);
+            var zsc_user_w = 240;
+            var zsc_user_gap = 60;
+            ["PC 浏览器", "移动 App", "微信小程序"].forEach(function (zsc_name, zsc_i) {
+                zsc_box(150 + zsc_i * (zsc_user_w + zsc_user_gap), 90, zsc_user_w, 48,
+                    zsc_name, "", "user",
+                    "用户入口：" + zsc_name + " 通过 HTTPS 访问前端页面");
+            });
+
+            // 箭头：用户层 → 接入层
+            zsc_arrow_down(270, 152, 176, "请求");
+            zsc_arrow_down(570, 152, 176, "请求");
+            zsc_arrow_down(870, 152, 176, "请求");
+
+            // ===== 2. 接入层 y=176 h=76 =====
+            zsc_band(176, 76, "接入层", zsc_layer_colors.access.border);
+            var zsc_acc_w = 300;
+            zsc_box(140, 190, zsc_acc_w, 48, "CDN 静态加速", "静态资源分发", "access", "分发图片、CSS、JS 等静态资源，减轻源站压力");
+            zsc_box(470, 190, zsc_acc_w, 48, "API 网关", "鉴权 / 限流 / 路由", "access", "统一入口：校验登录态、限流、转发请求到后端微服务");
+            zsc_box(790, 190, zsc_acc_w, 48, "负载均衡 Nginx", "反向代理", "access", "把并发请求分摊到多台应用服务器");
+
+            // 箭头：接入层 → 应用层
+            zsc_arrow_down(290, 252, 276, "");
+            zsc_arrow_down(590, 252, 276, "");
+            zsc_arrow_down(890, 252, 276, "");
+
+            // ===== 3. 应用层 y=276 h=100 =====
+            zsc_band(276, 100, "应用层", zsc_layer_colors.app.border);
+            var zsc_app_w = 148;
+            var zsc_app_gap = 12;
+            var zsc_apps = [
+                ["商品服务", "商品信息", "商品上下架、详情、类目管理"],
+                ["搜索服务", "ES 检索引擎", "关键词搜索、筛选、排序"],
+                ["用户服务", "账号 / 登录", "注册登录、会员、收货地址"],
+                ["订单服务", "下单 / 状态机", "创建订单、订单流转、售后"],
+                ["支付服务", "对接第三方", "调用支付宝 / 微信支付完成收款"],
+                ["库存服务", "扣减 / 回滚", "库存校验、下单扣减、取消回滚"]
+            ];
+            zsc_apps.forEach(function (zsc_a, zsc_i) {
+                zsc_box(122 + zsc_i * (zsc_app_w + zsc_app_gap), 292, zsc_app_w, 68,
+                    zsc_a[0], zsc_a[1], "app", zsc_a[2]);
+            });
+
+            // 箭头：应用层 → 中间件层（服务间异步通信）
+            zsc_arrow_down(300, 376, 402, "发布事件");
+            zsc_arrow_down(590, 376, 402, "读写缓存");
+            zsc_arrow_down(880, 376, 402, "异步任务");
+
+            // ===== 4. 中间件层 y=402 h=76 =====
+            zsc_band(402, 76, "中间件层", zsc_layer_colors.middle.border);
+            var zsc_mid_w = 232;
+            zsc_box(130, 416, zsc_mid_w, 48, "消息队列 RabbitMQ", "削峰 / 解耦", "middle", "下单成功后异步发送通知、扣减库存、生成物流单");
+            zsc_box(392, 416, zsc_mid_w, 48, "缓存 Redis", "热点数据", "middle", "缓存商品详情、购物车、秒杀库存，降低数据库压力");
+            zsc_box(654, 416, zsc_mid_w, 48, "任务调度", "定时任务", "middle", "定时关单、对账、数据统计等后台任务");
+            zsc_box(916, 416, 148, 48, "监控日志", "链路追踪", "middle", "采集接口耗时、错误日志与告警");
+
+            // 箭头：中间件层 → 数据层
+            zsc_arrow_down(300, 478, 504, "");
+            zsc_arrow_down(590, 478, 504, "");
+            zsc_arrow_down(880, 478, 504, "");
+
+            // ===== 5. 数据层 y=504 h=76 =====
+            zsc_band(504, 76, "数据层", zsc_layer_colors.data.border);
+            zsc_box(130, 518, 232, 48, "MySQL 主从", "订单 / 用户数据", "data", "核心业务数据持久化，主从复制保证读写分离与高可用");
+            zsc_box(392, 518, 232, 48, "Redis 集群", "缓存 / 会话", "data", "缓存与分布式会话存储，支撑高并发读");
+            zsc_box(654, 518, 232, 48, "Elasticsearch", "商品索引", "data", "商品全文检索与聚合筛选的数据来源");
+            zsc_box(916, 518, 148, 48, "对象存储", "图片 / 视频", "data", "存放商品图片、视频等大文件，配合 CDN 分发");
+
+            // ===== 底部说明 =====
+            zsc_ctx.textAlign = "left";
+            zsc_ctx.textBaseline = "middle";
+            zsc_ctx.fillStyle = "rgba(139, 151, 189, .85)";
+            zsc_ctx.font = "11.5px 'Microsoft YaHei', sans-serif";
+            zsc_ctx.fillText("第三方平台：支付服务通过 HTTPS 调用支付宝 / 微信支付；订单服务对接短信、物流平台。", 30, 606);
+            zsc_ctx.fillStyle = "rgba(107, 120, 163, .8)";
+            zsc_ctx.fillText("图例：每一层自上而下为「请求流向」与「数据流向」，实线箭头表示调用关系。", 30, 630);
+
+            // 图例色块
+            var zsc_legend = [
+                ["用户层", "#7dd3fc"], ["接入层", "#a78bfa"], ["应用层", "#3b82f6"],
+                ["中间件", "#fbbf24"], ["数据层", "#4ade80"]
+            ];
+            zsc_ctx.textAlign = "left";
+            zsc_legend.forEach(function (zsc_l, zsc_i) {
+                var zsc_lx = 700 + zsc_i * 78;
+                zsc_ctx.beginPath();
+                zsc_ctx.arc(zsc_lx, 606, 4.5, 0, Math.PI * 2);
+                zsc_ctx.fillStyle = zsc_l[1];
+                zsc_ctx.fill();
+                zsc_ctx.fillStyle = "rgba(180, 195, 230, .85)";
+                zsc_ctx.font = "11px 'Microsoft YaHei', sans-serif";
+                zsc_ctx.fillText(zsc_l[0], zsc_lx + 9, 606);
+            });
+        }
+
+        // ===== 悬停高亮 =====
+        zsc_canvas.addEventListener("mousemove", function (zsc_e) {
+            var zsc_rect = zsc_canvas.getBoundingClientRect();
+            var zsc_scale = zsc_W / zsc_rect.width;          // 屏幕坐标 → 逻辑坐标
+            var zsc_mx = (zsc_e.clientX - zsc_rect.left) * zsc_scale;
+            var zsc_my = (zsc_e.clientY - zsc_rect.top) * zsc_scale;
+
+            var zsc_found = -1;
+            for (var zsc_i = 0; zsc_i < zsc_boxes.length; zsc_i++) {
+                var zsc_b = zsc_boxes[zsc_i];
+                if (zsc_mx >= zsc_b.x && zsc_mx <= zsc_b.x + zsc_b.w &&
+                    zsc_my >= zsc_b.y && zsc_my <= zsc_b.y + zsc_b.h) {
+                    zsc_found = zsc_i;
+                    break;
+                }
+            }
+            if (zsc_found !== zsc_hover) {
+                zsc_hover = zsc_found;
+                zsc_draw();
+                zsc_status.textContent = zsc_hover === -1
+                    ? "悬停模块查看说明"
+                    : zsc_boxes[zsc_hover].title + " —— " + zsc_boxes[zsc_hover].tip;
+            }
+            zsc_canvas.style.cursor = zsc_found === -1 ? "default" : "pointer";
+        });
+
+        zsc_canvas.addEventListener("mouseleave", function () {
+            if (zsc_hover !== -1) {
+                zsc_hover = -1;
+                zsc_draw();
+                zsc_status.textContent = "悬停模块查看说明";
+            }
+        });
+
+        // ===== 导出 PNG =====
+        function zsc_save_png() {
+            var zsc_link = document.createElement("a");
+            zsc_link.download = "电商系统架构图-张顺昌.png";
+            zsc_link.href = zsc_canvas.toDataURL("image/png");
+            zsc_link.click();
+        }
+
+        // ===== 尺寸变化 =====
+        var zsc_resize_timer = null;
+        window.addEventListener("resize", function () {
+            clearTimeout(zsc_resize_timer);
+            zsc_resize_timer = setTimeout(zsc_draw, 200);
+        });
+
+        zsc_draw();
+        console.log("===== 张顺昌 18-2 Canvas 电商系统架构图 =====");
+    </script>
+</body>
+</html>
